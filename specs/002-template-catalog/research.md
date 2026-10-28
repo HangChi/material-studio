@@ -17,3 +17,10 @@
   Rationale: 无版权/外部网络依赖，不需要生成真实图片内容；不引入AI图片服务。Alternatives: 不使用远程图库。
 - Decision: 单一Compose包含应用、隔离测试数据库和测试profile；CI调用相同检查入口。
   Rationale: 宿主无需安装应用依赖；本轮Docker daemon29.9.2已通过授权访问验证。
+
+## 实施确认
+
+固定Next16.4.3、React19.3.1、TypeScript5.9.3、Vitest4.1.12、Boot3.5.16、Starter3.0.5。
+ESLint9.39.5符合Next插件peer范围，暂不使用会产生peer冲突的ESLint10；保留升级兼容性评估。
+基础npm10解析出现edgesOut异常，固定npm11.6.2；在空node_modules环境生成完整锁文件，避免可选平台依赖遗漏。
+镜像均固定digest；实际代码、锁文件和容器检查结果优先于早期版本系列设想。

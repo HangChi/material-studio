@@ -37,9 +37,9 @@
 
 ## Phase 5: Polish & Cross-Cutting
 
-- [ ] T015 在 frontend/src/app/layout.tsx、frontend/src/app/globals.css 落实样张架视觉、375px、语义控件、跳转主内容和可见焦点，记录实际验证。
-- [ ] T016 在 .github/workflows/ci.yml 配置push/PR复用容器检查，执行完整前端检查与Java verify、Compose构建/启动/HTTP验收，在 docs/work-log.md 记录证据。
-- [ ] T017 更新 README.md、docs/roadmap.md、specs/002-template-catalog/quickstart.md 的已完成范围、真实版本/命令/测试与限制，提交验收增量。
+- [x] T015 在 frontend/src/app/layout.tsx、frontend/src/app/globals.css 落实样张架视觉、375px、语义控件、跳转主内容和可见焦点，记录实际验证。
+- [x] T016 在 .github/workflows/ci.yml 配置push/PR复用容器检查，执行完整前端检查与Java verify、Compose构建/启动/HTTP验收，在 docs/work-log.md 记录证据。
+- [x] T017 更新 README.md、docs/roadmap.md、specs/002-template-catalog/quickstart.md 的已完成范围、真实版本/命令/测试与限制，提交验收增量。
 
 ## Dependencies & Execution Order
 

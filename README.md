@@ -1,68 +1,132 @@
 # 素材工坊 · Material Studio
 
-根据[原始题目](docs/requirements-source.md)开发独立运行的素材制作网站。
-当前为**前置设计阶段**：没有业务源码、应用依赖、数据库脚本、CI 或容器交付配置，尚不能启动网站。
+独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
+**当前完成002：模板分类、列表与只读详情。上传、任务制作和个人历史仍待003～005实现。**
 
-## 开发入口
+## 迭代与开发入口
 
-项目目录为 `xiaoying/material-studio/`，拥有独立 Git 仓库。
-Spec Kit CLI 0.16.4 通过 `specify init material-studio --integration codex --integration-options='--skills' --script sh` 初始化，
-模板、脚本及 Codex skills 已保存在仓库。后续从本目录继续，禁止使用子智能体。
+项目在独立目录 `xiaoying/material-studio/`，全程单智能体，使用SDD + TDD并按增量Git提交。
+[001](specs/001-material-workflow/spec.md)保留为总体基线，[迭代图](docs/roadmap.md)为当前执行入口。
 
-1. 阅读[开发约章](.specify/memory/constitution.md)及 [AGENTS.md](AGENTS.md)。
-2. 阅读[需求规格](specs/001-material-workflow/spec.md)与[技术计划](specs/001-material-workflow/plan.md)。
-3. 按[任务清单](specs/001-material-workflow/tasks.md)使用 `$speckit-implement`，逐个执行 RED → GREEN → REFACTOR。
+| Feature | 范围 | 状态 |
+| --- | --- | --- |
+| [002](specs/002-template-catalog/spec.md) | 模板浏览、详情、当前切片工程交付 | 已实现并完成本地容器/浏览器验收 |
+| [003](specs/003-upload-submission/spec.md) | 身份、上传与受理 | 规格已建，待plan/tasks/implement |
+| [004](specs/004-async-pipeline/spec.md) | 三阶段异步执行与模拟控制 | 规格已建，待plan/tasks/implement |
+| [005](specs/005-history-tracking/spec.md) | 历史、多任务跟踪、完整交付 | 规格已建，待plan/tasks/implement |
 
-## 计划技术栈
+实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
+Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
-| 层 | 选型（尚未安装） |
+```sh
+SPECIFY_FEATURE_DIRECTORY=specs/002-template-catalog .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+```
+
+每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
+下一步为003的plan/tasks，再按TDD实现身份、上传与受理；不继续执行001原始大任务清单。
+
+## 技术版本与结构
+
+| 层 | 当前固定版本 |
 | --- | --- |
-| 前端 | Next.js 16 App Router、React 19、TypeScript 5、Node.js 22、npm 锁文件 |
-| 后端 | Java 21、Spring Boot 3.5、MyBatis Spring Boot Starter 3.0、Maven 3.9 |
-| 持久化 | MySQL 8.4、Flyway、后端本地文件数据卷 |
-| 测试 | JUnit 5、Mockito、Testcontainers MySQL；Vitest、Testing Library、MSW |
-| 交付 | Docker Compose、GitHub Actions |
+| 前端 | Next.js16.4.3 App Router、React19.3.1、TypeScript5.9.3、npm11.6.2 |
+| 运行时 | Node22（镜像digest固定）、Java21、Maven3.9.9 |
+| 后端 | Spring Boot3.5.16、MyBatis Spring Boot Starter3.0.5 |
+| 数据 | MySQL8.4（镜像digest固定）、Flyway（由Boot管理） |
+| 测试 | Vitest4.1.12、Testing Library；JUnit5与真实MySQL测试库 |
 
-这些为兼容版本系列，实际 patch 版本须在 T002/T003 中核验并锁定；本轮不虚构锁文件。
-兼容性依据及官方来源见 [research.md](specs/001-material-workflow/research.md)。
+前端精确版本与解析依赖由package-lock固定；Java版本由pom/Boot BOM固定。
+ESLint9保持与Next配置中插件的peer范围兼容，避免强制覆盖为ESLint10；升级时须一并验证插件。
+兼容性来源见[研究记录](specs/002-template-catalog/research.md)，镜像digest见Compose/Dockerfile。
 
-## 设计与交付导航
+```text
+backend/                 Java、MyBatis、Flyway、图片及JUnit测试
+frontend/                Next页面、同源只读代理、组件与代理测试
+compose.yaml             应用与隔离测试服务
+.github/workflows/ci.yml  push/PR容器检查
+specs/                   总体基线与独立feature
+docs/                   原题、迭代图、真实工作与测试记录
+```
 
-- [数据模型与状态机](specs/001-material-workflow/data-model.md)
-- [接口契约](specs/001-material-workflow/contracts/http-api.md)
-- [TDD 验证计划](specs/001-material-workflow/test-plan.md)
-- [需求追踪](specs/001-material-workflow/traceability.md)
-- [未来启动与验收指南](specs/001-material-workflow/quickstart.md)（其中命令待实现后验证）
-- [实际投入和验证日志](docs/work-log.md)
+## 启动与配置
 
-身份方案：Java 创建匿名用户并设置 HttpOnly cookie；MySQL 保存个人记录，Next.js 同源代理透传 cookie。
-同一浏览器刷新保留身份；更换浏览器为新用户。演示切换用户时清理旧查询，再创建新的匿名身份；不提供账号找回。
+宿主只需Docker Engine与Compose v2，应用安装/构建/测试均在容器中执行。
 
-后台方案：提交事务保存任务和素材关联，提交事务成功后投递至有界单工作线程队列。
-按素材检查、模拟生成、结果整理三阶段处理，各阶段独立持久化；查询只读。
-开发环境允许按任务指定失败阶段和阶段耗时，正式配置关闭该覆盖能力。
-前端区分上传、提交、任务状态与查询错误，按身份和任务 ID 管理轮询。
-接口字段及错误行为以契约为准。
+```sh
+cp .env.example .env
+docker compose up --build -d
+```
 
-## 完成状态与取舍
+访问 [http://localhost:3000](http://localhost:3000)。端口冲突可在.env改WEB_PORT。
+前端→Java：容器内 `JAVA_API_BASE_URL=http://backend:8080`；Java→数据库：`jdbc:mysql://mysql:3306/material_studio`。
+Java/MySQL不向宿主开放端口，浏览器通过Next的同源 `/api/*` 读取Java数据。
+.env示例只含本地演示值；可配置MYSQL_DATABASE、MYSQL_USER、MYSQL_PASSWORD、MYSQL_ROOT_PASSWORD、WEB_PORT。
+修改数据库用户名/密码不会重设已初始化的MySQL卷，须同步数据库配置或仅在本地演示时重置卷。
 
-已完成：独立目录与 Git 初始化、Spec Kit 基础设施、约章、规格及质量检查、设计、任务拆分。
-未完成：前后端代码、真实测试、锁文件、SQL/种子与示例图片、CI、Compose、运行验收和交付包。
+Flyway首次启动自动执行 `backend/src/main/resources/db/migration/V1__templates.sql`，初始化两个分类、三张模板。
+封面是项目自制PNG，位于 `backend/src/main/resources/demo/`，Java白名单接口提供；无需外部图片网络。
+可在容器中重新生成：
 
-本轮可核对的初始化至检查投入为 8分47秒，前期阅读未独立计时，详见工作日志。
-本轮仅验证前置材料及 Spec Kit 路径解析，不能据此认定 R-01～R-14 已实现。
-后续运行记录必须明确区分“源码可证明”与“已运行验证”。
-不实现重启自动恢复、自动重试、受理幂等或分布式执行。
-计划在启动时将遗留未终结任务标记为失败并保存“服务重启导致执行中断”，不自动续跑。
-上传孤儿文件清理暂不实现，演示环境通过重置数据卷清理。
-部署与回滚、成功/失败/多任务演示的预定步骤见 quickstart；完成应用后更新为实际验证过的说明。
+```sh
+docker compose --profile test run --rm backend-test java -Djava.awt.headless=true tools/CreateDemoImages.java
+```
 
-## AI 工作流与来源
+普通停止保留数据库卷：`docker compose --profile test down`。
+只有确实要删除本项目演示数据时使用 `docker compose --profile test down -v`。
 
-使用 Codex 辅助开发：读取原始需求 → 编写可验收规格 → 明确事务、状态与接口边界 → 拆分先测试后实现的任务 →
-记录真实失败/通过证据 → 修正规格或实现 → 分阶段提交。全部由单一智能体执行。
-例如：R-07 被拆为“任务执行失败”和“状态查询错误”两个独立字段与前端测试场景，后续先模拟查询 503，
-断言已有任务仍为处理中，再实现恢复查询；当前该测试尚未编写。
+## 测试、构建与CI
 
-Spec Kit 模板、脚本和 skills 来自 [github/spec-kit](https://github.com/github/spec-kit)，由本地 CLI 0.16.4 生成。
-原题由用户提供；本轮未引入第三方业务代码或图片素材。后续素材使用项目自制本地文件，并记录来源。
+```sh
+docker compose --profile test run --rm frontend-test
+docker compose --profile test run --rm backend-test
+```
+
+前端入口从锁文件npm ci，再执行eslint、tsc、16个Vitest测试、next build。
+后端入口mvn verify，执行6个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
+单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
+`backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
+GitHub Actions在push/PR执行上述两条容器入口；远端流水线尚未运行，本地验证结果见[工作日志](docs/work-log.md)。
+镜像构建使用-DskipTests，独立检查入口必须先通过；不能把镜像构建等同于测试通过。
+
+## 当前接口与演示
+
+[完整002契约](specs/002-template-catalog/contracts/http-api.md)：
+
+| 接口 | 响应 |
+| --- | --- |
+| GET /api/template-categories | {items:[{id,name}]} |
+| GET /api/templates?categoryId=creative | {items:[Template]}；未知分类为空数组 |
+| GET /api/templates/{id} | Template；不存在404结构化错误 |
+| GET /api/demo/{filename} | 白名单本地PNG；未知404 |
+
+Template含id、title、categoryId、coverUrl、description、requiredImageCount、acceptedMimeTypes、maxFileSizeBytes。
+模板依次需要1/2/3张图片，仅JPEG/PNG，每张最多5242880字节。当前仅展示素材要求，不提供上传或制作。
+
+浏览两个分类、打开三个模板查看不同图片数量；快速切分类检查结果，直接访问不存在ID检查提示。
+请求失败提供“重新加载”，分类切换与页面离开清理请求，旧响应不会覆盖当前结果。
+已实测桌面与375px列表/详情、键盘进入详情和3px焦点、未知模板提示、停启Java服务后的错误/重试恢复；
+空数据与乱序由组件测试覆盖。完整证据见工作日志。
+
+## 后续业务方案与边界
+
+003计划由Java创建匿名cookie身份并保存个人素材/任务；004计划三阶段后台执行与逐任务模拟配置；
+005计划从Java恢复个人历史、多任务轮询、查询异常恢复及用户切换清理。
+这些能力尚未实现，当前不能演示制作成功、指定阶段失败、多任务或刷新恢复。
+不实现真实AI、支付、复杂后台、自动重试、受理幂等和重启续跑；具体边界由对应feature细化。
+
+当前未满足全题R-01～R-14，仅交付002切片；关键流水线和多任务测试必须随004/005补上。
+后端运行镜像暂复用固定Maven/Java镜像以简化演示，体积可在后续优化。
+
+## 部署、回滚、投入与来源
+
+部署固定源码commit并运行Compose，等待健康检查后验证列表/详情与图片。发布前备份数据库卷。
+回滚到上一验收commit重建；未来涉及schema变更时须同时恢复匹配备份，不能假定旧应用兼容新表。
+当前无需公网部署。验收commit及运行证据由最终提交记录和工作日志确认。
+实际投入按工具可核对时段记录在[docs/work-log.md](docs/work-log.md)，不虚构精确人工工时。
+
+使用Codex辅助：原题→总体基线→独立feature规格→计划/契约/任务→测试先失败→最小实现→重构/完整检查→提交。
+例如分类接口测试先得到404，再实现MyBatis查询；列表乱序测试先缺少页面，再验证即使旧请求不响应abort也不会覆盖新分类。
+环境错误单独记录，不能算业务RED；未运行的远端CI不声称通过。全程未使用子智能体。
+
+Spec Kit模板、脚本、skills来自[github/spec-kit](https://github.com/github/spec-kit)，本地CLI0.16.4生成。
+UI参考frontend-design/ui-ux-pro-max技能并按图片样张用途调整；业务实现与几何PNG为本项目生成，未复用第三方业务代码或远程图片。

@@ -46,3 +46,21 @@
 - 前端GREEN：`frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`，
   01:29:43起：lint/typecheck通过、16/16测试通过、Next生产构建通过。
 - 明确取舍：002使用Compose独立真实MySQL库进行集成测试，无需Testcontainers；003事务设计阶段重新评估。
+
+### 干净安装、容器与浏览器验收
+
+- 首次镜像构建npm ci发现旧锁文件缺失@emnapi可选依赖，不将已有node_modules下通过视为干净安装成功。
+  修复：在匿名空依赖卷中重新生成锁文件，并将ESLint固定9.39.5满足Next插件peer范围，不使用--force/--legacy-peer-deps绕过。
+- `docker compose --profile test run --rm frontend-test`，01:33：干净npm ci、lint、tsc、16/16测试、生产build全部通过。
+- `docker compose config --quiet`通过；`docker compose up --build -d`在新建mysql-data卷成功初始化并启动三服务。
+- 运行中的frontend容器执行HTTP断言，Next→Java→MySQL分类/全部模板/筛选/空结果/三个详情/404错误码/PNG/非法路径/POST405全部通过。
+- 浏览器桌面1280px：三张封面naturalWidth>0，文档宽等于视口；社交分类仅1卡；Tab到卡片，焦点outline=3px，Enter可进入详情。
+- 浏览器375×812：列表创意分类2卡，详情3张/JPEG、PNG/5MiB文案正确；列表和详情scrollWidth=375，图片正常，无横向溢出。
+- 浏览器未知模板显示“模板不存在”；临时仅停止本项目backend，页面显示查询错误与“重新加载”；
+  恢复backend并等healthy，点击重试恢复3模板。停止期间未修改数据库，最终三应用服务均running/healthy。
+- 截图本地临时产物：/tmp/material-studio-desktop.jpg、/tmp/material-studio-mobile.jpg；测试数据库可随测试profile重建。
+- GitHub Actions push/PR配置已写入，复用上述容器入口；未创建远端或触发远端CI，不声称远端通过。
+- Flyway在MySQL8.4上初始化/查询实际通过，但打印其最高测试数据库版本为8.1的兼容提示；后续升级评估，当前没有迁移失败。
+- 16项规格质量检查、17项任务格式/依赖、文档本地链接、原题副本一致性和git diff --check通过。
+- 可核对本轮时段：01:15:33～01:37:40（22分07秒，不含最后交付整理）；未使用子智能体。
+- 002完成，003～005仅规格基线。下一步先为003生成计划/契约/任务，再执行身份/上传/受理TDD。
