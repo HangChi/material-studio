@@ -1,3 +1,5 @@
+> 总体基线/历史方案：2026-10-29 起不再作为当前 feature 的执行入口；以 [项目迭代图](../../docs/roadmap.md) 分配任务。原任务未实现项保持未勾选，不以迁移冒充完成。
+
 # Tasks: 素材制作与异步任务闭环
 
 **Input**: 本目录 spec.md、plan.md、research.md、data-model.md、contracts/http-api.md、test-plan.md。
