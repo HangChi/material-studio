@@ -26,7 +26,7 @@ describe("template read proxy", () => {
     expect(response.status).toBe(502);
     expect((await response.json()).error.code).toBe("UPSTREAM_UNAVAILABLE");
   });
-  it.each([["jobs"], ["demo", ".."], ["demo", "secret.txt"], ["templates", "a/b"]])("rejects paths outside the template API: %j", async (...path) => {
+  it.each([["admin"], ["demo", ".."], ["demo", "secret.txt"], ["templates", "a/b"]])("rejects paths outside the template API: %j", async (...path) => {
     const fetchMock = vi.fn(); vi.stubGlobal("fetch", fetchMock);
     const response = await proxyTemplates(new Request("http://studio/api/invalid"), path);
     expect(response.status).toBe(404); expect(fetchMock).not.toHaveBeenCalled();

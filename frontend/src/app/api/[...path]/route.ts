@@ -4,3 +4,6 @@ export async function GET(request: Request, context: { params: Promise<{ path: s
   const { path } = await context.params;
   return proxyTemplates(request, path);
 }
+
+export const POST = GET;
+export const DELETE = GET;

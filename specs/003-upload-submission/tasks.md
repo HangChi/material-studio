@@ -5,13 +5,13 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 在 backend/src/test/java/com/materialstudio/identity/SessionApiTest.java 与 backend/src/test/java/com/materialstudio/ApiTestSupport.java 编写创建/复用/撤销/不存明文token测试并观察RED。
+- [x] T001 在 backend/src/test/java/com/materialstudio/identity/SessionApiTest.java 与 backend/src/test/java/com/materialstudio/ApiTestSupport.java 编写创建/复用/撤销/不存明文token测试并观察RED。
 
 ## Phase 2: Foundational
 
-- [ ] T002 在 backend/src/main/resources/db/migration/V2__submission.sql 和 backend/src/main/java/com/materialstudio/identity/ 实现身份与表结构，在 backend/src/main/java/com/materialstudio/common/ 实现安全错误响应；完成T001 GREEN。
-- [ ] T003 在 frontend/src/lib/submission-proxy.test.ts 编写Cookie/多Set-Cookie/Location/multipart流/Origin/方法路由测试，观察RED。
-- [ ] T004 在 frontend/src/lib/api-proxy.ts、frontend/src/app/api/[...path]/route.ts 扩展个人接口和写入流代理，完成T003 GREEN且002代理测试仍通过。
+- [x] T002 在 backend/src/main/resources/db/migration/V2__submission.sql 和 backend/src/main/java/com/materialstudio/identity/ 实现身份与表结构，在 backend/src/main/java/com/materialstudio/common/ 实现安全错误响应；完成T001 GREEN。
+- [x] T003 在 frontend/src/lib/submission-proxy.test.ts 编写Cookie/多Set-Cookie/Location/multipart流/Origin/方法路由测试，观察RED。
+- [x] T004 在 frontend/src/lib/api-proxy.ts、frontend/src/app/api/[...path]/route.ts 扩展个人接口和写入流代理，完成T003 GREEN且002代理测试仍通过。
 
 ## Phase 3: US1 准备可用素材 (P1)
 
