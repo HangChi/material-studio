@@ -1,0 +1,79 @@
+name: material-studio
+x-java-image: &java-image maven:3.9.9-eclipse-temurin-21@sha256:3a4ab3276a087bf276f79cae96b1af04f53731bec53fb2e651aca79e4b10211e
+x-node-image: &node-image node:22-bookworm-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da
+x-mysql: &mysql
+  image: mysql:8.4@sha256:a0225d1ea6631c8bc2385dc4c2faba17bbf1834ecf369e1659a9a382bd8d5dd7
+  healthcheck:
+    test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+    interval: 3s
+    timeout: 3s
+    retries: 40
+services:
+  mysql:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-material_studio}
+      MYSQL_USER: ${MYSQL_USER:-studio}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-local-demo-password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-local-demo-root}
+    volumes: ["mysql-data:/var/lib/mysql"]
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-material_studio}?connectionTimeZone=UTC
+      DATABASE_USER: ${MYSQL_USER:-studio}
+      DATABASE_PASSWORD: ${MYSQL_PASSWORD:-local-demo-password}
+    depends_on:
+      mysql: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  frontend:
+    build: ./frontend
+    environment:
+      JAVA_API_BASE_URL: http://backend:8080
+    ports: ["127.0.0.1:${WEB_PORT:-3000}:3000"]
+    depends_on:
+      backend: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  test-mysql:
+    <<: *mysql
+    profiles: [test]
+    environment:
+      MYSQL_DATABASE: material_studio_test
+      MYSQL_USER: studio
+      MYSQL_PASSWORD: test-only-password
+      MYSQL_ROOT_PASSWORD: test-only-root
+    tmpfs: [/var/lib/mysql]
+  backend-test:
+    image: *java-image
+    profiles: [test]
+    working_dir: /workspace
+    volumes: ["./backend:/workspace", "maven-cache:/root/.m2"]
+    environment:
+      DATABASE_URL: jdbc:mysql://test-mysql:3306/material_studio_test?connectionTimeZone=UTC
+      DATABASE_USER: studio
+      DATABASE_PASSWORD: test-only-password
+    depends_on:
+      test-mysql: { condition: service_healthy }
+    command: ["mvn", "-B", "verify"]
+  frontend-test:
+    build:
+      context: ./frontend
+      target: tools
+    profiles: [test]
+    working_dir: /workspace
+    volumes: ["./frontend:/workspace", "node-modules:/workspace/node_modules"]
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+    command: ["sh", "-c", "npm ci && npm run lint && npm run typecheck && npm test && npm run build"]
+volumes:
+  mysql-data:
+  maven-cache:
+  node-modules:

@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://mysql:3306/material_studio?useUnicode=true&characterEncoding=UTF-8&connectionTimeZone=UTC}
+    username: ${DATABASE_USER:studio}
+    password: ${DATABASE_PASSWORD:local-demo-password}
+  flyway:
+    enabled: true
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
