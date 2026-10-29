@@ -33,6 +33,14 @@ public class PipelineState {
             write(job,done?"SUCCEEDED":"RUNNING",stage.name(),"COMPLETED",result,null,null,label(stage,job.templateId())+"完成");return true;
         }));
     }
+    public JobView cancel(String id,String owner) {
+        return transaction.execute(tx->{
+            var job=events.lock(id);if(job==null||!job.ownerId().equals(owner))throw new com.materialstudio.common.ApiException(404,"RESOURCE_NOT_FOUND","任务不存在");
+            if("JOB_CANCELLED".equals(job.errorCode()))return JobView.from(job);
+            if(!isUnfinished(job))throw new com.materialstudio.common.ApiException(409,"JOB_NOT_CANCELLABLE","已结束的任务无法取消");
+            write(job,"FAILED",job.stage(),"FAILED",null,"JOB_CANCELLED","制作已取消","用户已取消制作，后续阶段停止");return JobView.from(events.find(id));
+        });
+    }
     public void fail(String id,String code,String message) {
         transaction.executeWithoutResult(tx->{
             var job=events.lock(id);if(job==null||!isUnfinished(job))return;

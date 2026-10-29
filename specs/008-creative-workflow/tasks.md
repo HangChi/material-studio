@@ -9,10 +9,10 @@
 - [x] T005 [US3] 素材分页/权限测试RED、AssetMapper/Controller实现GREEN
 - [x] T006 [US3] AssetPicker/UploadSlots复用素材测试RED与实现GREEN
 - [x] T007 [US4] draft-storage/SubmissionForm恢复隔离测试RED与实现GREEN
-- [ ] T008 [US5] 历史筛选/管理测试RED、LibraryMapper/Service/JobController实现GREEN
-- [ ] T009 [US5] History/WorkControls全历史筛选、管理/恢复与过期响应测试RED/GREEN
-- [ ] T010 [US6] 取消/终态竞争测试RED、PipelineState/Controller取消/队列快照实现GREEN
-- [ ] T011 [US6] JobActions/JobCards取消与排队文案测试RED/GREEN
+- [x] T008 [US5] 历史筛选/管理测试RED、LibraryMapper/Service/JobController实现GREEN
+- [x] T009 [US5] History/WorkControls全历史筛选、管理/恢复与过期响应测试RED/GREEN
+- [x] T010 [US6] 取消/终态竞争测试RED、PipelineState/Controller取消/队列快照实现GREEN
+- [x] T011 [US6] JobActions/JobCards取消与排队文案测试RED/GREEN
 - [ ] T012 [US7] 恢复/有限重试/耗尽测试RED、ExecutionMapper/Worker/Dispatcher实现GREEN
 - [ ] T013 [US7] JobCards执行次数/下次重试提示及跟踪测试RED/GREEN
 - [ ] T014 完整容器回归与scripts/verify-008.mjs实际链路/重启验证

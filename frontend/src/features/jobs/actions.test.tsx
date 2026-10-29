@@ -22,3 +22,8 @@ it("shows a private download error without starting a new task and stops after u
  expect(await screen.findByText("结果文件暂不可用")).toBeVisible();expect(accepted).not.toHaveBeenCalled();
  fireEvent.click(screen.getByRole("button",{name:"下载 PNG original"}));view.unmount();expect(fetcher.mock.calls[1][1].signal?.aborted).toBe(true);
 });
+it("cancels an active task and reports the persisted cancelled snapshot",async()=>{
+ const accepted=vi.fn();vi.stubGlobal("fetch",vi.fn(async()=>Response.json({job:{...job,status:"FAILED",errorCode:"JOB_CANCELLED",errorMessage:"制作已取消",version:5}})));
+ render(<JobActions job={{...job,status:"RUNNING",errorCode:null}} onAccepted={accepted} onExpire={()=>{}}/>);
+ fireEvent.click(screen.getByRole("button",{name:"取消任务 original"}));await waitFor(()=>expect(accepted).toHaveBeenCalledWith(expect.objectContaining({errorCode:"JOB_CANCELLED"})));
+});

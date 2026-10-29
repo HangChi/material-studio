@@ -226,3 +226,10 @@
 - US2 RED：肖像预设宽960而非真实输出1000；GREEN：Workflow/Creation/Pipeline 15项通过，肖像与三张拼贴的真实输入颜色/顺序证明，不使用AI。
 - US3 RED：GET assets尚无列表；GREEN：AssetLibraryTest+AssetApiTest 6项通过。前端RED缺素材选择入口；GREEN：选择不重复上传、保留另一槽，编辑/上传/选择8项通过。
 - US4 RED：缺草稿保存/跨remount恢复；GREEN：lint/typecheck及编辑/草稿/素材/上传/提交22项通过。本地草稿按身份/模板/来源隔离，校验格式，已受理后清空、未确认提交优先；本地File上传中不能恢复。
+
+## 008 US5/US6 历史管理与取消
+- US5后端RED：PATCH library缺失；GREEN：WorkLibrary/History/Workflow 6项通过，重命名、收藏、隐藏恢复、全文筛选/日期、本人隔离与分页兼容。
+- 前端RED：缺作品名称与筛选；实现后发现筛选option文本与旧状态断言重名，改为清晰的“成功任务/失败任务”等选项；通过同终态更高版本管理属性更新，禁止终态回到非终态。
+- US6后端RED：queueAhead缺失/取消接口缺失；动态SQL转义错误单独修复，不记作RED。取消使用任务锁，先取消则阶段complete/start拒绝；重复取消返回原快照。
+- 前端RED：运行任务缺取消入口；GREEN结果见后续最终回归记录。排队数量为全队列前方约数，取消显示独立“已取消”，不冒充业务失败。
+- US6最终GREEN：Cancellation/WorkLibrary/Workflow 4项通过；前端lint/typecheck与actions/work-library/history/tracker 21项通过。

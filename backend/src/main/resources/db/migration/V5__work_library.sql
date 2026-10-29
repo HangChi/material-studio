@@ -1,0 +1,4 @@
+CREATE TABLE job_library (
+ job_id CHAR(36) PRIMARY KEY, display_name VARCHAR(240), favorite BOOLEAN NOT NULL DEFAULT FALSE, hidden BOOLEAN NOT NULL DEFAULT FALSE,
+ FOREIGN KEY(job_id) REFERENCES job(id)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
