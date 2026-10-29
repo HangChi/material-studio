@@ -20,3 +20,10 @@
 - RED：容器template-filter.test.tsx三个测试均因动态选项/重试/abort缺失失败。
 - GREEN：History独立读取Java模板接口，保留当前选择、错误重试/卸载abort，不阻塞历史；全前端20文件94项测试、lint/typecheck/生产构建通过。
 - 整合时旧history测试桩把所有额外请求当分页，导致四个用例失败；修正桩明确处理/api/templates后恢复通过，不修改既有分页目标断言。
+
+## US4持久受理
+- RED：AdmissionPolicyTest/JobSubmissionTest/PipelineLifecycleTest/PersistedBacklogTest共14项，6项失败：配额未拒绝、跨访客超额、内存满和关停调度变FAILED。
+- GREEN：V7全局受理锁行、READ_COMMITTED受理事务、本人锁→幂等回放→全局锁→计数/限额→创建；调度异常保留QUEUED。14项全部通过，随后全量Java56项/打包通过。
+- 内存容量1下真实HTTP连续受理6项，最终每项成功、一次执行、六条阶段事件；跨访客6并发总配额3只能受理3；个人待办2、滚动分钟3（测试小值）拒绝不创建任务，取消释放待办，过期时间释放速率，满配额可幂等回放。
+- 配额429携带Retry-After=60；代理新增测试RED为该头丢失，补转发后9项代理测试及lint/typecheck通过。verify-005的24记录演示遵守限流退避，不关闭配额。
+- Chrome DevTools Rendering真实forced-colors:active：黑底高对比文字/边框/原生箭头可见；任务状态下拉键盘选择正在制作，应用后没有匹配的作品，操作通过。随后恢复No emulation并关闭临时标签。

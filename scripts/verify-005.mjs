@@ -13,7 +13,15 @@ try{
  const png=await(await request('/api/demo/portrait.png')).arrayBuffer(),form=new FormData();form.append('file',new Blob([png],{type:'image/png'}),'portrait.png');
  const asset=await json('/api/assets','POST',owner.cookie,form,201);
  const delays=(a,g=0,f=0)=>({ASSET_CHECK:a,GENERATE:g,FINALIZE:f});
- async function submit(simulation){return(await json('/api/jobs','POST',owner.cookie,{templateId:'demo-portrait',assetIds:[asset.id],simulation},202)).job;}
+ // Current admission defaults allow 10 creations/minute; this 24-record fixture respects backoff.
+ async function submit(simulation){
+  for(let attempt=0;attempt<4;attempt++){
+   const response=await request('/api/jobs','POST',owner.cookie,{templateId:'demo-portrait',assetIds:[asset.id],simulation});
+   if(response.status===429){const payload=await response.json();assert.equal(payload.error.code,'RATE_LIMITED');const seconds=Number(response.headers.get('retry-after')??60);assert.ok(seconds>0&&seconds<=60);await new Promise(r=>setTimeout(r,seconds*1000));continue;}
+   assert.equal(response.status,202,await response.clone().text());return(await response.json()).job;
+  }
+  throw new Error('Admission remained throttled after three backoff windows');
+ }
  const older=[];
  for(let n=0;n<21;n++){older.push(await submit({failStage:'ASSET_CHECK',stageDurationsMs:delays(0)}));if(n%3===0)await new Promise(r=>setTimeout(r,60));}
  await new Promise(r=>setTimeout(r,300));

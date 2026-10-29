@@ -322,3 +322,6 @@ US2 RED：`docker run --rm -v /Users/songhangchi/Project/xiaoying/material-studi
 
 
 US1首次远端CI40901483518前后端均success（真实GitHub runner容器下载/检查）；公开仓库已创建。US3模板筛选RED：template-filter三个测试缺失选项/重试/abort而失败；实现独立模板请求、错误恢复和卸载取消，保留当前选项；旧history桩新增模板路由避免污染分页计数后，完整前端94项、lint/typecheck/build通过。命令为既有frontend-check容器挂载当前src，执行npm run lint && npm run typecheck && npm test && npm run build。无新依赖或风格重做。上次提交调用因自动审批服务用量限制而未执行，用户要求继续后核对状态再重试，未绕过审批。
+
+
+US4 RED证据/tmp/material-010-admission-red.log：14项6失败，配额/并发不拒绝及调度异常错误终态；实现V7锁行、READ_COMMITTED事务配额、幂等优先和持久等待，GREEN日志/tmp/material-010-admission-green.log为14/14。完整Compose backend-test mvn verify56项（0失败/错误/跳过）及打包通过，日志/tmp/material-010-backend-queue.log。内存1容量六项HTTP受理最终各执行一次；跨访客6并发配额3精确受理3。默认全局100/本人20未完成和每分钟10新任务，配置正整数。前端代理Retry-After新增行为先RED（null），补转发后9/9与lint/typecheck通过；verify-005尊重429退避。US1高对比实测已用Chrome DevTools forced-colors:active验证文字/边框/箭头和键盘选择/应用筛选，已恢复模拟及关闭临时标签；原用户标签未变更。监控测试仍在RED阶段，不纳入本提交。

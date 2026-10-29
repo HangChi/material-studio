@@ -37,3 +37,11 @@ describe("template read proxy", () => {
     expect(response.status).toBe(405); expect(fetchMock).not.toHaveBeenCalled();
   });
 });
+
+it("preserves admission backoff and keeps internal monitoring inaccessible",async()=>{
+ const upstream=vi.fn().mockResolvedValue(Response.json({error:{code:"RATE_LIMITED",message:"稍后重试"}},{status:429,headers:{"Retry-After":"60"}}));vi.stubGlobal("fetch",upstream);
+ const response=await proxyTemplates(new Request("http://studio/api/jobs",{method:"POST",body:"{}"}),["jobs"]);
+ expect(response.status).toBe(429);expect(response.headers.get("retry-after")).toBe("60");
+ for(const path of [["actuator","studio"],["studio"]])expect((await proxyTemplates(new Request("http://studio/api/"+path.join("/")),path)).status).toBe(404);
+ expect(upstream).toHaveBeenCalledTimes(1);
+});

@@ -11,6 +11,7 @@ import java.util.*;
 
 @Service
 public class JobSubmissionService {
+    private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger(JobSubmissionService.class);
     public record Request(String templateId,List<String> assetIds,Simulation simulation,PostcardParameters parameters,String sourceJobId) {
         public Request(String templateId,List<String> assetIds) { this(templateId,assetIds,null,null,null); }
         public Request(String templateId,List<String> assetIds,Simulation simulation) { this(templateId,assetIds,simulation,null,null); }
@@ -24,8 +25,11 @@ public class JobSubmissionService {
     private final AssetService assets;
     private final JobDispatcher dispatcher;
     private final TransactionTemplate transaction;
-    public JobSubmissionService(JobMapper jobs,EventMapper events,TemplateMapper templates,AssetService assets,JobDispatcher dispatcher,PlatformTransactionManager manager,CreationMapper creation,com.fasterxml.jackson.databind.ObjectMapper json) {
+    private final AdmissionPolicy admission;
+    public JobSubmissionService(JobMapper jobs,EventMapper events,TemplateMapper templates,AssetService assets,JobDispatcher dispatcher,PlatformTransactionManager manager,CreationMapper creation,com.fasterxml.jackson.databind.ObjectMapper json,AdmissionPolicy admission) {
         this.creation=creation;this.json=json;this.jobs=jobs;this.events=events;this.templates=templates;this.assets=assets;this.dispatcher=dispatcher;this.transaction=new TransactionTemplate(manager);
+        this.admission=admission;
+        this.transaction.setIsolationLevel(org.springframework.transaction.TransactionDefinition.ISOLATION_READ_COMMITTED);
     }
     public JobView submit(String owner,Request request) { return submit(owner,request,null); }
     public JobView submit(String owner,Request request,String key) {
@@ -60,6 +64,7 @@ public class JobSubmissionService {
             if(template==null) throw new ApiException(404,"RESOURCE_NOT_FOUND","模板不存在");
             if(request.assetIds().size()!=template.requiredImageCount()) throw invalid();
             for(String assetId:request.assetIds()) assets.ensureAvailable(assets.owned(assetId,owner));
+            admission.check(owner);
             Instant now=Instant.now();
             jobs.insert(new JobRow(id,owner,template.id(),template.title(),"QUEUED",null,0,now,now,null,null,null,null));
             events.configure(configuration);
@@ -71,8 +76,7 @@ public class JobSubmissionService {
         if(!fresh[0])return owned(accepted[0],owner);
         try { dispatcher.dispatch(id); }
         catch(RuntimeException rejected) {
-            transaction.executeWithoutResult(status -> jobs.failQueued(id,"QUEUE_REJECTED",
-                    "制作队列暂不可用，任务未开始处理",Instant.now()));
+            LOG.warn("Immediate dispatch unavailable; persisted job {} will be picked up by scanner",id);
         }
         return owned(id,owner);
     }

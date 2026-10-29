@@ -19,9 +19,9 @@
 - [x] T009 [US3] frontend/src/features/jobs/History.tsx实现动态模板选项与错误重试，验证GREEN。
 
 ## US4 · 持久受理
-- [ ] T010 [US4] backend/src/test/java/com/materialstudio/job/{AdmissionPolicyTest,JobSubmissionTest,PipelineLifecycleTest,PersistedBacklogTest}.java验证队列满仍等待、六项完成一次、全局100/本人20未完成及60秒10项（测试覆盖小值）、幂等回放/并发/回滚，观察RED。
-- [ ] T011 [US4] backend/src/main/resources/db/migration/V7__admission_lock.sql、job/AdmissionPolicy.java与JobSubmissionService.java实现正整数配置/数据库事务限额，BackgroundJobDispatcher.java保留持久等待，验证GREEN。
-- [ ] T012 [US4] compose.yaml、.env.example与scripts验证入口同步配额与新受理语义。
+- [x] T010 [US4] backend/src/test/java/com/materialstudio/job/{AdmissionPolicyTest,JobSubmissionTest,PipelineLifecycleTest,PersistedBacklogTest}.java验证队列满仍等待、六项完成一次、全局100/本人20未完成及60秒10项（测试覆盖小值）、幂等回放/并发/回滚，观察RED。
+- [x] T011 [US4] backend/src/main/resources/db/migration/V7__admission_lock.sql、job/AdmissionPolicy.java与JobSubmissionService.java实现正整数配置/数据库事务限额，BackgroundJobDispatcher.java保留持久等待，验证GREEN。
+- [x] T012 [US4] compose.yaml、.env.example与scripts验证入口同步配额与新受理语义。
 
 ## US5 · 内部监控
 - [ ] T013 [US5] backend/src/test/java/com/materialstudio/job/OperationsTest.java覆盖统计样本/取消/重试/扫描错误及frontend/src/lib/api-proxy.test.ts隔离，观察RED。

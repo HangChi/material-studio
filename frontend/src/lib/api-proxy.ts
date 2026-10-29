@@ -36,7 +36,7 @@ export async function proxyTemplates(request: Request, path: string[]): Promise<
   try {
     const upstream = await fetch(url, options);
     const headers = new Headers({ "cache-control": "no-store" });
-    for (const name of ["content-type", "x-content-type-options", "location", "content-disposition"]) {
+    for (const name of ["content-type", "x-content-type-options", "location", "content-disposition", "retry-after"]) {
       const value = upstream.headers.get(name); if (value) headers.set(name, value);
     }
     for (const cookie of upstream.headers.getSetCookie()) headers.append("set-cookie", cookie);

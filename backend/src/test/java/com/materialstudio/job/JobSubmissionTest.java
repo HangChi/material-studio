@@ -86,14 +86,14 @@ class JobSubmissionTest extends ApiTestSupport {
             verifyNoInteractions(dispatcher);
         } finally { jdbc.execute("DROP TRIGGER IF EXISTS reject_job_asset_test"); }
     }
-    @Test void rejectionIsPersistedAsATerminalFailureAndQueriesAreReadOnly() throws Exception {
+    @Test void temporaryDispatchFailureKeepsPersistedQueueAndQueriesAreReadOnly() throws Exception {
         doThrow(new RejectedExecutionException("internal details")).when(dispatcher).dispatch(anyString());
         String owner=session(); var response=submit(owner,"demo-portrait",List.of(asset(owner)));
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         var job=response.getBody().path("job"); String id=job.path("id").asText();
-        assertThat(job.path("status").asText()).isEqualTo("FAILED");
-        assertThat(job.path("errorCode").asText()).isEqualTo("QUEUE_REJECTED");
-        assertThat(job.path("stage").isNull()).isTrue(); assertThat(job.path("finishedAt").isNull()).isFalse();
+        assertThat(job.path("status").asText()).isEqualTo("QUEUED");
+        assertThat(job.path("errorCode").isNull()).isTrue();
+        assertThat(job.path("stage").isNull()).isTrue(); assertThat(job.path("finishedAt").isNull()).isTrue();
         var read=call("/api/jobs/"+id,HttpMethod.GET,owner,null).getBody().path("job");
         assertThat(read).isEqualTo(job); assertThat(read.toString()).doesNotContain("internal details", "ownerId", "storageFilename");
     }
