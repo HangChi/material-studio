@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { TemplateDetail } from "./TemplateDetail";
 
+vi.mock("../jobs/SubmissionForm",()=>({SubmissionForm:()=> <section><h2>上传素材</h2></section>}));
+
 const detail = { id: "demo-postcard", title: "旅行明信片", description: "用两张旅途照片留住故事", categoryId: "creative", coverUrl: "/api/demo/postcard.png", requiredImageCount: 2, acceptedMimeTypes: ["image/jpeg", "image/png"], maxFileSizeBytes: 5242880 };
 describe("template detail", () => {
   it("shows loading then server requirements", async () => {
@@ -11,6 +13,7 @@ describe("template detail", () => {
     expect(screen.getByRole("status")).toHaveTextContent("正在加载模板");
     expect(await screen.findByRole("heading", { name: "旅行明信片" })).toBeVisible();
     expect(screen.getByText("2 张图片")).toBeVisible();
+    expect(screen.getByRole("heading",{name:"上传素材"})).toBeVisible();
     expect(screen.getByText("JPEG、PNG")).toBeVisible();
     expect(screen.getByText("每张不超过 5 MiB")).toBeVisible();
     expect(screen.getByRole("link", { name: /返回模板库/ })).toHaveAttribute("href", "/");

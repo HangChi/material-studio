@@ -23,6 +23,8 @@ services:
       DATABASE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-material_studio}?connectionTimeZone=UTC
       DATABASE_USER: ${MYSQL_USER:-studio}
       DATABASE_PASSWORD: ${MYSQL_PASSWORD:-local-demo-password}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    volumes: ["asset-data:/data"]
     depends_on:
       mysql: { condition: service_healthy }
     healthcheck:
@@ -76,6 +78,7 @@ services:
       NEXT_TELEMETRY_DISABLED: "1"
     command: ["sh", "-c", "npm ci && npm run lint && npm run typecheck && npm test && npm run build"]
 volumes:
+  asset-data:
   mysql-data:
   maven-cache:
   node-modules:

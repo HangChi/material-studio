@@ -83,3 +83,7 @@
 
 - Backend GREEN：10:42:09，完整mvn verify共22/22通过且打包成功；包括跨连接已提交可见、阻塞worker仍202、有序关联、触发器故障回滚和无dispatch、终态查询只读、默认处理器明确拒绝。
 - Form RED：10:43:11，5个受理表单场景因缺少身份/素材/提交控件失败。
+
+- Form GREEN：10:44:10，5/5通过；Unknown/detail integration RED：10:44:40，新增4个未知结果用例和详情接入断言失败，旧7个通过。
+- Frontend GREEN：10:46:26，lint/typecheck、39/39测试及Next生产构建通过；覆盖网络丢失/5xx/无效202、核对失败保持禁用、核对成功后显式继续且无自动POST。
+- 真实业务边界保持：默认worker返回持久FAILED/PROCESSOR_NOT_AVAILABLE，不假装三阶段成功；004仍待实现。
