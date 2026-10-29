@@ -76,3 +76,21 @@ describe("uncertain admission reconciliation",()=>{
   fireEvent.click(screen.getByRole("button",{name:"已核对，继续准备"}));await prepare();expect(screen.getByRole("button",{name:"提交制作"})).toBeEnabled();expect(posts).toBe(1);
  });
 });
+
+describe("pipeline snapshots",()=>{
+ it("shows a task stage and its protected success image after manual reconciliation",async()=>{
+  const mock=api();mock.mockImplementation(async(url:string)=>url==="/api/session"?Response.json({user:{id:"user-1"}}):Response.json({items:[{...job,id:"running",status:"RUNNING",stage:"GENERATE"},{...job,id:"finished",status:"SUCCEEDED",stage:"FINALIZE",resultUrl:"/api/jobs/finished/result"}]}));
+  vi.stubGlobal("fetch",mock);render(<SubmissionForm template={template}/>);await ready();fireEvent.click(screen.getByRole("button",{name:"查看已受理任务"}));
+  expect(await screen.findByText("当前阶段：模拟生成")).toBeVisible();
+  expect(screen.getByRole("img",{name:"日光肖像制作结果"})).toHaveAttribute("src","/api/jobs/finished/result");
+  expect(screen.getByText("制作成功")).toBeVisible();expect(screen.getByText("处理中")).toBeVisible();
+ });
+ it("keeps the last running snapshot when a later manual query fails",async()=>{
+  let reads=0;const mock=api();mock.mockImplementation(async(url:string)=>{
+   if(url==="/api/session")return Response.json({user:{id:"user-1"}});
+   reads++;return reads===1?Response.json({items:[{...job,status:"RUNNING",stage:"ASSET_CHECK"}]}):Response.json({error:{}},{status:503});
+  });vi.stubGlobal("fetch",mock);render(<SubmissionForm template={template}/>);await ready();fireEvent.click(screen.getByRole("button",{name:"查看已受理任务"}));
+  expect(await screen.findByText("当前阶段：素材检查")).toBeVisible();fireEvent.click(screen.getByRole("button",{name:"查看已受理任务"}));
+  expect(await screen.findByText(/核对失败/)).toBeVisible();expect(screen.getByText("处理中")).toBeVisible();expect(screen.queryByText("制作失败")).not.toBeInTheDocument();
+ });
+});

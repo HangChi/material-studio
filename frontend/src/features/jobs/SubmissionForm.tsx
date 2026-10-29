@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import type { Template } from "../templates/types";
 import { UploadSlots } from "../assets/UploadSlots";
@@ -81,7 +82,9 @@ export function SubmissionForm({ template }: { template: Template }) {
    <h4>{job.templateTitle}</h4><p className="task-number">任务编号：{job.id}</p>
    <p>{({QUEUED:"等待处理",RUNNING:"处理中",SUCCEEDED:"制作成功",FAILED:"制作失败"})[job.status]}</p>
    <p className="receipt-time"><time dateTime={job.createdAt}>{new Date(job.createdAt).toLocaleString("zh-CN")}</time></p>
+   {job.stage&&<p>当前阶段：{({ASSET_CHECK:"素材检查",GENERATE:"模拟生成",FINALIZE:"结果整理"})[job.stage as "ASSET_CHECK"|"GENERATE"|"FINALIZE"]??job.stage}</p>}
    {job.errorMessage&&<p>{job.errorMessage}</p>}
+   {job.status==="SUCCEEDED"&&job.resultUrl===`/api/jobs/${job.id}/result`&&<Image className="job-result" unoptimized src={job.resultUrl} alt={`${job.templateTitle}制作结果`} width={960} height={640}/>}
   </article>)}</section>}
  </section>;
 }

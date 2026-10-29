@@ -60,3 +60,12 @@ describe("identity and admission proxy", () => {
     expect(mock).not.toHaveBeenCalled();
   });
 });
+
+it.each(["events","result"])("allows private pipeline %s GET only and forwards cookie and media",async endpoint=>{
+ const fetcher=vi.fn().mockResolvedValue(new Response(endpoint==="result"?new Uint8Array([137,80,78,71]):JSON.stringify({items:[]}),{headers:{"content-type":endpoint==="result"?"image/png":"application/json","x-content-type-options":"nosniff"}}));
+ vi.stubGlobal("fetch",fetcher);
+ const response=await proxyTemplates(new Request("http://localhost/api/jobs/job-1/"+endpoint,{headers:{cookie:"material_session=secret"}}),["jobs","job-1",endpoint]);
+ expect(response.status).toBe(200);expect(response.headers.get("cache-control")).toBe("no-store");expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+ expect((fetcher.mock.calls[0][1].headers as Headers).get("cookie")).toBe("material_session=secret");
+ expect((await proxyTemplates(new Request("http://localhost/api/jobs/job-1/"+endpoint,{method:"POST"}),["jobs","job-1",endpoint])).status).toBe(405);
+});
