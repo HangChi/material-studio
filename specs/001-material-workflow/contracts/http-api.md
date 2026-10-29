@@ -1,8 +1,8 @@
-> 总体基线/历史方案：2026-10-29 起不再作为当前 feature 的执行入口；以 [项目迭代图](../../../docs/roadmap.md) 分配任务。原任务未实现项保持未勾选，不以迁移冒充完成。
+> 初始契约归档，禁止直接作为当前调用示例。现行契约：[002模板](../../002-template-catalog/contracts/http-api.md)、[003上传/受理](../../003-upload-submission/contracts/http-api.md)、[004流水线](../../004-async-pipeline/contracts/http-api.md)、[005历史](../../005-history-tracking/contracts/http-api.md)。差异见[归档说明](../README.md)。
 
-# HTTP API 契约 v1
+# HTTP API 契约 v1（初始归档）
 
-这是实现基线，端点尚未实现。浏览器仅访问同源 `/api/*`；Next.js 原样转发到 Java `/api/*`。
+端点现已由后续feature实现；下文保存最初设想，字段和错误码并非当前契约。尤其failAt/delayMs、demo profile限制、默认历史条数及事件结构已经被004/005替代。当前浏览器仍仅访问同源 `/api/*`，Java负责业务。
 JSON 使用 camelCase；时间 ISO 8601 UTC；ID 为 UUID，模板 ID 可用种子 slug。
 所有个人接口禁止缓存；统一错误为 `{error:{code,message,field?}}`，不暴露堆栈或文件路径。
 未识别字段拒绝为 400。缺少/失效 cookie 为 401，个人资源不存在或不属于本人统一 404。

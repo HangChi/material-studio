@@ -1,7 +1,14 @@
-# TDD 验证计划
+> 初始测试设计归档，场景编号保留溯源。实际测试、结果与未覆盖项见[实施追踪](traceability.md)、[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
 
-当前状态：仅定义测试，下面所有业务用例均未编写、未运行。禁止将本文件的场景当作测试通过证据。
+# TDD 验证计划（初始设计）
+
+001制定本计划时尚未编写业务测试；后续已有64项前端、38项后端检查与构建通过。以下是原计划场景和原拟文件名，不表示这些旧路径都已原样创建，也不代表所有场景已经验证。
 应用安装/测试/构建均在容器中进行；文档解析检查可在宿主执行。
+
+现行测试映射：B01→TemplateApiTest；B02→AssetApiTest；B03→JobSubmissionTest；B04～B06/B08→PipelineApiTest、PipelineConsistencyTest、PipelineLifecycleTest；B07/分页→SessionApiTest、HistoryApiTest及归属测试。
+F01→catalog/detail；F02→upload；F03～F05→tracker/session；F06→history；F07→submission；F08→api-proxy/submission-proxy。
+实际使用Compose隔离MySQL和受控fetch/Promise，未引入初始计划中的Testcontainers/MSW。
+复查已确认历史刷新游标缺陷，图片资源错误反馈也待补；SC-002十次耗时测量未补齐，详见[当前缺口](README.md)。
 
 ## RED → GREEN → REFACTOR
 

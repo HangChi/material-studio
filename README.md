@@ -7,7 +7,7 @@
 ## 迭代与开发入口
 
 项目在独立目录 `xiaoying/material-studio/`，全程单智能体，使用SDD + TDD并按增量Git提交。
-[001](specs/001-material-workflow/spec.md)保留为总体基线，[迭代图](docs/roadmap.md)为当前执行入口。
+[001归档总览](specs/001-material-workflow/README.md)保留总体需求、旧任务迁移关系与复查待修项，[迭代图](docs/roadmap.md)为当前执行入口。
 
 | Feature | 范围 | 状态 |
 | --- | --- | --- |

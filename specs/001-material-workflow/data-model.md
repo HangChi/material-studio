@@ -1,7 +1,9 @@
-# 数据模型与不变量
+> 初始数据模型归档；现行结构以[V1](../../backend/src/main/resources/db/migration/V1__templates.sql)、[V2](../../backend/src/main/resources/db/migration/V2__submission.sql)、[V3迁移](../../backend/src/main/resources/db/migration/V3__pipeline.sql)及003～005模型为准。重要差异见[归档说明](README.md)。
+
+# 数据模型与不变量（初始方案）
 
 所有时间使用 UTC 存储、ISO 8601 带 Z 返回，页面以本地时间展示。ID 为服务端生成 UUID 字符串（36 字符）。
-下列为设计，建表 SQL 尚未编写；字段约束由相应任务原样引用，不以客户端校验代替。
+下列保留001设计时的字段与约束；SQL已在后续feature落地。尤其StageEvent、模拟配置和错误码已经调整，不应按下文重建或修改现有数据库。
 
 ## DemoUser（demo_user）
 

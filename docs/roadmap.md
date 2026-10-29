@@ -2,7 +2,7 @@
 
 原题以 [requirements-source.md](requirements-source.md) 为准。
 [001 原始规格](../specs/001-material-workflow/spec.md)、[总体方案](../specs/001-material-workflow/plan.md)保留为总体需求/初始架构基线；
-001 原任务清单仅供溯源，不继续执行。功能完成状态以各 feature 的任务与真实验证记录为准。
+001原任务清单仅供溯源，不继续执行；43条旧任务已改为迁移归档条目，不作为待办数量。[001归档总览](../specs/001-material-workflow/README.md)汇总现行入口、设计差异、原SC证据边界和复查待修项。功能完成状态以各feature的任务、真实验证及后续复查为准。
 
 | Feature | 范围 | 原题/原任务 | 依赖 | 本轮状态 |
 | --- | --- | --- | --- | --- |
