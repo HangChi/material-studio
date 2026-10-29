@@ -180,3 +180,13 @@
 - 第一轮完整回归发现Next Image添加onError后将src属性规范化为绝对URL；改为断言解析后的同源URL，不放宽到任意来源。onLoad在框架解码后异步回调，测试等待实际完成，不把这些适配误当新的业务RED。
 - GREEN：日志18:15:24完整70/70、lint/typecheck和Next构建通过。无后端或依赖变更。
 - 一次Docker检查自动审批超时，未执行任何命令；按提示重试一次后完成。原生浏览器连接超时，内置浏览器成功恢复，可继续真实编号可见性测量。
+
+- 完整前端命令：`docker compose --profile test run --rm frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`，70/70、无lint警告、类型检查及生产构建通过；Java `mvn -B verify`完整38/38、无跳过、打包成功。日志分别为/tmp/studio-006-front-green.log和/tmp/studio-006-backend-green.log。
+- Compose已执行`docker compose up --build -d`重建前端。`scripts/measure-admission.mjs`通过真实Next→Java→MySQL测量10项，HTTP202，10.460～25.796ms，平均17.024ms；每项后台成功总耗时6047～6078ms，六事件及各阶段>=2000ms均核对通过。
+- 内置浏览器通过文件选择器逐次上传项目自制PNG、真实点击10次提交。计时从点击前至新增编号DOM可见并读取唯一ID，含驱动开销，273.088～498.503ms，平均414.022ms，10/10严格小于2000ms；没有以API计时冒充页面可见性。最后历史显示10条且10条均成功。
+- 图片故障验收只临时改名本次测试任务ea585c6b-56f3-4c81-acca-4f447e930c3f的结果文件；首次页面跳转仍见旧图，随后重新加载实际发出404并显示明确错误，任务仍成功。恢复文件后点击“重新加载图片”，同源result?previewAttempt=1读取成功，complete=true/naturalWidth=960，无制作POST或状态改写。截图/tmp/material-studio-006-image-error.png、/tmp/material-studio-006-image-recovered.png；文件已恢复。
+- 恢复文件的一次自动审批超时未执行命令，按允许重试一次后成功；没有等待用户或遗留改名文件。浏览器当前页面保留本次10条验收结果。
+- 真实接口verify-003通过；立即串行接verify-004时，003留下的默认6秒任务使004固定1秒等待后仍QUEUED，首次未通过，不计业务RED。后台空闲后独立重跑verify-004与verify-005全部通过；包括六事件、三个指定失败、私有结果、24条跨四页历史和身份隔离。没有为通过而修改应用/缩短默认阶段。
+- 全部逐次测量、工具计时边界及本地负载条件写入docs/admission-measurements.md。001原故事/FR/SC和原题副本保留；更新归档缺口、README、验收对照及006任务9/9。无新依赖/表/后端变更，无子智能体；远端CI、TLS/公网和真实双标签联动仍未实测。
+- 工具时钟与容器/浏览器服务端创建时间不完全一致；不跨时钟相减。此前日志内17:51:23/18:15:24为相应日志记录时间，不能用于推算真实人工耗时。本轮包含多次工具连接/审批等待，不虚构精确人工工时。
+- 最终136处本地文档链接、001原spec/原题逐字保留、006九项任务/16项质量清单及git diff --check通过；frontend/backend/mysql均healthy，test-mysql已停止，图片原文件存在且.audit-hold不存在。规格与代码分别提交f3986d7、9934a67，本次文档验收以最后Git提交为准。

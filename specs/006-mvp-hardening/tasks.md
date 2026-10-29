@@ -19,11 +19,11 @@
 ## US3 受理测量
 
 - [x] T006 [US3] 在 scripts/measure-admission.mjs 实现10次真实受理逐项计时与默认三阶段各2000ms检查，结果不含token。
-- [ ] T007 [US3] 重建Compose，执行API测量及浏览器10次可见编号观测，将逐次数据/负载/工具开销写入 docs/admission-measurements.md。
+- [x] T007 [US3] 重建Compose，执行API测量及浏览器10次可见编号观测，将逐次数据/负载/工具开销写入 docs/admission-measurements.md。
 
 ## Validation / Delivery
 
-- [ ] T008 执行 compose.yaml 全前端检查与Java verify，真实接口及浏览器恢复验收，记录 docs/work-log.md。
-- [ ] T009 更新 README.md、docs/acceptance.md、docs/roadmap.md、specs/001-material-workflow/ 的已知缺口/SC证据，并完成文档校验和提交。
+- [x] T008 执行 compose.yaml 全前端检查与Java verify，真实接口及浏览器恢复验收，记录 docs/work-log.md。
+- [x] T009 更新 README.md、docs/acceptance.md、docs/roadmap.md、specs/001-material-workflow/ 的已知缺口/SC证据，并完成文档校验和提交。
 
 依赖T001→T002/T003→T004/T005→T006/T007→T008/T009；无[P]任务。每个行为先观察RED，再最小实现并回归。

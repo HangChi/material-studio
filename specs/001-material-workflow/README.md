@@ -1,6 +1,6 @@
 # 001总体基线与归档说明
 
-**定位**：001覆盖整个项目的需求基线；实施已拆分到002～005。001不再作为可执行feature，也不表示还有43项业务待开发。
+**定位**：001覆盖整个项目的需求基线；实施已拆分到002～005，006承接复查收尾。001不再作为可执行feature，也不表示还有43项业务待开发。
 
 ## 阅读入口
 
@@ -18,7 +18,7 @@
 | 三阶段执行、模拟控制、事件与结果 | [004规格](../004-async-pipeline/spec.md) / [任务](../004-async-pipeline/tasks.md) | 17/17 |
 | 历史分页、多任务跟踪、身份清理 | [005规格](../005-history-tracking/spec.md) / [任务](../005-history-tracking/tasks.md) | 15/15 |
 
-任务勾选记录当时交付，不代表之后复查不会发现缺陷。已记录本地64项前端、38项后端检查与构建通过；本次文档维护不重新运行这些应用检查。
+任务勾选记录当时交付，不代表之后复查不会发现缺陷。[006规格](../006-mvp-hardening/spec.md) / [任务](../006-mvp-hardening/tasks.md)完成9/9收尾；最新本地70项前端、38项后端检查与构建通过。
 
 ## 归档文件如何使用
 
@@ -36,13 +36,13 @@
 | job内JSON模拟配置 | job_execution独立表、与受理记录同事务写入，[V3迁移](../../backend/src/main/resources/db/migration/V3__pipeline.sql) |
 | 默认50条历史、初始结果错误码 | 默认20条游标分页与active集合；结果未就绪/失效404 RESULT_NOT_AVAILABLE，[004](../004-async-pipeline/contracts/http-api.md) / [005契约](../005-history-tracking/contracts/http-api.md) |
 
-## 复查后的待处理与未验证项
+## 复查收尾与未验证边界
 
-截至本次001文档维护，下列内容仍然保留，不因归档而标为通过：
+006按SDD+TDD完成以下三项，证据见[工作日志](../../docs/work-log.md)及[测量记录](../../docs/admission-measurements.md)：
 
-- 历史页局部刷新未更新分页游标：从原末页刷新到超过一页的新记录时，可能缺失“加载更多”；新增临时回归已在容器复现失败。待修位置：[History.tsx](../../frontend/src/features/jobs/History.tsx)。
-- 成功结果图片加载失败缺少明确资源错误提示与重试；应保持任务成功状态，独立处理图片错误。待补位置：[JobCards.tsx](../../frontend/src/features/jobs/JobCards.tsx)。
-- SC-002原定“10次受理均小于2秒”尚无完整测量记录；已验证不等待阻塞worker，但不能据此认定数值指标通过。
+- 历史局部刷新游标已修复：成功刷新使用最新首页游标；原末页/旧游标跨页新增、失败保留及去重回归通过。实现：[History.tsx](../../frontend/src/features/jobs/History.tsx)。
+- 成功结果图片已提供独立错误提示与重复重试，任务保持成功；浏览器真实404后恢复文件/重新读取通过。实现：[ResultPreview.tsx](../../frontend/src/features/jobs/ResultPreview.tsx)。
+- SC-002十次受理目标已实测：API 10.460～25.796ms；另10次浏览器确认新编号可见273.088～498.503ms；默认三阶段各2000ms，全部通过本地目标。
 - 远端CI、真实双标签联动、TLS/公网部署未完成实测；跨标签清理已有组件测试。原题不强制公网部署。
 
 重启续跑、幂等、自动重试、孤儿文件自动清理和账号找回属于已说明的范围边界；不在本次文档维护中扩展业务。

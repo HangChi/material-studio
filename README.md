@@ -1,7 +1,7 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～005已完成本地验收：模板浏览、私有上传、三阶段后台制作、模拟控制、个人历史分页、多任务自动跟踪与结果预览。**
+**002～006已完成本地验收：模板浏览、私有上传、三阶段后台制作、模拟控制、个人历史分页、多任务自动跟踪与结果预览。**
 原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；尚未执行远端CI、真实TLS或公网部署。
 
 ## 迭代与开发入口
@@ -15,16 +15,17 @@
 | [003](specs/003-upload-submission/spec.md) | 身份、上传与受理 | 已完成本地验收；18/18任务 |
 | [004](specs/004-async-pipeline/spec.md) | 三阶段异步执行与模拟控制 | 已完成本地验收；17/17任务 |
 | [005](specs/005-history-tracking/spec.md) | 历史、多任务跟踪、完整交付 | 已完成本地验收；15/15任务 |
+| [006](specs/006-mvp-hardening/spec.md) | 刷新分页、图片恢复、十次时延验收 | 已完成本地验收；9/9任务 |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/005-history-tracking .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/006-mvp-hardening .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[005任务](specs/005-history-tracking/tasks.md)及[验收对照](docs/acceptance.md)。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[006任务](specs/006-mvp-hardening/tasks.md)及[验收对照](docs/acceptance.md)。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -84,7 +85,7 @@ docker compose --profile test run --rm frontend-test
 docker compose --profile test run --rm backend-test
 ```
 
-前端入口从锁文件npm ci，再执行eslint、tsc、64个Vitest测试、next build。
+前端入口从锁文件npm ci，再执行eslint、tsc、70个Vitest测试、next build。
 后端入口mvn verify，执行38个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
@@ -199,6 +200,16 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 同源标签页共享cookie，成功切换后用不含token/身份的localStorage标记通知其他页清理并重新建立身份；禁用本地存储时其他标签需手动刷新。401也会清掉当前私有快照并停止查询。
 
 本地验收已覆盖真实24条记录跨四页、三任务成功/失败隔离、旧身份撤销、新身份空记录；浏览器验证自动更新、离线暂停后恢复、历史刷新和375px布局。乱序/旧版本/跨标签清理及精确两周期无多余请求由可控组件/跟踪器测试证明，不混称浏览器故障注入。
+
+## 006 MVP验收收尾
+
+历史成功刷新使用最新首页游标，保留已展示快照并按ID去重；原末页刷新后新增超过一页的记录仍能继续加载，刷新失败保留原游标。
+成功结果图片加载失败时单独提示并提供“重新加载图片”，保持任务成功；重试只重新读取同源私有图片，不重新提交制作。真实404后恢复文件已在浏览器验证。
+本地10次API受理为10.460～25.796ms，每次制作均不少于6秒；另10次浏览器点击到确认新编号可见为273.088～498.503ms，全部小于2秒。逐次数据、方法和边界见[测量记录](docs/admission-measurements.md)。
+
+```sh
+docker compose exec -T frontend node --input-type=module < scripts/measure-admission.mjs
+```
 
 ## 部署、回滚、投入与来源
 

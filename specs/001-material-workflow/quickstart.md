@@ -1,21 +1,21 @@
-> 001作为总体需求归档；本页仅汇总后续已交付项目的当前操作入口。现行约束见[README](../../README.md)，接口以002～005契约为准，复查待修项见[归档说明](README.md)。
+> 001作为总体需求归档；本页仅汇总后续已交付项目的当前操作入口。现行约束见[README](../../README.md)，接口以002～005契约为准，复查收尾与未验证边界见[归档说明](README.md)。
 
 # 启动与验证指南（当前项目入口）
 
 前后端源码、Compose、Dockerfile、依赖锁文件与V1～V3 SQL已由002～005交付。
-本页命令从仓库根目录执行；本次仅维护文档，既往执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
+本页命令从仓库根目录执行；006收尾已完成，实际执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
 
 ## 规格与仓库检查
 
 从仓库根目录运行：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/005-history-tracking .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/006-mvp-hardening .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 git status --short
 git log --oneline -5
 ```
 
-feature.json是忽略的本机指针，不依赖Git分支解析。当前交付入口为005，不将001设为implement目标。
+feature.json是忽略的本机指针，不依赖Git分支解析。当前交付入口为006，不将001设为implement目标。
 
 ## 一键运行
 
@@ -66,7 +66,11 @@ docker compose exec -T frontend node --input-type=module < scripts/verify-004.mj
 docker compose exec -T frontend node --input-type=module < scripts/verify-005.mjs
 ```
 
-历史刷新游标及图片资源错误反馈仍待修；SC-002十次耗时测量没有完整结果，不把上述脚本通过等同全部SC达标。
+006已修复历史刷新游标并补齐图片错误/重试；SC-002十次API与另十次浏览器可见编号均<2秒，逐次数据和口径见[测量记录](../../docs/admission-measurements.md)。API测量可执行：
+
+```sh
+docker compose exec -T frontend node --input-type=module < scripts/measure-admission.mjs
+```
 
 ## 部署与回滚
 

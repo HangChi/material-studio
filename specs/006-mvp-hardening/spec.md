@@ -2,7 +2,7 @@
 
 **Feature Branch**: `006-mvp-hardening`
 **Created**: 2026-10-29
-**Status**: Ready for planning
+**Status**: Implemented and locally validated
 **Input**: 修复历史刷新游标遗漏，补结果图片加载失败提示/重试，完成10次受理小于2秒的实测；SDD+TDD，禁止子智能体。
 
 ## User Scenarios & Testing
