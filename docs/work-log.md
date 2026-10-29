@@ -197,3 +197,8 @@
 - 前端RED：`frontend-test npm test -- src/features/jobs/submission.test.tsx src/lib/submission-proxy.test.ts`，2失败/24通过：缺安全重试入口、未透传key。
 - GREEN：同两文件26项通过，另lint/tsc通过。未确认请求sessionStorage按本人/模板保存完整载荷，重试原key，存储不可用明确提示。保留人工核对入口兼容旧流程。
 - 本轮开始约18:03（上海），按工具时段计，不声称精确人工工时。全部串行，无子智能体。
+
+## 007 US2/US3 — 下载、重新制作、执行时间线
+- 后端RED：CreationApiTest新增2项失败，recreate/download均404（预期409/200）；GREEN：CreationApiTest+JobSubmissionTest 11项通过。真实PNG字节与原预览一致；失败重试清除failStage后成功；保留源记录/素材顺序；丢素材后原key可回放，新key422；其他身份404。
+- 前端RED：actions.test.tsx 2项缺操作按钮；events.test.tsx 2项缺展开入口。GREEN：lint/tsc及actions/events/submission/history/submission-proxy 38项通过。中途测试代码signal可空类型错误已修复，不算业务RED。
+- 详情只在展开时读取并跟随任务version更新；收起/unmount abort，保留旧详情直到读取成功；401清理当前身份。下载先验证状态/类型再创建blob，失败显示原资源错误。

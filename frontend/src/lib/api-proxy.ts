@@ -6,7 +6,8 @@ function methodsFor(path: string[]): string[] | null {
   if (joined === "assets") return ["POST"];
   if (/^assets\/[a-zA-Z0-9_-]+\/content$/.test(joined)) return ["GET"];
   if (joined === "jobs") return ["GET", "POST"];
-  if (/^jobs\/[a-zA-Z0-9_-]+(?:\/(?:events|result))?$/.test(joined)) return ["GET"];
+  if (/^jobs\/[a-zA-Z0-9_-]+\/recreate$/.test(joined)) return ["POST"];
+  if (/^jobs\/[a-zA-Z0-9_-]+(?:\/(?:events|result|recipe|download))?$/.test(joined)) return ["GET"];
   return null;
 }
 

@@ -46,7 +46,7 @@ function HistoryBody({owner}:{owner:string}){
   {page.loading&&!page.loaded&&<p role="status">正在读取制作记录…</p>}
   {page.error&&<p className="query-error" role="alert">{page.error}</p>}
   {page.loaded&&snapshot.jobs.length===0&&<div className="state-panel"><h2>还没有制作记录</h2><p>挑选一张模板，开始你的第一份作品。</p><Link className="text-action" href="/">去挑选模板</Link></div>}
-  <JobCards jobs={snapshot.jobs} errors={snapshot.errors} onRetry={id=>tracker.retry(id)}/>
+  <JobCards onAccepted={job=>tracker.seed([job])} onExpire={()=>tracker.expire()} jobs={snapshot.jobs} errors={snapshot.errors} onRetry={id=>tracker.retry(id)}/>
   {page.cursor&&<div className="history-more"><button type="button" disabled={page.loading} onClick={()=>void load(true)}>{page.loading?"正在加载…":"加载更多"}</button></div>}
  </section>;
 }

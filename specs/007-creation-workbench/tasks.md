@@ -14,15 +14,15 @@
 
 ## US2 下载与重新制作
 独立测试：原记录不变，新编号关联并保留参数，下载本人PNG。
-- [ ] T006 [US2] 在backend/src/test/java/com/materialstudio/job/CreationApiTest.java测试重新制作/模拟失败重试/缺素材/权限/下载，观察RED。
-- [ ] T007 [US2] 实现backend/src/main/java/com/materialstudio/job/JobController.java、JobSubmissionService.java配方与recreate/download契约，验证GREEN。
-- [ ] T008 [US2] 在frontend/src/features/jobs/actions.test.tsx测试下载错误、重复操作及新任务跟踪，观察RED。
-- [ ] T009 [US2] 实现frontend/src/features/jobs/JobActions.tsx、DownloadResult.tsx接入JobCards/History/SubmissionForm，验证GREEN。
+- [x] T006 [US2] 在backend/src/test/java/com/materialstudio/job/CreationApiTest.java测试重新制作/模拟失败重试/缺素材/权限/下载，观察RED。
+- [x] T007 [US2] 实现backend/src/main/java/com/materialstudio/job/JobController.java、JobSubmissionService.java配方与recreate/download契约，验证GREEN。
+- [x] T008 [US2] 在frontend/src/features/jobs/actions.test.tsx测试下载错误、重复操作及新任务跟踪，观察RED。
+- [x] T009 [US2] 实现frontend/src/features/jobs/JobActions.tsx、DownloadResult.tsx接入JobCards/History/SubmissionForm，验证GREEN。
 
 ## US3 事件详情
 独立测试：详情展开更新、失败恢复，任务不变，关闭取消请求。
-- [ ] T010 [US3] 在frontend/src/features/jobs/events.test.tsx新增生命周期测试并观察RED。
-- [ ] T011 [US3] 实现frontend/src/features/jobs/JobEvents.tsx及JobCards.tsx集成，验证GREEN。
+- [x] T010 [US3] 在frontend/src/features/jobs/events.test.tsx新增生命周期测试并观察RED。
+- [x] T011 [US3] 实现frontend/src/features/jobs/JobEvents.tsx及JobCards.tsx集成，验证GREEN。
 
 ## US4 真实明信片
 独立测试：输出像素/尺寸证明上传、裁剪、标题/配色/比例生效。

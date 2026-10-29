@@ -43,4 +43,20 @@ public class JobController {
         jobs.owned(id,sessions.require(token).id());
         return ResponseEntity.ok().contentType(org.springframework.http.MediaType.IMAGE_PNG).header("Cache-Control","no-store").header("X-Content-Type-Options","nosniff").body(results.read(events.find(id)));
     }
+    @PostMapping("/{id}/recreate")
+    public ResponseEntity<?> recreate(@CookieValue(name="material_session",required=false) String token,@PathVariable String id,@RequestHeader(name="Idempotency-Key",required=false) String key) {
+        var job=jobs.recreate(id,sessions.require(token).id(),key);
+        return ResponseEntity.accepted().location(URI.create("/api/jobs/"+job.id())).header("Cache-Control","no-store").body(Map.of("job",job));
+    }
+    @GetMapping("/{id}/recipe")
+    public ResponseEntity<?> recipe(@CookieValue(name="material_session",required=false) String token,@PathVariable String id) {
+        return ResponseEntity.ok().header("Cache-Control","no-store").body(jobs.recipe(id,sessions.require(token).id()));
+    }
+    @GetMapping("/{id}/download")
+    public ResponseEntity<?> download(@CookieValue(name="material_session",required=false) String token,@PathVariable String id) {
+        jobs.owned(id,sessions.require(token).id());
+        return ResponseEntity.ok().contentType(org.springframework.http.MediaType.IMAGE_PNG)
+            .header("Cache-Control","no-store").header("X-Content-Type-Options","nosniff")
+            .header("Content-Disposition","attachment; filename=\"material-"+id+".png\"").body(results.read(events.find(id)));
+    }
 }

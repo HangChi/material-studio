@@ -84,6 +84,6 @@ function SubmissionBody({template,owner}:{template:Template;owner:string}) {
   </div>
   {queryError&&<p role="alert">{queryError}</p>}
   {loaded&&jobs.length===0&&<p>当前访客暂时没有已受理任务。</p>}
-  {jobs.length>0&&<section aria-label="已受理任务" className="job-receipts"><h3>已受理任务</h3><JobCards jobs={jobs} errors={snapshot.errors} onRetry={id=>tracker.retry(id)} headingLevel={4}/></section>}
+  {jobs.length>0&&<section aria-label="已受理任务" className="job-receipts"><h3>已受理任务</h3><JobCards onAccepted={job=>tracker.seed([job])} onExpire={()=>tracker.expire()} jobs={jobs} errors={snapshot.errors} onRetry={id=>tracker.retry(id)} headingLevel={4}/></section>}
  </section>;
 }

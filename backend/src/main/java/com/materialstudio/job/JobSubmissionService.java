@@ -27,8 +27,11 @@ public class JobSubmissionService {
     }
     public JobView submit(String owner,Request request) { return submit(owner,request,null); }
     public JobView submit(String owner,Request request,String key) {
+        return create(owner,request,key,null);
+    }
+    private JobView create(String owner,Request request,String key,String source) {
         validateKey(key);
-        String fingerprint=fingerprint(request);
+        String fingerprint=fingerprint(request,source);
         if(request.templateId()==null || request.templateId().isBlank() || request.assetIds()==null || request.assetIds().isEmpty()
                 || request.assetIds().size()>3 || request.assetIds().stream().anyMatch(id->id==null || id.isBlank())
                 || new HashSet<>(request.assetIds()).size()!=request.assetIds().size()) throw invalid();
@@ -52,6 +55,7 @@ public class JobSubmissionService {
             Instant now=Instant.now();
             jobs.insert(new JobRow(id,owner,template.id(),template.title(),"QUEUED",null,0,now,now,null,null,null,null));
             events.configure(configuration);
+            creation.save(new CreationMapper.Recipe(id,null,source));
             if(key!=null)creation.remember(owner,key,fingerprint,id);
             for(int slot=0;slot<request.assetIds().size();slot++) jobs.link(id,request.assetIds().get(slot),slot);
         });
@@ -64,13 +68,26 @@ public class JobSubmissionService {
         }
         return owned(id,owner);
     }
+    public record RecipeView(Object parameters,String sourceJobId,List<String> assetIds) {}
+    public RecipeView recipe(String id,String owner) {
+        owned(id,owner);var recipe=creation.recipe(id);
+        return new RecipeView(null,recipe==null?null:recipe.sourceJobId(),events.assetIds(id));
+    }
+    public JobView recreate(String id,String owner,String key) {
+        validateKey(key);if(key==null)throw new ApiException(400,"INVALID_IDEMPOTENCY_KEY","重新制作需要提交标识");
+        var old=owned(id,owner);
+        if(!Set.of("SUCCEEDED","FAILED").contains(old.status()))throw new ApiException(409,"JOB_NOT_FINISHED","任务尚未结束，请等待完成");
+        var config=events.configuration(id);
+        Simulation simulation=config==null?null:new Simulation(null,Map.of(Simulation.Stage.ASSET_CHECK,config.checkMs(),Simulation.Stage.GENERATE,config.generateMs(),Simulation.Stage.FINALIZE,config.finalizeMs()));
+        return create(owner,new Request(old.templateId(),events.assetIds(id),simulation),key,id);
+    }
     private void validateKey(String key) {
         if(key!=null&&!key.matches("[A-Za-z0-9_-]{1,80}"))throw new ApiException(400,"INVALID_IDEMPOTENCY_KEY","提交标识格式不正确");
     }
-    private String fingerprint(Request request) {
+    private String fingerprint(Request request,String source) {
         try {
             var simulation=(request.simulation()==null?new Simulation(null,null):request.simulation()).resolve("");
-            return HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(json.writeValueAsBytes(Arrays.asList(request.templateId(),request.assetIds(),simulation))));
+            return HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(json.writeValueAsBytes(Arrays.asList(request.templateId(),request.assetIds(),simulation,source))));
         } catch(java.io.IOException|java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
     }
     public JobView owned(String id,String owner) {
