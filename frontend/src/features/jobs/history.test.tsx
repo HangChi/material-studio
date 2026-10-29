@@ -12,7 +12,7 @@ describe("personal history",()=>{
   const fetcher=api(()=>Response.json({items:[job("success",{status:"SUCCEEDED",stage:"FINALIZE",version:6,errorCode:null,errorMessage:null,resultUrl:"/api/jobs/success/result"})],nextCursor:"success"}));
   fetcher.mockImplementation(async(url:string)=>url==="/api/session"?Response.json({user:{id:"owner-a"}}):url==="/api/jobs/active"?Response.json({items:[job("old-active",{status:"QUEUED",stage:null,version:0,errorMessage:null})]}):Response.json({items:[job("success",{status:"SUCCEEDED",stage:"FINALIZE",version:6,errorMessage:null,resultUrl:"/api/jobs/success/result"})],nextCursor:"success"}));
   vi.stubGlobal("fetch",fetcher);render(<History/>);expect(await screen.findByText("任务编号：old-active")).toBeVisible();
-  expect(screen.getByRole("img",{name:"日光肖像制作结果"})).toHaveAttribute("src","/api/jobs/success/result");expect(screen.getByText("等待处理")).toBeVisible();
+  expect(screen.getByRole("img",{name:"日光肖像制作结果"})).toHaveProperty("src",new URL("/api/jobs/success/result",window.location.href).href);expect(screen.getByText("等待处理")).toBeVisible();
  });
  it("retains cards and the cursor on a page error and retries without duplicates",async()=>{
   let more=0;const fetcher=api(url=>{
@@ -39,4 +39,28 @@ describe("personal history",()=>{
   expect(await screen.findByText("还没有制作记录")).toBeVisible();await act(async()=>{resolve(Response.json({items:[job("late-old")],nextCursor:null}));});
   expect(screen.queryByText("任务编号：old")).not.toBeInTheDocument();expect(screen.queryByText("任务编号：late-old")).not.toBeInTheDocument();
  });
+});
+
+it("refreshes an exhausted history onto the newest pagination chain without losing intermediate records",async()=>{
+ let firstReads=0;
+ const fetcher=api(url=>{
+  if(url.includes("cursor="))return Response.json({items:[...Array.from({length:5},(_,i)=>job(`new-${20+i}`)),job("old")],nextCursor:null});
+  firstReads++;return firstReads===1?Response.json({items:[job("old")],nextCursor:null}):Response.json({items:Array.from({length:20},(_,i)=>job(`new-${i}`)),nextCursor:"new-19"});
+ });vi.stubGlobal("fetch",fetcher);render(<History/>);await screen.findByText("任务编号：old");
+ fireEvent.click(screen.getByRole("button",{name:"刷新记录"}));await screen.findByText("任务编号：new-0");
+ fireEvent.click(screen.getByRole("button",{name:"加载更多"}));expect(await screen.findByText("任务编号：new-24")).toBeVisible();
+ expect(screen.getAllByRole("article")).toHaveLength(26);expect(screen.getAllByText("任务编号：old")).toHaveLength(1);
+ expect(fetcher).toHaveBeenCalledWith("/api/jobs?limit=20&cursor=new-19",expect.anything());
+});
+it("replaces an existing cursor on refresh rather than skipping newly inserted pages",async()=>{
+ let reads=0;const fetcher=api(()=>Response.json(++reads===1?{items:[job("old-head")],nextCursor:"old-anchor"}:reads===2?{items:[job("new-head")],nextCursor:"new-anchor"}:{items:[job("gap")],nextCursor:null}));
+ vi.stubGlobal("fetch",fetcher);render(<History/>);await screen.findByText("任务编号：old-head");
+ fireEvent.click(screen.getByRole("button",{name:"刷新记录"}));await screen.findByText("任务编号：new-head");fireEvent.click(screen.getByRole("button",{name:"加载更多"}));await screen.findByText("任务编号：gap");
+ expect(fetcher).toHaveBeenCalledWith("/api/jobs?limit=20&cursor=new-anchor",expect.anything());expect(screen.getByText("任务编号：old-head")).toBeVisible();
+});
+it("retains the previous cursor and snapshots when refreshing the first page fails",async()=>{
+ let reads=0;const fetcher=api(()=>++reads===1?Response.json({items:[job("old")],nextCursor:"old-anchor"}):reads===2?Response.json({error:{}},{status:503}):Response.json({items:[job("older")],nextCursor:null}));
+ vi.stubGlobal("fetch",fetcher);render(<History/>);await screen.findByText("任务编号：old");fireEvent.click(screen.getByRole("button",{name:"刷新记录"}));
+ await screen.findByText(/记录查询失败/);expect(screen.getByText("任务编号：old")).toBeVisible();fireEvent.click(screen.getByRole("button",{name:"加载更多"}));await screen.findByText("任务编号：older");
+ expect(fetcher).toHaveBeenCalledWith("/api/jobs?limit=20&cursor=old-anchor",expect.anything());
 });

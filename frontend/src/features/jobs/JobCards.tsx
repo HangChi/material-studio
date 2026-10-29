@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import { ResultPreview } from "./ResultPreview";
 import type { Job } from "./types";
 import { unfinished } from "./JobTracker";
 export function JobCards({jobs,errors,onRetry,headingLevel=3}:{jobs:Job[];errors:Record<string,string>;onRetry:(id:string)=>void;headingLevel?:3|4}){
@@ -12,6 +12,6 @@ export function JobCards({jobs,errors,onRetry,headingLevel=3}:{jobs:Job[];errors
    {job.errorMessage&&<p className="execution-error">{job.errorMessage}</p>}
    {errors[job.id]?<div className="query-error"><p role="alert">{errors[job.id]}</p><button type="button" aria-label={`恢复查询 ${job.id}`} onClick={()=>onRetry(job.id)}>恢复查询</button></div>:unfinished(job)&&<p className="tracking-note">正在自动更新</p>}
   </div>
-  {job.status==="SUCCEEDED"&&job.resultUrl===`/api/jobs/${job.id}/result`&&<Image className="job-result" unoptimized src={job.resultUrl} alt={`${job.templateTitle}制作结果`} width={960} height={720}/>}
+  {job.status==="SUCCEEDED"&&job.resultUrl===`/api/jobs/${job.id}/result`&&<ResultPreview key={job.resultUrl} url={job.resultUrl} title={job.templateTitle}/>}
  </article>)}</div>;
 }

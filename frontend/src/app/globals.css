@@ -104,4 +104,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .query-error { color: #855500; overflow-wrap: anywhere; }
 .history-more { margin: 32px 0; text-align: center; }
 .text-action { display: inline-block; padding: 12px; color: var(--action); font-weight: 600; }
+.result-preview { min-width: 0; }
+.result-preview-error { min-height: 180px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 16px; padding: 24px; background: var(--canvas); border: 1px dashed var(--line); border-radius: 8px; }
+.result-preview-error p { color: var(--muted); margin: 0; }
 @media(max-width:760px) { .header-inner { flex-wrap: wrap; } nav { gap: 20px; } .visitor-panel,.history-toolbar { flex-direction: column; align-items: stretch; gap: 16px; } .has-result { grid-template-columns: minmax(0,1fr); gap: 20px; } .history-cards .job-receipt { padding: 20px; } }

@@ -11,7 +11,7 @@ export function History(){return <SessionGate allowSwitch>{owner=><HistoryBody k
 function HistoryBody({owner}:{owner:string}){
  const {tracker,snapshot}=useJobTracker(owner);
  const [page,setPage]=useState({loading:true,loaded:false,error:"",cursor:null as string|null});
- const resources=useRef({active:true,serial:0,locked:false,controller:null as AbortController|null,cursor:null as string|null,initialized:false});
+ const resources=useRef({active:true,serial:0,locked:false,controller:null as AbortController|null,cursor:null as string|null});
  const load=useCallback(async(more:boolean)=>{
   const state=resources.current;if(state.locked||tracker.getSnapshot().authExpired||(more&&!state.cursor))return;
   state.locked=true;const serial=++state.serial,controller=new AbortController();state.controller=controller;
@@ -31,8 +31,7 @@ function HistoryBody({owner}:{owner:string}){
   if(results.some(result=>result.status==="rejected"&&result.reason instanceof IdentityExpired)){tracker.expire();state.locked=false;setPage(previous=>({...previous,loading:false}));return;}
   for(const result of results)if(result.status==="fulfilled")tracker.seed(result.value.items);
   const first=results[0];if(first.status==="fulfilled"){
-   if(more||!state.initialized)state.cursor=first.value.nextCursor;
-   state.initialized=true;
+   state.cursor=first.value.nextCursor;
   }
   state.locked=false;state.controller=null;
   setPage(previous=>({loading:false,loaded:previous.loaded||first.status==="fulfilled",cursor:state.cursor,error:results.some(result=>result.status==="rejected")?"记录查询失败，已保留现有记录，请重试。":""}));

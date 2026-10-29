@@ -82,7 +82,7 @@ describe("pipeline snapshots",()=>{
   const mock=api();mock.mockImplementation(async(url:string)=>url==="/api/session"?Response.json({user:{id:"user-1"}}):Response.json({items:[{...job,id:"running",status:"RUNNING",stage:"GENERATE"},{...job,id:"finished",status:"SUCCEEDED",stage:"FINALIZE",resultUrl:"/api/jobs/finished/result"}]}));
   vi.stubGlobal("fetch",mock);render(<SubmissionForm template={template}/>);await ready();fireEvent.click(screen.getByRole("button",{name:"查看已受理任务"}));
   expect(await screen.findByText("当前阶段：模拟生成")).toBeVisible();
-  expect(screen.getByRole("img",{name:"日光肖像制作结果"})).toHaveAttribute("src","/api/jobs/finished/result");
+  expect(screen.getByRole("img",{name:"日光肖像制作结果"})).toHaveProperty("src",new URL("/api/jobs/finished/result",window.location.href).href);
   expect(screen.getByText("制作成功")).toBeVisible();expect(screen.getByText("处理中")).toBeVisible();
  });
  it("keeps the last running snapshot when a later manual query fails",async()=>{
@@ -102,5 +102,5 @@ it("automatically tracks each accepted task to a terminal result without another
   if(url==="/api/jobs/job-1")return Response.json({job:{...job,status:"SUCCEEDED",stage:"FINALIZE",version:6,resultUrl:"/api/jobs/job-1/result"}});
   return Response.json({items:[],nextCursor:null});
  });vi.stubGlobal("fetch",mock);render(<SubmissionForm template={template}/>);await prepare();fireEvent.click(screen.getByRole("button",{name:"提交制作"}));
- expect(await screen.findByText("任务编号：job-1")).toBeVisible();expect(await screen.findByRole("img",{name:"日光肖像制作结果"},{timeout:3000})).toHaveAttribute("src","/api/jobs/job-1/result");
+ expect(await screen.findByText("任务编号：job-1")).toBeVisible();expect(await screen.findByRole("img",{name:"日光肖像制作结果"},{timeout:3000})).toHaveProperty("src",new URL("/api/jobs/job-1/result",window.location.href).href);
 });
