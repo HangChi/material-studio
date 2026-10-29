@@ -24,8 +24,8 @@
 - [x] T012 [US4] compose.yaml、.env.example与scripts验证入口同步配额与新受理语义。
 
 ## US5 · 内部监控
-- [ ] T013 [US5] backend/src/test/java/com/materialstudio/job/OperationsTest.java覆盖统计样本/取消/重试/扫描错误及frontend/src/lib/api-proxy.test.ts隔离，观察RED。
-- [ ] T014 [US5] backend/src/main/java/com/materialstudio/job/{OperationsMapper,OperationsEndpoint}.java和BackgroundJobDispatcher.java实现内部统计，application.yml仅Java暴露端点，验证GREEN。
+- [x] T013 [US5] backend/src/test/java/com/materialstudio/job/OperationsTest.java覆盖统计样本/取消/重试/扫描错误及frontend/src/lib/api-proxy.test.ts隔离，观察RED。
+- [x] T014 [US5] backend/src/main/java/com/materialstudio/job/{OperationsMapper,OperationsEndpoint}.java和QueueScanMonitor.java/BackgroundJobDispatcher.java实现内部只读统计，仅Java容器网络可达，验证GREEN。
 
 ## Delivery
 - [ ] T015 scripts/verify-010.mjs、docs/010-validation.md补充真实排队/配额/监控验收；容器全量前后端回归与生产重建。

@@ -10,11 +10,15 @@ import java.util.concurrent.*;
 
 @Component
 public class BackgroundJobDispatcher implements JobDispatcher,ApplicationRunner {
+ private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger(BackgroundJobDispatcher.class);
+ private final QueueScanMonitor monitor;
+ public QueueScanMonitor.Snapshot scanSnapshot(){return monitor.snapshot();}
  private final PipelineWorker worker;private final PipelineState state;private final ExecutionMapper execution;
  private final ThreadPoolExecutor executor;private final ScheduledExecutorService scanner;
  private final Set<String> scheduled=new HashSet<>();private volatile boolean ready;
- public BackgroundJobDispatcher(PipelineWorker worker,PipelineState state,ExecutionMapper execution,@Value("${studio.queue-capacity:16}") int capacity){
+ public BackgroundJobDispatcher(PipelineWorker worker,PipelineState state,ExecutionMapper execution,@Value("${studio.queue-capacity:16}") int capacity,QueueScanMonitor monitor){
   this.worker=worker;this.state=state;this.execution=execution;
+  this.monitor=monitor;
   executor=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(capacity),r->new Thread(r,"material-pipeline"),new ThreadPoolExecutor.AbortPolicy());
   scanner=Executors.newSingleThreadScheduledExecutor(r->new Thread(r,"material-recovery-scan"));
  }
@@ -33,7 +37,10 @@ public class BackgroundJobDispatcher implements JobDispatcher,ApplicationRunner 
   try{for(String id:execution.ready()){
    if(scheduled.contains(id))continue;
    try{dispatch(id);}catch(RejectedExecutionException full){break;}
-  }}catch(org.springframework.dao.DataAccessException unavailable){/* Persisted queued tasks are retried on the next scan. */}
+  }monitor.succeeded();}catch(RuntimeException unavailable){
+   long failures=monitor.failed();
+   if(failures==1||(failures&(failures-1))==0)LOG.warn("Queue scan failed ({} failures); persisted work will be retried",failures,unavailable);
+  }
  }
  @PreDestroy public void close(){
   synchronized(this){ready=false;scanner.shutdownNow();executor.shutdownNow();}

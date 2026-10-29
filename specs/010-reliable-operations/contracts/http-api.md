@@ -7,7 +7,7 @@ History读取GET /api/templates的{id,title}列表，不自行推导列表；失
 POST /api/jobs及/jobs/{id}/recreate共享配额。幂等同key/同内容先返回既有202；其他校验同008。
 超过全局/本人未完成配额：429 ADMISSION_LIMIT；超过60秒创建速率：429 RATE_LIMITED。body沿用{error:{code,message}}，两者Retry-After:60，事务不创建任何业务记录；前端以明确4xx显示并解锁输入，用户稍后可新提交。
 即时调度不可用：返回202持久QUEUED，后续scanner接管，不能返回QUEUE_REJECTED。
-配置：STUDIO_MAX_PENDING=100、STUDIO_MAX_PENDING_PER_USER=20、STUDIO_SUBMISSIONS_PER_MINUTE=10，正整数。
+配置：STUDIO_QUEUE_CAPACITY=16控制内存等待槽位，独立于受理配额；STUDIO_MAX_PENDING=100、STUDIO_MAX_PENDING_PER_USER=20、STUDIO_SUBMISSIONS_PER_MINUTE=10，正整数。
 ## Operations
 GET /actuator/studio，仅Java内部网络可达；Next /api/actuator/studio与/api/studio均404。
 返回{counts:{queued,running,succeeded,failed,cancelled},failureRate,queue:{samples,totalMs,averageMs},stages:[{stage,samples,totalMs,averageMs}],retries,scanner:{failures,lastSuccessAt}}。

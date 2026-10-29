@@ -5,7 +5,7 @@
 - 公开前审查49个历史提交：敏感配置文件名、常见私钥/GitHub/OpenAI/AWS凭据模式均0命中；无真实凭据加入仓库。
 - `WEB_PORT=3101 docker compose -p material-studio-010-cold up --build -d --wait`从不存在的独立卷创建mysql-data/asset-data，三服务健康。使用已有Docker依赖层，未宣称无缓存全量下载。
 - 独立cold项目frontend执行scripts/verify-008.mjs通过：素材分页、三模板真实PNG、编辑配方、重命名/收藏/隐藏恢复/搜索、排队取消、跨身份隐私；编辑任务74edd4e2。
-- 浏览器两个3101/history标签显示相同访客609b26d9；切换后均显示6639c02e，真实storage联动通过，不操作原3000演示身份。
+- 浏览器两个3101/history标签显示相同访客609b26d9；切换后均显示6639c02e，真实storage联动通过，未向原3000服务发送撤销请求。不同端口并不隔离浏览器Cookie；后续浏览器验收改用127.0.0.1以隔离localhost Cookie，不能把端口隔离称为身份隔离。
 - 首次远端CI运行[40901483518](https://github.com/HangChi/material-studio/actions/runs/40901483518)，前端与后端两项均success；完整依赖安装/检查在GitHub runner容器执行。
 
 ## US2访客确认
@@ -27,3 +27,10 @@
 - 内存容量1下真实HTTP连续受理6项，最终每项成功、一次执行、六条阶段事件；跨访客6并发总配额3只能受理3；个人待办2、滚动分钟3（测试小值）拒绝不创建任务，取消释放待办，过期时间释放速率，满配额可幂等回放。
 - 配额429携带Retry-After=60；代理新增测试RED为该头丢失，补转发后9项代理测试及lint/typecheck通过。verify-005的24记录演示遵守限流退避，不关闭配额。
 - Chrome DevTools Rendering真实forced-colors:active：黑底高对比文字/边框/原生箭头可见；任务状态下拉键盘选择正在制作，应用后没有匹配的作品，操作通过。随后恢复No emulation并关闭临时标签。
+
+## US5内部监控
+- 初始RED：OperationsTest两项均因/actuator/studio不存在返回404而失败。
+- 阶段聚合从相邻数字版本改为相邻执行事件；新增管理属性造成版本跳号、失败阶段不计样本测试先RED（期望1样本实际0），实现后通过。
+- 修复过程中发现：MyBatis代理无法用doCallRealMethod恢复抽象接口桩；独立调度器和可控mapper测试扫描故障。监控最初直接依赖具体dispatcher，导致旧测试替换JobDispatcher时上下文不兼容；拆分QueueScanMonitor后解耦恢复。此类测试基础设施错误不记作业务RED。
+- GREEN：全量Java59项、0失败/错误/跳过、mvn verify打包通过。统计用一致只读事务，取消单列；完成阶段/首次排队毫秒样本来自事件，重试来自runtime，扫描失败及最近成功为进程指标。
+- /actuator/studio是内部只读MVC监控入口；Actuator通用指标未开放，Next代理不允许访问，无用户/任务/文件标识。
