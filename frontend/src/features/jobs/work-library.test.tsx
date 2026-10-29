@@ -13,3 +13,8 @@ it("applies server filters and updates terminal work metadata including recovera
  fireEvent.change(screen.getByLabelText("作品名称 one"),{target:{value:"海边"}});fireEvent.click(screen.getByRole("button",{name:"保存名称 one"}));await screen.findByRole("heading",{name:"海边"});
  fireEvent.change(screen.getByLabelText("搜索作品"),{target:{value:"海边"}});fireEvent.click(screen.getByRole("button",{name:"应用筛选"}));await waitFor(()=>expect(paths.some(path=>path.includes("q=%E6%B5%B7%E8%BE%B9"))).toBe(true));
 });
+
+it("still finds a renamed work by its template title",async()=>{
+ let filtered=false;vi.stubGlobal("fetch",vi.fn(async(url:string)=>{if(url==="/api/session")return Response.json({user:{id:"owner"}});if(url.includes("/active"))return Response.json({items:[]});if(url.includes("q="))filtered=true;return Response.json({items:[{...job,displayName:"海边"}],nextCursor:null});}));
+ render(<History/>);await screen.findByRole("heading",{name:"海边"});fireEvent.change(screen.getByLabelText("搜索作品"),{target:{value:"肖像"}});fireEvent.click(screen.getByRole("button",{name:"应用筛选"}));await waitFor(()=>expect(filtered).toBe(true));expect(await screen.findByRole("heading",{name:"海边"})).toBeVisible();
+});

@@ -26,3 +26,9 @@ it("restores edited draft across remount without overwriting it from the origina
  await screen.findByText("已恢复素材：one,two");expect(screen.getByLabelText("明信片标题")).toHaveValue("暂存的标题");
  fireEvent.click(screen.getByRole("button",{name:"清空草稿"}));expect(screen.getByLabelText("明信片标题")).toHaveValue("旅途来信");
 });
+it("reports a failed draft removal and preserves the current edited fields",async()=>{
+ vi.stubGlobal("fetch",vi.fn(async(url:string)=>url==="/api/session"?Response.json({user:{id:"owner"}}):Response.json({assetIds:["one","two"],parameters,sourceJobId:null})));
+ render(<SubmissionForm template={template} sourceJobId="old"/>);await screen.findByText("已恢复素材：one,two");fireEvent.change(screen.getByLabelText("明信片标题"),{target:{value:"尚未清除"}});await screen.findByText(/草稿已保存/);
+ const remove=vi.spyOn(Storage.prototype,"removeItem").mockImplementation(()=>{throw new Error("blocked");});
+ fireEvent.click(screen.getByRole("button",{name:"清空草稿"}));expect(await screen.findByText(/无法清除本地草稿/)).toBeVisible();expect(screen.getByLabelText("明信片标题")).toHaveValue("尚未清除");remove.mockRestore();
+});

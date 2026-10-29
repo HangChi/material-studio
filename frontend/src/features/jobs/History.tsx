@@ -11,7 +11,7 @@ export function History(){return <SessionGate allowSwitch>{owner=><HistoryBody k
 type Filters={q:string;templateId:string;status:string;from:string;to:string;favorite:boolean;hidden:boolean};
 const emptyFilters:Filters={q:"",templateId:"",status:"",from:"",to:"",favorite:false,hidden:false};
 function matches(job:Job,filter:Filters){
- return !!job.hidden===filter.hidden&&(!filter.favorite||job.favorite)&&(!filter.templateId||job.templateId===filter.templateId)&&(!filter.q||(job.displayName??job.templateTitle).toLocaleLowerCase().includes(filter.q.toLocaleLowerCase()))&&(!filter.status||(filter.status==="CANCELLED"?job.errorCode==="JOB_CANCELLED":job.status===filter.status&&(filter.status!=="FAILED"||job.errorCode!=="JOB_CANCELLED")))&&(!filter.from||Date.parse(job.createdAt)>=new Date(`${filter.from}T00:00:00`).getTime())&&(!filter.to||Date.parse(job.createdAt)<new Date(new Date(`${filter.to}T00:00:00`).getTime()+86400000).getTime());
+ return !!job.hidden===filter.hidden&&(!filter.favorite||job.favorite)&&(!filter.templateId||job.templateId===filter.templateId)&&(!filter.q||[job.displayName,job.templateTitle].some(title=>title?.toLocaleLowerCase().includes(filter.q.toLocaleLowerCase())))&&(!filter.status||(filter.status==="CANCELLED"?job.errorCode==="JOB_CANCELLED":job.status===filter.status&&(filter.status!=="FAILED"||job.errorCode!=="JOB_CANCELLED")))&&(!filter.from||Date.parse(job.createdAt)>=new Date(`${filter.from}T00:00:00`).getTime())&&(!filter.to||Date.parse(job.createdAt)<new Date(new Date(`${filter.to}T00:00:00`).getTime()+86400000).getTime());
 }
 function HistoryBody({owner}:{owner:string}){
  const [form,setForm]=useState(emptyFilters),[filter,setFilter]=useState(emptyFilters);
@@ -25,6 +25,7 @@ function HistoryBody({owner}:{owner:string}){
  </form><HistoryResults key={JSON.stringify(filter)} owner={owner} filter={filter}/></>;
 }
 function HistoryResults({owner,filter}:{owner:string;filter:Filters}){
+ const filtered=Object.values(filter).some(Boolean);
  const params=new URLSearchParams();for(const key of ["q","templateId","status"] as const)if(filter[key])params.set(key,filter[key]);
  if(filter.favorite)params.set("favorite","true");if(filter.hidden)params.set("hidden","true");if(filter.from)params.set("from",new Date(`${filter.from}T00:00:00`).toISOString());if(filter.to)params.set("to",new Date(new Date(`${filter.to}T00:00:00`).getTime()+86400000).toISOString());const query=params.toString();
  const {tracker,snapshot}=useJobTracker(owner);
@@ -63,7 +64,7 @@ function HistoryResults({owner,filter}:{owner:string;filter:Filters}){
   <div className="history-toolbar"><p>记录保存在当前访客名下，未完成任务会自动更新。</p><button type="button" disabled={page.loading} onClick={()=>void load(false)}>刷新记录</button></div>
   {page.loading&&!page.loaded&&<p role="status">正在读取制作记录…</p>}
   {page.error&&<p className="query-error" role="alert">{page.error}</p>}
-  {page.loaded&&snapshot.jobs.filter(job=>matches(job,filter)).length===0&&<div className="state-panel"><h2>还没有制作记录</h2><p>挑选一张模板，开始你的第一份作品。</p><Link className="text-action" href="/">去挑选模板</Link></div>}
+  {page.loaded&&snapshot.jobs.filter(job=>matches(job,filter)).length===0&&<div className="state-panel"><h2>{filtered?"没有匹配的作品":"还没有制作记录"}</h2><p>{filtered?"调整筛选条件后重新查询。":"挑选一张模板，开始你的第一份作品。"}</p>{!filtered&&<Link className="text-action" href="/">去挑选模板</Link>}</div>}
   <JobCards onAccepted={job=>tracker.seed([job])} onExpire={()=>tracker.expire()} jobs={snapshot.jobs.filter(job=>matches(job,filter))} errors={snapshot.errors} onRetry={id=>tracker.retry(id)}/>
   {page.cursor&&<div className="history-more"><button type="button" disabled={page.loading} onClick={()=>void load(true)}>{page.loading?"正在加载…":"加载更多"}</button></div>}
  </section>;

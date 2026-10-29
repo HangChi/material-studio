@@ -21,8 +21,8 @@ function SubmissionBody({template,owner,sourceJobId}:{template:Template;owner:st
  const [draftEnabled,setDraftEnabled]=useState(true),[draftMessage,setDraftMessage]=useState(draftLoad.error||(draftLoad.draft?"已恢复本地草稿":""));
  const [parameters,setParameters]=useState(()=>draftLoad.draft?.parameters??defaultParameters());
  const [assets,setAssets]=useState<(string|null)[]>(()=>draftLoad.draft?.assetIds??[]);
- function clearDraft(){try{localStorage.removeItem(localKey);}catch{setDraftMessage("无法清除本地草稿，请检查浏览器存储设置。");}}
- function discardDraft(){setDraftEnabled(false);clearDraft();setAssets([]);setParameters(defaultParameters());setResetKey(value=>value+1);setDraftMessage("草稿已清空");}
+ function clearDraft(){try{localStorage.removeItem(localKey);return true;}catch{setDraftMessage("无法清除本地草稿，请检查浏览器存储设置。");return false;}}
+ function discardDraft(){if(!clearDraft())return;setDraftEnabled(false);setAssets([]);setParameters(defaultParameters());setResetKey(value=>value+1);setDraftMessage("草稿已清空");}
  const [resetKey,setResetKey]=useState(0);
  const storageKey=`material-pending:${owner}:${template.id}`;
  const [pending,setPending]=useState<{key:string;body:string}|null>(()=>{
@@ -75,7 +75,7 @@ function SubmissionBody({template,owner,sourceJobId}:{template:Template;owner:st
    const result=await response.json();if(!state.active)return;
    if(response.status>=400&&response.status<500){remember(null);setMode("error");setError(result.error?.message??"提交参数不正确，请检查素材");locked.current=false;return;}
    if(response.status!==202||!isJob(result.job))throw new Error("提交结果无效");
-   remember(null);setDraftEnabled(false);clearDraft();setDraftMessage("作品已受理，草稿已清空");tracker.seed([result.job]);
+   remember(null);setDraftEnabled(false);const cleared=clearDraft();setDraftMessage(cleared?"作品已受理，草稿已清空":"作品已受理，但无法清除本地草稿，请检查浏览器存储设置。");tracker.seed([result.job]);
    setAssets([]);setResetKey(key=>key+1);setMode("idle");locked.current=false;
   }catch{if(state.active){setMode("unknown");setReviewed(false);setError("提交结果尚未确认，请先查看已受理任务核对，确认前不要重复提交。");}}
   finally{state.controllers.delete(controller);}

@@ -11,6 +11,7 @@ class WorkLibraryTest extends ApiTestSupport {
   String owner=session();var body=Map.of("templateId","demo-portrait","assetIds",List.of(asset(owner)));String id=call("/api/jobs",HttpMethod.POST,owner,body).getBody().path("job").path("id").asText();
   var renamed=call("/api/jobs/"+id+"/library",HttpMethod.PATCH,owner,Map.of("displayName","海边旅行","favorite",true));assertThat(renamed.getStatusCode().value()).isEqualTo(200);assertThat(renamed.getBody().path("job").path("displayName").asText()).isEqualTo("海边旅行");
   assertThat(call("/api/jobs?q=旅行&favorite=true",HttpMethod.GET,owner,null).getBody().path("items").size()).isEqualTo(1);
+  assertThat(call("/api/jobs?q=日光",HttpMethod.GET,owner,null).getBody().path("items").size()).isEqualTo(1);
   assertThat(call("/api/jobs?q=不存在",HttpMethod.GET,owner,null).getBody().path("items").size()).isZero();
   assertThat(call("/api/jobs?templateId=demo-postcard",HttpMethod.GET,owner,null).getBody().path("items").size()).isZero();
   assertThat(call("/api/jobs?from=2099-01-01T00:00:00Z",HttpMethod.GET,owner,null).getBody().path("items").size()).isZero();

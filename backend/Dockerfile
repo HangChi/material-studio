@@ -5,7 +5,7 @@ WORKDIR /workspace
 COPY pom.xml .
 COPY .mvn ./.mvn
 COPY src ./src
-RUN mvn -B -DskipTests package
+RUN --mount=type=cache,id=material-studio-maven,target=/root/.m2 mvn -B -DskipTests package
 FROM tools AS runtime
 WORKDIR /app
 COPY --from=build /workspace/target/material-studio-0.1.0.jar app.jar
