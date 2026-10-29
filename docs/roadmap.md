@@ -7,7 +7,7 @@
 | Feature | 范围 | 原题/原任务 | 依赖 | 本轮状态 |
 | --- | --- | --- | --- | --- |
 | [002-template-catalog](../specs/002-template-catalog/spec.md) | 必需工程骨架、模板分类/列表/详情、本地封面、基础 CI/容器 | R-01/02、R-03 只读详情、R-11/12/14 当前切片；旧T002～T004/T009～T013/T039～T041相关部分 | 无 | 已完成本地验收；17/17任务 |
-| [003-upload-submission](../specs/003-upload-submission/spec.md) | 匿名身份、图片落盘/预览/校验、任务受理和记录、调度接口 | R-03/04/10；旧T005～T008/T014～T021 | 002 | 规格基线，待规划 |
+| [003-upload-submission](../specs/003-upload-submission/spec.md) | 匿名身份、图片落盘/预览/校验、任务受理和记录、调度接口 | R-03/04/10；旧T005～T008/T014～T021 | 002 | 已完成本地验收；18/18任务 |
 | [004-async-pipeline](../specs/004-async-pipeline/spec.md) | 三阶段执行、模拟控制、状态/事件/结果持久化、重启中断说明 | R-04/05/06；旧T022～T029 | 003 | 规格基线，待规划 |
 | [005-history-tracking](../specs/005-history-tracking/spec.md) | 本人历史、刷新、多任务、查询异常、订阅清理、最终交付验收 | R-07/08/09/10 与完整R-11～R-14；旧T030～T044剩余部分 | 003/004 | 规格基线，待规划 |
 
@@ -22,7 +22,7 @@ Spec Kit 0.16.4 的 `.specify/feature.json` 为忽略的机器本地指针，不
 克隆/切换 feature 后显式运行（将路径替换为目标 feature）：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/002-template-catalog .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/003-upload-submission .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 脚本将持久化本机 feature 指针。禁止把新功能继续加到 001 的执行清单。

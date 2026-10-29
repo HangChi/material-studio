@@ -102,3 +102,5 @@
 - /tmp/material-studio-003.png为桌面回执截图，/tmp/material-studio-003-mobile.png为375px证据，/tmp/material-studio-003-upload.png为双槽上传证据（临时产物未提交）。
 - 未知结果的网络/5xx/无效202及核对失败门禁由组件测试验证；未伪称浏览器丢包注入。HTTPS配置有单测，未做真实TLS部署。远端CI未运行。
 - 可核对时段：01:40:03～01:50:17（10分14秒），10:30:03～11:22:10（52分07秒），合计62分21秒观测窗口，含下载/验证与整理，不等同纯人工时；两段之间等待用户继续不计入。
+
+- 最终同步README、路线图、spec状态和quickstart；003共18/18任务完成。交付前再次确认frontend/backend/mysql均healthy，保留运行供预览。

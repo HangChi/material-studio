@@ -40,7 +40,7 @@
 
 - [x] T016 在 compose.yaml、backend/src/main/resources/application.yml、.env.example、frontend/src/app/globals.css 增加文件卷/上传限制/严格JSON/Secure配置及375px上传反馈。
 - [x] T017 通过容器完整前端检查/Java verify、docker compose up --build -d与实际浏览器上传/替换/提交/核对/身份隔离，记录 docs/work-log.md 的真实证据。
-- [ ] T018 更新 README.md、docs/roadmap.md、specs/003-upload-submission/quickstart.md 说明当前默认worker限制、接口/配置/投入与状态，提交验收增量。
+- [x] T018 更新 README.md、docs/roadmap.md、specs/003-upload-submission/quickstart.md 说明当前默认worker限制、接口/配置/投入与状态，提交验收增量。
 
 ## Dependencies & Execution Order
 
