@@ -53,4 +53,8 @@ describe("isolated automatic task tracking",()=>{
   await vi.advanceTimersByTimeAsync(1000);expect(tracker.getSnapshot().authExpired).toBe(true);expect(tracker.getSnapshot().jobs).toEqual([]);
   const calls=fetcher.mock.calls.length;await vi.advanceTimersByTimeAsync(2000);expect(fetcher).toHaveBeenCalledTimes(calls);
  });
+ it("preserves the server microsecond creation order before using the id tie-breaker",()=>{
+  tracker.seed([job("z",{status:"FAILED",version:2,createdAt:"2026-10-29T00:00:00.000001Z"}),job("a",{status:"FAILED",version:2,createdAt:"2026-10-29T00:00:00.000002Z"})]);
+  expect(tracker.getSnapshot().jobs.map(job=>job.id)).toEqual(["a","z"]);
+ });
 });

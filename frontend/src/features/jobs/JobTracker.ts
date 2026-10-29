@@ -5,6 +5,10 @@ export function isJob(value:unknown):value is Job {
  const job=value as Record<string,unknown>;
  return typeof job.id==="string"&&job.id.length>0&&typeof job.templateTitle==="string"&&typeof job.createdAt==="string"&&Number.isFinite(Date.parse(job.createdAt))&&Number.isSafeInteger(job.version)&&Number(job.version)>=0&&["QUEUED","RUNNING","SUCCEEDED","FAILED"].includes(String(job.status));
 }
+function newestFirst(a:Job,b:Job){
+ const fraction=(value:string)=>(value.match(/\.(\d+)(?:Z|[+-]\d{2}:\d{2})$/)?.[1]??"").padEnd(9,"0");
+ return Date.parse(b.createdAt)-Date.parse(a.createdAt)||fraction(b.createdAt).localeCompare(fraction(a.createdAt))||b.id.localeCompare(a.id);
+}
 export const unfinished=(job:Job)=>job.status==="QUEUED"||job.status==="RUNNING";
 export class JobTracker {
  private snapshot:TrackerSnapshot={jobs:[],errors:{},authExpired:false};
@@ -35,7 +39,7 @@ export class JobTracker {
    jobs.set(job.id,job);
    if(!unfinished(job)){this.cancel(job.id);delete errors[job.id];}
   }
-  this.publish({...this.snapshot,jobs:[...jobs.values()].sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt)||b.id.localeCompare(a.id)),errors});
+  this.publish({...this.snapshot,jobs:[...jobs.values()].sort(newestFirst),errors});
   for(const job of jobs.values())this.schedule(job);
  }
  private cancel(id:string){
