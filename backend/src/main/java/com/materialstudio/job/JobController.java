@@ -13,7 +13,8 @@ public class JobController {
     private final JobSubmissionService jobs;
     private final EventMapper events;
     private final ResultStore results;
-    public JobController(SessionService sessions,JobSubmissionService jobs,EventMapper events,ResultStore results) { this.sessions=sessions;this.jobs=jobs;this.events=events;this.results=results; }
+    private final HistoryService history;
+    public JobController(SessionService sessions,JobSubmissionService jobs,EventMapper events,ResultStore results,HistoryService history) { this.sessions=sessions;this.jobs=jobs;this.events=events;this.results=results;this.history=history; }
     @PostMapping
     public ResponseEntity<?> submit(@CookieValue(name="material_session",required=false) String token,@RequestBody JobSubmissionService.Request request) {
         var job=jobs.submit(sessions.require(token).id(),request);
@@ -24,9 +25,13 @@ public class JobController {
         return ResponseEntity.ok().header("Cache-Control","no-store").body(Map.of("job",jobs.owned(id,sessions.require(token).id())));
     }
     @GetMapping
-    public ResponseEntity<?> recent(@CookieValue(name="material_session",required=false) String token) {
-        Map<String,Object> response=new LinkedHashMap<>();response.put("items",jobs.recent(sessions.require(token).id()));response.put("nextCursor",null);
-        return ResponseEntity.ok().header("Cache-Control","no-store").body(response);
+    public ResponseEntity<?> recent(@CookieValue(name="material_session",required=false) String token,
+            @RequestParam(defaultValue="20") int limit,@RequestParam(required=false) String cursor) {
+        return ResponseEntity.ok().header("Cache-Control","no-store").body(history.page(sessions.require(token).id(),limit,cursor));
+    }
+    @GetMapping("/active")
+    public ResponseEntity<?> active(@CookieValue(name="material_session",required=false) String token) {
+        return ResponseEntity.ok().header("Cache-Control","no-store").body(Map.of("items",history.active(sessions.require(token).id())));
     }
     @GetMapping("/{id}/events")
     public ResponseEntity<?> events(@CookieValue(name="material_session",required=false) String token,@PathVariable String id) {

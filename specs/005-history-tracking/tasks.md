@@ -11,15 +11,15 @@
 
 独立验证：分页覆盖所有本人记录/同时间稳定次序，空态/身份隔离/非法输入；刷新恢复活动集合。
 
-- [ ] T003 [US1] 在 backend/src/test/java/com/materialstudio/job/HistoryApiTest.java 编写分页、插入稳定性、active归属与只读测试，观察RED。
-- [ ] T004 [US1] 在 backend/src/main/java/com/materialstudio/job/HistoryService.java、JobMapper.java、JobController.java 实现“limit整数1～50、默认20”，“cursor可空本人UUID（36字符）”；不新增schema。
+- [x] T003 [US1] 在 backend/src/test/java/com/materialstudio/job/HistoryApiTest.java 编写分页、插入稳定性、active归属与只读测试，观察RED。
+- [x] T004 [US1] 在 backend/src/main/java/com/materialstudio/job/HistoryService.java、JobMapper.java、JobController.java 实现“limit整数1～50、默认20”，“cursor可空本人UUID（36字符）”；不新增schema。
 
 ## Phase 3 · US2 可靠多任务跟踪
 
 独立验证：三任务独立/乱序、503只暂停查询、恢复/终态/卸载/换身份清理与两周期无多余请求。
 
-- [ ] T005 [US2] 在 frontend/src/features/jobs/tracker.test.ts 编写fake timer与延迟响应测试，观察RED。
-- [ ] T006 [US2] 在 frontend/src/features/jobs/JobTracker.ts、useJobTracker.ts 实现每任务一个timer/controller，1秒非重叠查询，“version非负安全整数”，“status限QUEUED/RUNNING/SUCCEEDED/FAILED”；终态不回退、旧请求无效。
+- [x] T005 [US2] 在 frontend/src/features/jobs/tracker.test.ts 编写fake timer与延迟响应测试，观察RED。
+- [x] T006 [US2] 在 frontend/src/features/jobs/JobTracker.ts、useJobTracker.ts 实现每任务一个timer/controller，1秒非重叠查询，“version非负安全整数”，“status限QUEUED/RUNNING/SUCCEEDED/FAILED”；终态不回退、旧请求无效。
 - [ ] T007 [US2] 在 frontend/src/features/identity/session.test.tsx 编写切换中立即隐藏/请求清理/失败恢复用例，观察RED。
 - [ ] T008 [US2] 在 frontend/src/features/identity/SessionGate.tsx 实现身份生命周期，切换先卸载旧视图，失败不回显旧数据。
 

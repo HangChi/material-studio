@@ -15,4 +15,10 @@ public interface JobMapper {
     List<JobRow> recent(String ownerId);
     @Update("UPDATE job SET status='FAILED',version=version+1,updated_at=#{now},finished_at=#{now},error_code=#{code},error_message=#{message} WHERE id=#{id} AND status='QUEUED'")
     void failQueued(@Param("id") String id,@Param("code") String code,@Param("message") String message,@Param("now") Instant now);
+    @Select({"<script>SELECT "+COLUMNS+" FROM job WHERE owner_id=#{ownerId}",
+        "<if test='time != null'> AND (created_at &lt; #{time} OR (created_at=#{time} AND id &lt; #{cursor}))</if>",
+        "ORDER BY created_at DESC,id DESC LIMIT #{count}</script>"})
+    List<JobRow> page(@Param("ownerId") String ownerId,@Param("time") Instant time,@Param("cursor") String cursor,@Param("count") int count);
+    @Select("SELECT "+COLUMNS+" FROM job WHERE owner_id=#{ownerId} AND status IN ('QUEUED','RUNNING') ORDER BY created_at DESC,id DESC")
+    List<JobRow> active(String ownerId);
 }
