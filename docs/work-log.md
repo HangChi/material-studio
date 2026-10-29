@@ -344,3 +344,5 @@ US5监控初始RED为/actuator/studio404，两项均失败；实现OperationsMap
 
 ### 011 · 扩展6～9 / 资源生命周期
 用户授权四项扩展，约章1.1.0明确本地账号与安全文件维护范围，规格质量6/6。US1 RED：StorageLifecycleTest4项均因/actuator/storage404失败；GREEN：新增V8审计、只识别24h前孤儿、登记/活动/近期/符号链接保护、快照确认、隔离事务补偿、7天后DELETING→PURGED审计。容器命令backend-test mvn -B -Dtest=StorageLifecycleTest test四项通过，含审计插入故障注入恢复原文件。所有文件在ApiTestSupport临时目录，未清理原卷。日志/tmp/material-011-storage-{red,green}.log。
+
+US2 RED：BatchApiTest请求404/无列表，batch UI两个行为因空组件失败。GREEN：V9批次与关联、owner/key回执、1～10子项统一事务；嵌套单项受理只在外层afterCommit调度，直接单项保留事务外调度。后端批次/受理/配额13项通过，补第二子项配额失败整批回滚/同key重用后BatchApiTest4/4。前端批次/导航5项及lint/typecheck通过；每项模板/素材独立，未确认提交持sessionStorage同key/body重试，JobTracker恢复与按项跟踪。V9首次因MySQL默认排序规则与旧外键不兼容失败，修正utf8mb4_unicode_ci，并只移除一次性test-mysql失败迁移记录；这属于迁移整合故障，不算行为RED。日志/tmp/material-011-batch-*。

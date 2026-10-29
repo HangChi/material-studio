@@ -44,6 +44,7 @@ public class JobSubmissionService {
                 || new HashSet<>(request.assetIds()).size()!=request.assetIds().size()) throw invalid();
         String id=UUID.randomUUID().toString();
         var configuration=(request.simulation()==null?new Simulation(null,null):request.simulation()).resolve(id);
+        boolean joined=org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive();
         boolean[] fresh={true};
         String[] accepted={id};
         transaction.executeWithoutResult(status -> {
@@ -74,11 +75,16 @@ public class JobSubmissionService {
         });
         // This boundary is intentionally outside the database transaction and never waits for a worker result.
         if(!fresh[0])return owned(accepted[0],owner);
+        if(joined){
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(new org.springframework.transaction.support.TransactionSynchronization(){@Override public void afterCommit(){schedule(id);}});
+        }else schedule(id);
+        return owned(id,owner);
+    }
+    private void schedule(String id){
         try { dispatcher.dispatch(id); }
         catch(RuntimeException rejected) {
             LOG.warn("Immediate dispatch unavailable; persisted job {} will be picked up by scanner",id);
         }
-        return owned(id,owner);
     }
     public record RecipeView(PostcardParameters parameters,String sourceJobId,List<String> assetIds) {}
     public RecipeView recipe(String id,String owner) {
