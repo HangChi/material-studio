@@ -1,9 +1,10 @@
 "use client";
 
+import { AssetPicker } from "./AssetPicker";
 import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
 import type { Template } from "../templates/types";
-export type UploadSlotsProps = { template: Template; onChange: (ids: (string | null)[]) => void; disabled?: boolean };
+export type UploadSlotsProps = { template: Template; onChange: (ids: (string | null)[]) => void; disabled?: boolean; initialIds?:(string|null)[] };
 type Slot = { status: "empty" | "validating" | "uploading" | "ready" | "error"; file?: File; preview?: string; assetId?: string; message?: string };
 
 async function validateImage(file: File): Promise<void> {
@@ -22,9 +23,10 @@ async function validateImage(file: File): Promise<void> {
   finally { bitmap.close(); }
 }
 
-export function UploadSlots({ template, onChange, disabled = false }: UploadSlotsProps) {
+export function UploadSlots({ template, onChange, disabled = false,initialIds=[] }: UploadSlotsProps) {
   const name = useId();
-  const [slots, setSlots] = useState<Slot[]>(() => Array.from({ length: template.requiredImageCount }, () => ({ status: "empty" })));
+  const [picking,setPicking]=useState<number|null>(null);
+  const [slots, setSlots] = useState<Slot[]>(() => Array.from({ length: template.requiredImageCount }, (_,index) => initialIds[index]?({status:"ready",assetId:initialIds[index]!,preview:`/api/assets/${encodeURIComponent(initialIds[index]!)}/content`}):({ status: "empty" })));
   const resources = useRef({ slots, active: true, versions: Array<number>(template.requiredImageCount).fill(0), controllers: Array<AbortController | null>(template.requiredImageCount).fill(null) });
   useEffect(() => {
     const state = resources.current; state.active = true;
@@ -67,6 +69,8 @@ export function UploadSlots({ template, onChange, disabled = false }: UploadSlot
     {slots.map((slot, index) => <fieldset className="upload-slot" key={index} disabled={disabled}>
       <label htmlFor={`${name}-${index}`}>图片 {index + 1}</label>
       <input id={`${name}-${index}`} type="file" accept={template.acceptedMimeTypes.join(",")} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void start(index, file); }} />
+      <button type="button" aria-label={`从素材库选择图片 ${index+1}`} onClick={()=>setPicking(index)}>从素材库选择</button>
+      {picking===index&&<AssetPicker excluded={slots.filter((_,i)=>i!==index).flatMap(item=>item.assetId?[item.assetId]:[])} onClose={()=>setPicking(null)} onSelect={id=>{clear(index);update(index,{status:"ready",assetId:id,preview:`/api/assets/${encodeURIComponent(id)}/content`});setPicking(null);}}/>}
       {slot.preview && <Image className="upload-preview" src={slot.preview} alt={`图片 ${index + 1} 预览`} width={240} height={160} unoptimized />}
       {slot.status === "validating" && <p role="status">图片 {index + 1} 校验中</p>}
       {slot.status === "uploading" && <p role="status">图片 {index + 1} 上传中</p>}

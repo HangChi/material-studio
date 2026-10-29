@@ -16,6 +16,10 @@ public class AssetController {
     private final SessionService sessions;
     private final AssetService assets;
     public AssetController(SessionService sessions, AssetService assets) { this.sessions = sessions; this.assets = assets; }
+    @GetMapping
+    public ResponseEntity<?> list(@CookieValue(name="material_session",required=false) String token,@RequestParam(defaultValue="20") int limit,@RequestParam(required=false) String cursor) {
+        return ResponseEntity.ok().header("Cache-Control","no-store").body(assets.page(sessions.require(token).id(),limit,cursor));
+    }
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> upload(@CookieValue(name="material_session", required=false) String token, @RequestPart("file") MultipartFile file) {
         AssetRow row = assets.upload(sessions.require(token).id(), file);

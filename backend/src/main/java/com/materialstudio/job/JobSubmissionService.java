@@ -11,9 +11,10 @@ import java.util.*;
 
 @Service
 public class JobSubmissionService {
-    public record Request(String templateId,List<String> assetIds,Simulation simulation,PostcardParameters parameters) {
-        public Request(String templateId,List<String> assetIds) { this(templateId,assetIds,null,null); }
-        public Request(String templateId,List<String> assetIds,Simulation simulation) { this(templateId,assetIds,simulation,null); }
+    public record Request(String templateId,List<String> assetIds,Simulation simulation,PostcardParameters parameters,String sourceJobId) {
+        public Request(String templateId,List<String> assetIds) { this(templateId,assetIds,null,null,null); }
+        public Request(String templateId,List<String> assetIds,Simulation simulation) { this(templateId,assetIds,simulation,null,null); }
+        public Request(String templateId,List<String> assetIds,Simulation simulation,PostcardParameters parameters) { this(templateId,assetIds,simulation,parameters,null); }
     }
     private final CreationMapper creation;
     private final com.fasterxml.jackson.databind.ObjectMapper json;
@@ -28,7 +29,7 @@ public class JobSubmissionService {
     }
     public JobView submit(String owner,Request request) { return submit(owner,request,null); }
     public JobView submit(String owner,Request request,String key) {
-        return create(owner,request,key,null);
+        return create(owner,request,key,request.sourceJobId());
     }
     private JobView create(String owner,Request request,String key,String source) {
         validateKey(key);
@@ -49,6 +50,11 @@ public class JobSubmissionService {
                     if(!previous.fingerprint().equals(fingerprint))throw new ApiException(409,"IDEMPOTENCY_CONFLICT","同一提交标识的内容不同，请核对原操作");
                     fresh[0]=false;accepted[0]=previous.jobId();return;
                 }
+            }
+            if(source!=null) {
+                var original=owned(source,owner);
+                if(!original.templateId().equals(request.templateId()))throw new ApiException(422,"SOURCE_TEMPLATE_MISMATCH","原作品模板与当前模板不同");
+                if(!Set.of("SUCCEEDED","FAILED").contains(original.status()))throw new ApiException(409,"JOB_NOT_FINISHED","原任务尚未结束");
             }
             var template=templates.find(request.templateId());
             if(template==null) throw new ApiException(404,"RESOURCE_NOT_FOUND","模板不存在");

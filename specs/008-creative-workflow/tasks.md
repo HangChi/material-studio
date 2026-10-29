@@ -3,12 +3,12 @@
 全部串行；每项含目标文件路径，先观察业务RED再实现GREEN；全部七项必须交付。
 
 - [x] T001 规格/计划/契约并通过checklists/requirements.md
-- [ ] T002 [US1] 编辑来源真实HTTP测试RED、JobSubmissionService/Controller实现GREEN
-- [ ] T003 [US1] SubmissionForm来源恢复/编辑入口测试RED与实现GREEN
-- [ ] T004 [US2] 原图像素测试RED、TemplateRenderer/Worker全模板合成GREEN
-- [ ] T005 [US3] 素材分页/权限测试RED、AssetMapper/Controller实现GREEN
-- [ ] T006 [US3] AssetPicker/UploadSlots复用素材测试RED与实现GREEN
-- [ ] T007 [US4] draft-storage/SubmissionForm恢复隔离测试RED与实现GREEN
+- [x] T002 [US1] 编辑来源真实HTTP测试RED、JobSubmissionService/Controller实现GREEN
+- [x] T003 [US1] SubmissionForm来源恢复/编辑入口测试RED与实现GREEN
+- [x] T004 [US2] 原图像素测试RED、TemplateRenderer/Worker全模板合成GREEN
+- [x] T005 [US3] 素材分页/权限测试RED、AssetMapper/Controller实现GREEN
+- [x] T006 [US3] AssetPicker/UploadSlots复用素材测试RED与实现GREEN
+- [x] T007 [US4] draft-storage/SubmissionForm恢复隔离测试RED与实现GREEN
 - [ ] T008 [US5] 历史筛选/管理测试RED、LibraryMapper/Service/JobController实现GREEN
 - [ ] T009 [US5] History/WorkControls全历史筛选、管理/恢复与过期响应测试RED/GREEN
 - [ ] T010 [US6] 取消/终态竞争测试RED、PipelineState/Controller取消/队列快照实现GREEN

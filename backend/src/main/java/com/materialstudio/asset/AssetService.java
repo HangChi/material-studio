@@ -57,6 +57,15 @@ public class AssetService {
             } finally { reader.dispose(); }
         } catch (IOException | IllegalArgumentException e) { throw invalidImage(); }
     }
+    public record AssetView(String id,String url,String mimeType,long sizeBytes,Instant createdAt) {}
+    public record Page(List<AssetView> items,String nextCursor) {}
+    public Page page(String owner,int limit,String cursor) {
+        if(limit<1||limit>50)throw new ApiException(400,"INVALID_REQUEST","每页数量必须是1～50");
+        AssetRow anchor=null;
+        if(cursor!=null){anchor=assets.findOwned(cursor,owner);if(anchor==null)throw new ApiException(400,"INVALID_CURSOR","素材分页位置无效，请刷新");}
+        var rows=assets.page(owner,anchor==null?null:anchor.createdAt(),cursor,limit+1);boolean more=rows.size()>limit;
+        var selected=rows.subList(0,Math.min(rows.size(),limit));return new Page(selected.stream().map(row->new AssetView(row.id(),"/api/assets/"+row.id()+"/content",row.mimeType(),row.sizeBytes(),row.createdAt())).toList(),more?selected.getLast().id():null);
+    }
     public AssetRow owned(String id, String owner) {
         AssetRow row = assets.findOwned(id, owner);
         if (row == null) throw new ApiException(404, "RESOURCE_NOT_FOUND", "素材不存在或不可访问");

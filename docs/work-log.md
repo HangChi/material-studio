@@ -218,3 +218,11 @@
 - 最终镜像浏览器再次制作da542ff0-d161-4766-8ea7-4e93100dca97成功；展开六事件，GENERATE已显示“图片合成开始/完成”。结果与操作截图为docs/007-result.jpg。桌面/小屏viewport覆盖已恢复默认。
 - specs/007全部16项完成，规格/契约/README/roadmap/acceptance已同步；文档相对链接、任务格式及git diff --check核对通过。未声称远端CI或公网部署通过。
 - 工具可核对时段约18:03～18:28（上海），含字体/依赖下载及镜像等待；不是精确人工工时。沿用当前006分支增量提交，007以独立规格目录追踪。
+
+## 008 US1～US4（2026-10-29，上海约18:42开始）
+- 采用Spec Kit，规格/契约先提交；全程串行，无子智能体。
+- US1后端RED：WorkflowApiTest sourceJobId未接受400；GREEN：WorkflowApiTest+CreationApiTest 7项通过。编辑来源归属/模板/终态校验，新配方关联原记录且原配方不变。
+- 前端RED：workflow-editor缺原素材恢复；GREEN：lint/typecheck及编辑/上传/提交20项通过。来源加载错误可重试，离开取消请求。
+- US2 RED：肖像预设宽960而非真实输出1000；GREEN：Workflow/Creation/Pipeline 15项通过，肖像与三张拼贴的真实输入颜色/顺序证明，不使用AI。
+- US3 RED：GET assets尚无列表；GREEN：AssetLibraryTest+AssetApiTest 6项通过。前端RED缺素材选择入口；GREEN：选择不重复上传、保留另一槽，编辑/上传/选择8项通过。
+- US4 RED：缺草稿保存/跨remount恢复；GREEN：lint/typecheck及编辑/草稿/素材/上传/提交22项通过。本地草稿按身份/模板/来源隔离，校验格式，已受理后清空、未确认提交优先；本地File上传中不能恢复。

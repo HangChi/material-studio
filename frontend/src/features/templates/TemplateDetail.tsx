@@ -7,7 +7,7 @@ import { SubmissionForm } from "../jobs/SubmissionForm";
 import { readJson, type Template } from "./types";
 
 type DetailState = { status: "loading" | "error" | "not-found"; template?: never } | { status: "success"; template: Template };
-export function TemplateDetail({ id }: { id: string }) {
+export function TemplateDetail({ id,sourceJobId }: { id: string;sourceJobId?:string }) {
   const [state, setState] = useState<DetailState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -33,6 +33,6 @@ export function TemplateDetail({ id }: { id: string }) {
         </dl></section>
         <p className="detail-tip">挑选清晰的图片，让画面里的每个细节都被保留。</p>
       </div>
-    </article><SubmissionForm template={state.template} /></>}
+    </article><SubmissionForm sourceJobId={sourceJobId} template={state.template} /></>}
   </main>;
 }

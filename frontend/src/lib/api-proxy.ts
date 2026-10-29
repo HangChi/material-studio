@@ -3,7 +3,7 @@ function methodsFor(path: string[]): string[] | null {
   const joined = path.join("/");
   if (/^(template-categories|templates(?:\/[a-zA-Z0-9_-]+)?|demo\/[a-z0-9-]+\.png)$/.test(joined)) return ["GET"];
   if (joined === "session") return ["GET", "POST", "DELETE"];
-  if (joined === "assets") return ["POST"];
+  if (joined === "assets") return ["GET", "POST"];
   if (/^assets\/[a-zA-Z0-9_-]+\/content$/.test(joined)) return ["GET"];
   if (joined === "jobs") return ["GET", "POST"];
   if (/^jobs\/[a-zA-Z0-9_-]+\/recreate$/.test(joined)) return ["POST"];

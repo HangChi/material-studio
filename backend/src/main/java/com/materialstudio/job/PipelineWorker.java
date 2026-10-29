@@ -14,10 +14,11 @@ public class PipelineWorker {
     private final TemplateMapper templates;
     private final ResultStore results;
     private final PostcardRenderer renderer;
+    private final TemplateRenderer templateRenderer;
     private final CreationMapper creation;
     private final com.fasterxml.jackson.databind.ObjectMapper json;
-    public PipelineWorker(PipelineState state,EventMapper events,AssetService assets,TemplateMapper templates,ResultStore results,PostcardRenderer renderer,CreationMapper creation,com.fasterxml.jackson.databind.ObjectMapper json) {
-        this.state=state;this.events=events;this.assets=assets;this.templates=templates;this.results=results;this.renderer=renderer;this.creation=creation;this.json=json;
+    public PipelineWorker(PipelineState state,EventMapper events,AssetService assets,TemplateMapper templates,ResultStore results,PostcardRenderer renderer,CreationMapper creation,com.fasterxml.jackson.databind.ObjectMapper json,TemplateRenderer templateRenderer) {
+        this.state=state;this.events=events;this.assets=assets;this.templates=templates;this.results=results;this.renderer=renderer;this.creation=creation;this.json=json;this.templateRenderer=templateRenderer;
     }
     private PostcardParameters parameters(String id) throws java.io.IOException {
         var recipe=creation.recipe(id);
@@ -34,7 +35,7 @@ public class PipelineWorker {
                 Thread.sleep(config.delay(stage));
                 if(config.failStage()==stage) { state.fail(id,"SIMULATED_FAILURE",PipelineState.label(stage,job.templateId())+"模拟失败");return; }
                 if(stage==Stage.ASSET_CHECK) for(String assetId:events.assetIds(id))assets.ensureAvailable(assets.owned(assetId,job.ownerId()));
-                if(stage==Stage.GENERATE&&job.templateId().equals("demo-postcard"))generated=renderer.render(job.ownerId(),events.assetIds(id),parameters(id));
+                if(stage==Stage.GENERATE)generated=job.templateId().equals("demo-postcard")?renderer.render(job.ownerId(),events.assetIds(id),parameters(id)):templateRenderer.render(job.templateId(),job.ownerId(),events.assetIds(id));
                 if(stage==Stage.FINALIZE) published=generated==null?results.publish(id,templates.find(job.templateId()).coverFilename()):results.publish(id,generated);
                 if(!state.complete(id,stage,published)) { results.cleanup(published);return; }
             }
