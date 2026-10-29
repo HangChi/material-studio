@@ -1,6 +1,8 @@
 # 原题R-01～R-14验收对照
 
-依据[原题](requirements-source.md)，001为总体基线，002～008为独立交付。实现与实际运行分别记录，最终结果及具体边界见工作日志。
+依据[原题](requirements-source.md)，001为总体基线，002～009为独立交付。实现与实际运行分别记录，最终结果及具体边界见工作日志。
+
+当前业务与UI基线：`af006c8`（009共20/20任务）。2026-10-29逐项复查已在容器通过前端lint/typecheck、19个文件90项测试和生产构建，以及Java53项测试（无失败、无跳过）和mvn verify打包。前端复查使用既有锁文件依赖检查镜像、当前src只读挂载，未重新执行全新npm ci；Java使用Compose独立test-mysql。此次未重新执行浏览器全流程、远端CI、空卷冷启动或TLS/公网部署。
 
 | 原题 | 实现证据 | 自动检查 | 运行证据及范围 |
 | --- | --- | --- | --- |
@@ -14,8 +16,8 @@
 | R-08 多任务/清理 | 每ID非重叠1秒timer/controller、epoch、version、终态保护 | tracker.test.ts迟到/低版本/两周期/abort；session及history切换测试 | 005浏览器及运行脚本验证多任务；假时钟清理不冒充浏览器计数 |
 | R-09 刷新/结果历史 | /history、HistoryService keyset分页、/jobs/active补老页任务 | HistoryApiTest55条同时间/插入稳定性；history.test.ts空态/分页失败/恢复 | verify-005覆盖24条真实记录/分页；浏览器刷新恢复与私有PNG；006原末页新增25条及旧游标替换回归通过、失败保留游标 |
 | R-10 身份 | HttpOnly cookie/hash、owner校验、SessionGate切换、storage事件 | SessionApiTest、Asset/Job归属、session.test.ts跨标签清理 | 无痕/新身份隔离；撤销旧token401，新cookie空记录 |
-| R-11 可用性 | 蓝白作品台账、语义控件、创建时间/阶段/原因/预览、移动单列 | 组件Testing Library语义断言、lint/typecheck | 002～005桌面/375px、002键盘焦点证据；无原题附件截图 |
-| R-12 CI与测试 | .github/workflows/ci.yml push/PR容器任务 | 本地53个Java测试、87个前端测试及构建（008后） | 本地容器检查已执行；未创建远端，远端CI未运行 |
+| R-11 可用性 | 009统一品牌与克制的照片工作台布局、语义控件、创建时间/阶段/原因/预览、移动适配 | 组件Testing Library语义断言、lint/typecheck | 既有009桌面/375px与键盘操作证据见工作日志；forced-colors回退未实测；无原题附件截图 |
+| R-12 CI与测试 | .github/workflows/ci.yml push/PR容器任务 | 当前本地53个Java测试、90个前端测试及构建通过 | 本地容器检查已执行；未创建远端，远端CI未运行 |
 | R-13 源码与说明 | 本地独立Git目录、锁文件/SQL/CI/README/工作日志、阶段提交 | 文档链接/任务/原题副本一致性检查 | 本地目录交付，最终验收commit由最后提交记录确认；无外部发送 |
 | R-14 容器 | compose.yaml、Dockerfiles、.env.example、卷/健康检查 | 同CI容器入口；镜像构建不代替测试 | docker compose up --build -d；004SIGKILL恢复；回滚步骤见README |
 
@@ -26,6 +28,9 @@
 - 无账号/身份找回；切换或清除cookie后无法恢复旧访客；资源保留但归属隔离。
 - 孤儿文件不自动清理；需要演示重置数据卷时统一清理。没有真实TLS、公网部署或远端CI验证。
 - 查询异常暂停对应任务，由用户恢复；不宣称实现自动重试算法。分页历史按创建时间+ID，未完成旧页由active集合恢复。
+- 真实双标签身份切换仍待浏览器联动实测，已有组件测试；高对比模式仅有样式回退。全新环境空卷冷启动尚未作为独立交付检查重新执行。
+
+后文007/008的测试数量是当时阶段记录；当前总数以前述复查基线为准。原题必需业务未发现明确缺项，未验证项不记作已通过；可选扩展见[异步流程与扩展分析](async-workflow.md)。
 
 006额外完成10次API及10次浏览器可见编号的<2秒验收，每次使用默认三个2000ms阶段；完整数据见[受理时延记录](admission-measurements.md)。
 

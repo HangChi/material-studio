@@ -1,8 +1,9 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～008已完成本地验收：三模板真实合成、素材复用、编辑新版本、草稿恢复、历史管理、取消与排队提示、重启恢复和有限重试，以及原有完整制作闭环。**
+**002～009已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑新版本、草稿恢复、历史管理、取消与排队提示、重启恢复和有限重试，以及全模块界面与品牌优化。**
 原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；尚未执行远端CI、真实TLS或公网部署。
+当前检查基线为90项前端测试、53项Java测试及各自构建通过；检查方法与未验证边界见验收对照。异步实现与后续扩展见[异步流程与扩展分析](docs/async-workflow.md)。
 
 ## 迭代与开发入口
 
@@ -18,16 +19,17 @@
 | [006](specs/006-mvp-hardening/spec.md) | 刷新分页、图片恢复、十次时延验收 | 已完成本地验收；9/9任务 |
 | [007](specs/007-creation-workbench/spec.md) | 幂等、重试/再次制作、事件详情、参数化真实明信片与下载 | 已完成本地验收；16/16任务 |
 | [008](specs/008-creative-workflow/spec.md) | 编辑、全模板合成、素材库、草稿、历史管理、取消/排队、恢复/重试 | 已完成本地验收；15/15任务 |
+| [009](specs/009-studio-identity/spec.md) | 全模块界面、品牌、导航、响应式排版与视觉精修 | 已完成本地验收；20/20任务 |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/008-creative-workflow .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/009-studio-identity .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[008任务](specs/008-creative-workflow/tasks.md)及[验收对照](docs/acceptance.md)。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[009任务](specs/009-studio-identity/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以008契约及其引用的002～007契约为准，009不改变HTTP接口。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -87,7 +89,7 @@ docker compose --profile test run --rm frontend-test
 docker compose --profile test run --rm backend-test
 ```
 
-前端入口从锁文件npm ci，再执行eslint、tsc、87个Vitest测试、next build。
+前端入口从锁文件npm ci，再执行eslint、tsc、90个Vitest测试、next build。
 后端入口mvn verify，执行53个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
@@ -285,7 +287,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 
 部署固定源码commit并运行Compose，等待健康检查后验证列表/详情、一次成功任务及私有结果。发布前备份数据库和素材卷。
 回滚到上一验收commit重建；V3等schema变更须同时恢复匹配备份，不能假定旧应用兼容新表。
-当前无需公网部署。完整源码在本地独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、SQL种子、CI及全部Spec Kit产物；验收commit由最终提交记录和工作日志确认。未创建远端仓库或向外发送源码。
+当前无需公网部署。完整源码在本地独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、SQL种子、CI及全部Spec Kit产物；最近业务与UI交付基线为 `af006c8`，该提交包含009全部20项任务，后续文档提交单独留痕。交付时用 `git rev-parse HEAD` 确认包含本文档的完整提交号。未创建远端仓库或向外发送源码。
 实际投入按工具可核对时段记录在[docs/work-log.md](docs/work-log.md)，不虚构精确人工工时。
 
 使用Codex辅助：原题→总体基线→独立feature规格→计划/契约/任务→测试先失败→最小实现→重构/完整检查→提交。

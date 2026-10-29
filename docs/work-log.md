@@ -302,3 +302,11 @@ TDD：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-
 用户指出左下角品牌突兀，并要求提交所有更改。先补规格/计划/T020，页脚去掉重复Logo与首页链接，改为统一字号/字重的轻量文字；宽度对齐工作区。桌面1280px页脚左边界48px，与main的48px内距一致；375px左边界20px，scrollWidth=375。浏览器确认footer内无SVG，截图009-footer-final.png为实际页脚局部。
 
 纯视觉变更，容器 `docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm run build'`通过。`docker compose up -d --build --no-deps frontend`生产构建与启动成功。此次不重复运行无关业务测试；上一轮90项测试已通过。没有后端变更或远端CI。初始git status为空，此前UI更改已在历史提交；本轮审查全部差异并统一提交，未推送远端。临时视口已恢复。
+
+### 文档统一与异步架构说明
+
+用户要求先统一文档，再分析扩展内容并解释Java多步骤异步执行和前端异步状态管理。本轮起始业务/UI提交为af006c8，工作区干净。修正README与roadmap入口为009、补齐009的20项任务、纠正roadmap中007误写的20项为16项；当前检查数量统一为前端90/后端53，历史阶段数量保留并明确时间范围。001标为当前入口的quickstart、归档说明与traceability同步到V1～V6及008已实现的恢复/幂等/有限重试，删除其“当前不自动重试”的过期说明；原题和历史规格不改。
+
+前一轮逐项复查实际执行：`docker run --rm -v /Users/songhangchi/Project/xiaoying/material-studio/frontend/src:/app/src:ro material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`通过19文件90项测试、lint/typecheck/生产构建；`docker compose --profile test run --rm backend-test`通过53项测试（0失败/错误/跳过）及mvn verify。采用既有前端依赖镜像，未重跑全新npm ci；Java使用独立test-mysql。复查期间009末尾改动由已有工作收尾提交，不再报告为未完成。
+
+新增docs/async-workflow.md，逐项对应受理事务、线程池/扫描、阶段状态机、文件发布、恢复/取消，以及上传/提交/查询独立状态、epoch/version、轮询和身份生命周期；扩展建议明确未实施。当前未验证的远端CI、空卷冷启动、真实双标签与forced-colors单列保留。没有业务/API变更，不强造RED或重复无关应用测试；文档采用git diff --check、相对链接/代码围栏检查和feature任务计数核对。实际投入为本轮源码核对、文档编辑与检查，不虚构人工小时；不推送远端。
