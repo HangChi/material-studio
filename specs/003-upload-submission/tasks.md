@@ -28,8 +28,8 @@
 **Goal**: 保存有序任务后投递，不等待worker；可核对不确定提交。
 **Independent Test**: 从另一连接证明dispatch前已提交；阻塞worker不阻塞202；错误输入不落任务，两个身份隔离。
 
-- [ ] T009 [US2] 在 backend/src/test/java/com/materialstudio/job/JobSubmissionTest.java 编写事务提交/回滚、精确数量/重复/归属/物理文件检查、排队拒绝/未知worker终态、查询归属测试，观察RED。
-- [ ] T010 [US2] 在 backend/src/main/java/com/materialstudio/job/ 实现TransactionTemplate受理/有序关联/dispatcher契约及默认拒绝、单任务与最近50条读取，完成T009 GREEN；不得等待后台完成或留下永久QUEUED。
+- [x] T009 [US2] 在 backend/src/test/java/com/materialstudio/job/JobSubmissionTest.java 编写事务提交/回滚、精确数量/重复/归属/物理文件检查、排队拒绝/未知worker终态、查询归属测试，观察RED。
+- [x] T010 [US2] 在 backend/src/main/java/com/materialstudio/job/ 实现TransactionTemplate受理/有序关联/dispatcher契约及默认拒绝、单任务与最近50条读取，完成T009 GREEN；不得等待后台完成或留下永久QUEUED。
 - [ ] T011 [US2] 在 frontend/src/features/jobs/submission.test.tsx 编写身份初始化/素材未齐禁用/防双击/202后任务状态和继续制作/请求错误测试，观察RED。
 - [ ] T012 [US2] 在 frontend/src/features/jobs/SubmissionForm.tsx 实现身份ready门禁、提交同步锁、任务快照及4xx反馈，完成T011 GREEN。
 - [ ] T013 [US2] 在 frontend/src/features/templates/TemplateDetail.tsx 接入表单，并更新 frontend/src/features/templates/detail.test.tsx 验证详情与素材要求仍正常且出现制作入口。

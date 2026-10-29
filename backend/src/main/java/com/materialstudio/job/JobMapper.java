@@ -1,0 +1,18 @@
+package com.materialstudio.job;
+import org.apache.ibatis.annotations.*;
+import java.time.Instant;
+import java.util.List;
+@Mapper
+public interface JobMapper {
+    String COLUMNS="id,owner_id,template_id,template_title,status,stage,version,created_at,updated_at,finished_at,result_path,error_code,error_message";
+    @Insert("INSERT INTO job(id,owner_id,template_id,template_title,status,version,created_at,updated_at) VALUES(#{id},#{ownerId},#{templateId},#{templateTitle},'QUEUED',0,#{createdAt},#{updatedAt})")
+    void insert(JobRow row);
+    @Insert("INSERT INTO job_asset(job_id,asset_id,slot_index) VALUES(#{jobId},#{assetId},#{slot})")
+    void link(@Param("jobId") String jobId,@Param("assetId") String assetId,@Param("slot") int slot);
+    @Select("SELECT "+COLUMNS+" FROM job WHERE id=#{id} AND owner_id=#{ownerId}")
+    JobRow owned(@Param("id") String id,@Param("ownerId") String ownerId);
+    @Select("SELECT "+COLUMNS+" FROM job WHERE owner_id=#{ownerId} ORDER BY created_at DESC,id DESC LIMIT 50")
+    List<JobRow> recent(String ownerId);
+    @Update("UPDATE job SET status='FAILED',version=version+1,updated_at=#{now},finished_at=#{now},error_code=#{code},error_message=#{message} WHERE id=#{id} AND status='QUEUED'")
+    void failQueued(@Param("id") String id,@Param("code") String code,@Param("message") String message,@Param("now") Instant now);
+}
