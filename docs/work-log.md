@@ -286,3 +286,13 @@ TDD：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-
 纯视觉和信息结构调整，没有新增业务行为，不强造RED。容器命令 `docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`：lint/typecheck、19个文件90项测试与生产构建通过，包含明信片参数提交、标题编辑和操作不确定时的禁用。`docker compose up -d --build --no-deps frontend`再次成功构建并启动。
 
 实际浏览器1280×900验证两张已选素材的构图：键盘ArrowRight使图片2缩放从1变1.01，ArrowLeft复原；切换海蓝/方版，预览class=palette-ocean、aspectRatio=1/1、尺寸1000×1000px同步，随后恢复奶油/横版。桌面工作台约532px高，375px先预览后设置并保留三项裁剪行；两端页面scrollWidth分别等于1280与375。原草稿标题和素材保留，没有提交新任务。截图以页面坐标裁出编辑区，并打开本地文件复查内容：009-postcard-refined-desktop.png、009-postcard-refined-mobile.png。临时视口覆盖已恢复。未改后端、未重跑Java或远端CI。
+
+### 009 视觉收敛与下拉箭头
+
+用户反馈AI味仍重并指出下拉箭头贴边。先补009规格/计划/T017～019，随后收敛表现：移除首页叠片插图、英文眉题、页头/页脚口号，首页直接进入模板浏览；系统无衬线标题、较小字号、简单文案和较中性的背景。减少模板覆盖标签、编辑嵌套边框和编号装饰，保留品牌、照片主题和已有功能。
+
+所有原生select统一appearance:none、单一SVG箭头背景，距右侧14px，padding-right=38px。原生选项、标签、键盘和禁用机制保留；forced-colors样式恢复系统箭头（编写了回退，未实际模拟该系统模式）。375px编辑的配色/比例改为单列，保证文字与箭头留白。
+
+没有新增业务行为，不强造RED。容器完整命令 `docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`全部通过：lint/typecheck、19个文件90项测试与生产构建。`docker compose up -d --build --no-deps frontend`生产重建启动成功。
+
+浏览器1280px/375px检查首页、明信片编辑、记录筛选。编辑两select与筛选两select的计算样式均为padding-right=38px、background-position=calc(100% - 14px) 50%；编辑配色切换OCEAN后复原，记录模板选择/重置可用。三个手机页面scrollWidth=375。仅操作草稿和筛选，没有提交新制作任务或写入作品管理。临时视口恢复。截图009-quiet-{catalog,editor,history}-{desktop,mobile}.png；editor为页面坐标裁出的编辑区，打开desktop文件核对内容。后端无变化，未重跑Java与远端CI。

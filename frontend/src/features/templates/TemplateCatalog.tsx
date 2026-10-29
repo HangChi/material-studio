@@ -35,15 +35,10 @@ export function TemplateCatalog() {
   }
   return <main id="main-content" className="workspace">
     <section className="intro catalog-intro">
-      <div className="intro-text"><p className="eyebrow"><span className="tiny-rule" /> 你的照片制作工作室</p>
-        <h1>照片里的日常，<br /><span>值得好好装帧。</span></h1>
-        <p className="intro-copy">一张肖像、一封旅途来信，或是周末的几个片段。<br className="desktop-break" />选个样式，把相册里的喜欢留在画面上。</p>
-        <a className="intro-link" href="#template-library">挑选一个模板 <StudioIcon name="arrow" /></a>
-      </div>
-      <div className="studio-still" aria-hidden="true"><div className="still-paper still-back"><span>WEEKEND NOTES</span><div className="still-window"><i /><b /></div></div><div className="still-paper still-front"><div className="still-portrait"><i /><b /><em /></div><span>日光，刚刚好。</span><small>A LITTLE MOMENT / 2026</small></div><div className="still-caption">相片有了位置，回忆有了形状。</div></div>
+      <h1>把照片做成作品</h1>
+      <p className="intro-copy">选择模板，放入照片，调整好构图后保存。</p>
     </section>
     <section className="library-section" id="template-library" aria-label="模板浏览">
-      <div className="section-heading"><div><p className="eyebrow">THE TEMPLATE COLLECTION</p><h2><StudioIcon name="templates" />从喜欢的样式开始</h2></div><p>选模板 · 放照片 · 做成作品</p></div>
       <div className="catalog-toolbar">
         <div className="categories" role="group" aria-label="模板分类">
           <button aria-pressed={category === ""} onClick={() => choose("")}>全部模板</button>
@@ -56,10 +51,10 @@ export function TemplateCatalog() {
       {state.status === "success" && state.templates.length === 0 && <div className="state-panel"><h2>这个分类还没有模板</h2><p>换个分类，看看其他样式。</p></div>}
       {state.status === "success" && <div className="template-grid" aria-label="模板列表">
         {state.templates.map(template => <Link className="template-card" key={template.id} href={`/templates/${template.id}`}>
-          <div className="cover"><span className="cover-label">{template.requiredImageCount === 1 ? "单幅装帧" : template.requiredImageCount === 2 ? "双图明信片" : "多图拼贴"}</span><Image src={template.coverUrl} alt={`${template.title}示例`} width={960} height={720} unoptimized /></div>
+          <div className="cover"><Image src={template.coverUrl} alt={`${template.title}示例`} width={960} height={720} unoptimized /></div>
           <div className="card-content"><p className="card-category">{state.categories.find(c => c.id === template.categoryId)?.name}</p>
-            <h2>{template.title}<StudioIcon name="arrow" /></h2><p>{template.description}</p>
-            <div className="card-foot"><span>需要 {template.requiredImageCount} 张图片</span><span className="card-action">查看模板</span></div>
+            <h2>{template.title}</h2><p>{template.description}</p>
+            <div className="card-foot"><span>需要 {template.requiredImageCount} 张图片</span><span className="card-action">开始制作 <StudioIcon name="arrow" /></span></div>
           </div>
         </Link>)}
       </div>}

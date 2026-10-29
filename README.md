@@ -308,3 +308,5 @@ UI参考frontend-design/ui-ux-pro-max技能并按图片样张用途调整；业�
 制作记录卡进一步改为紧凑作品行：左侧缩略预览，右侧集中状态/时间/阶段和主要操作，管理及执行详情归入底部展开区。改名、收藏/隐藏表单统一排版，下载强调为主操作。容器90项测试、lint/typecheck与生产构建通过；1280px与375px实际展开检查无页面横向溢出，本地3000已更新。[桌面记录卡](docs/009-record-refined-desktop.png)、[手机记录卡](docs/009-record-refined-mobile.png)。
 
 明信片编辑区已重排为左预览右设置，标题与字数同行，裁剪改为短标签/滑轨/数值行，重置收进图片标题栏。预览显示当前纸张、尺寸和比例，手机先预览后设置。容器90项测试与lint/typecheck/生产构建通过；实际验证裁剪键盘更新、纸张/方版切换及375px无横向溢出。[桌面工作台](docs/009-postcard-refined-desktop.png)、[手机工作台](docs/009-postcard-refined-mobile.png)。
+
+根据视觉反馈进一步收敛：首页直接展示模板，去掉装饰插图、重复英文/口号，采用较克制的系统字体与控件分组。编辑/记录所有下拉框箭头统一向内14px，文字右侧留38px，手机编辑下拉单列排列。容器90项测试、lint/typecheck/生产构建通过；浏览器确认编辑与筛选的选择功能和375px无横向溢出。本地3000已更新。[首页](docs/009-quiet-catalog-desktop.png)、[编辑及箭头](docs/009-quiet-editor-desktop.png)、[手机编辑](docs/009-quiet-editor-mobile.png)。

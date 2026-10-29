@@ -25,13 +25,13 @@ export function TemplateDetail({ id,sourceJobId }: { id: string;sourceJobId?:str
     {state.status === "error" && <div className="state-panel"><p role="alert">暂时无法加载模板，请检查连接后重试。</p><button className="primary" onClick={() => { setState({ status: "loading" }); setAttempt(value => value + 1); }}>重新加载</button></div>}
     {state.status === "success" && <><article className="detail-grid">
       <div className="detail-preview"><Image src={state.template.coverUrl} alt={`${state.template.title}示例`} width={960} height={720} unoptimized priority /><p><span>模板样张</span><span>换上你的照片，开始制作</span></p></div>
-      <div className="detail-info"><p className="eyebrow">照片制作台 / 模板预览</p><h1>{state.template.title}</h1><p className="description">{state.template.description}</p>
+      <div className="detail-info"><h1>{state.template.title}</h1><p className="description">{state.template.description}</p>
         <section aria-labelledby="requirements"><h2 id="requirements">素材要求</h2><dl className="requirements">
           <div><dt>图片数量</dt><dd>{state.template.requiredImageCount} 张图片</dd></div>
           <div><dt>支持格式</dt><dd>{state.template.acceptedMimeTypes.map(mime => ({ "image/jpeg": "JPEG", "image/png": "PNG" })[mime] ?? mime).join("、")}</dd></div>
           <div><dt>文件大小</dt><dd>每张不超过 {state.template.maxFileSizeBytes / 1048576} MiB</dd></div>
         </dl></section>
-        <p className="detail-tip">挑选清晰的图片，让画面里的每个细节都被保留。</p>
+        <p className="detail-tip">建议使用清晰原图，主体放在画面中央。</p>
       </div>
     </article><SubmissionForm sourceJobId={sourceJobId} template={state.template} /></>}
   </main>;
