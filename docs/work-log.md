@@ -120,3 +120,7 @@
 - Lifecycle RED：11:34:20，队列容量1/FIFO/后台线程测试通过，启动与关停两个用例因仍为QUEUED失败，0环境错误。
 - Lifecycle GREEN：11:35:07完整Java32/32及打包通过；启动/关停标PROCESS_INTERRUPTED并持久事件，终态不改、重复初始化不再加版本；队列满202持久QUEUE_REJECTED，绝不CallerRuns。
 - 前端RED：events/result白名单两项、阶段/结果与查询异常保留两项失败，原19项仍通过；GREEN：完整45/45、lint、typecheck与Next生产构建均通过。成功图片使用原生同源请求（Next Image unoptimized），保留cookie归属校验。
+
+- 补充一致性回归（不伪称新的RED）：事件INSERT触发器故障导致状态版本一并回滚、非法/重复阶段转换无效、终态重复worker执行不增加事件、受理后丢失素材仅ASSET_CHECK失败。完整35/35在11:36:28通过。
+- 契约审查发现Jackson默认允许数字枚举；补failStage=0用例于11:37:07真实RED（应400实202），开启fail-on-numbers-for-enums后11:37:35完整35/35与打包GREEN。
+- 初次docker compose up --build -d成功，既有演示库V2自动迁移V3；真实verify-004通过无查询执行、六事件、三个指定失败、10次终态稳定、私有PNG与身份隔离。

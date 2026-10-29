@@ -33,14 +33,14 @@ try {
   const response = await request('/api/jobs', 'POST', owner, { templateId: 'demo-postcard', assetIds: [first.id, second.id] });
   assert.equal(response.status, 202, await response.clone().text());
   const { job } = await response.json();
-  assert.equal(job.status, 'FAILED'); assert.equal(job.errorCode, 'PROCESSOR_NOT_AVAILABLE');
+  assert.ok(['QUEUED', 'RUNNING', 'SUCCEEDED', 'FAILED'].includes(job.status));
   assert.equal((await request('/api/jobs/' + job.id, 'GET', stranger)).status, 404);
   const stored = await (await request('/api/jobs/' + job.id, 'GET', owner)).json();
-  assert.deepEqual(stored.job, job);
+  assert.equal(stored.job.id, job.id); // 004 now progresses asynchronously.
   const records = await (await request('/api/jobs', 'GET', owner)).json();
   assert.ok(records.items.some(item => item.id === job.id));
   assert.equal((await request('/api/jobs', 'POST', owner, { templateId: 'demo-portrait', assetIds: [first.id], ownerId: 'forged' })).status, 400);
-  console.log('PASS: browser-origin proxy -> session -> multipart storage -> private read -> admission -> recorded rejection -> owner-only reconciliation');
+  console.log('PASS: browser-origin proxy -> session -> multipart storage -> private read -> admission -> owner-only reconciliation');
 } finally {
   await request('/api/session', 'DELETE', owner);
   await request('/api/session', 'DELETE', stranger);

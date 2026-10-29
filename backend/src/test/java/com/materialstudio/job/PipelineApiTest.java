@@ -81,7 +81,7 @@ class PipelineApiTest extends ApiTestSupport {
             var body=Map.of("templateId","demo-portrait","assetIds",List.of(asset),"simulation",Map.of("stageDurationsMs",Map.of("GENERATE",delay)));
             assertThat(call("/api/jobs",HttpMethod.POST,owner,body).getStatusCode().value()).isEqualTo(422);
         }
-        for(Object config:List.of(Map.of("failStage","BOGUS"),Map.of("stageDurationsMs",Map.of("GENERATE",1.5)),Map.of("stageDurationsMs",Map.of("GENERATE","20")),Map.of("extra",true),Map.of("stageDurationsMs",Map.of("BOGUS",0)))) {
+        for(Object config:List.of(Map.of("failStage","BOGUS"),Map.of("failStage",0),Map.of("stageDurationsMs",Map.of("GENERATE",1.5)),Map.of("stageDurationsMs",Map.of("GENERATE","20")),Map.of("extra",true),Map.of("stageDurationsMs",Map.of("BOGUS",0)))) {
             assertThat(call("/api/jobs",HttpMethod.POST,owner,Map.of("templateId","demo-portrait","assetIds",List.of(asset),"simulation",config)).getStatusCode().value()).isEqualTo(400);
         }
         var nullDelay=new HashMap<String,Object>();nullDelay.put("GENERATE",null);
