@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 public class SessionController {
     private final SessionService sessions;
     private final boolean secure;
-    public SessionController(SessionService sessions, @Value("${studio.cookie-secure:false}") boolean secure) { this.sessions = sessions; this.secure = secure; }
+    private final AccountMapper accounts;
+    public SessionController(SessionService sessions, @Value("${studio.cookie-secure:false}") boolean secure,AccountMapper accounts) { this.sessions = sessions; this.secure = secure; this.accounts=accounts; }
     @PostMapping
     public ResponseEntity<?> create(@CookieValue(name="material_session", required=false) String token) {
         DemoUser user = sessions.current(token);
@@ -27,6 +28,6 @@ public class SessionController {
         sessions.revoke(token);
         return ResponseEntity.noContent().header("Cache-Control", "no-store").header(HttpHeaders.SET_COOKIE, cookie("", 0).toString()).build();
     }
-    private Map<String, Object> body(DemoUser user) { return Map.of("user", Map.of("id",user.id(),"createdAt",user.createdAt())); }
+    private Map<String, Object> body(DemoUser user) {var profile=new java.util.LinkedHashMap<String,Object>();profile.put("id",user.id());profile.put("createdAt",user.createdAt());var account=accounts.byUser(user.id());profile.put("username",account==null?null:account.username());return Map.of("user",profile); }
     private ResponseCookie cookie(String token, long maxAge) { return ResponseCookie.from("material_session", token).httpOnly(true).secure(secure).sameSite("Lax").path("/").maxAge(maxAge).build(); }
 }

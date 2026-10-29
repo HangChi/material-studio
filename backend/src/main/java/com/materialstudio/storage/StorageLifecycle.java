@@ -20,7 +20,7 @@ public class StorageLifecycle {
  private ApiException unavailable(){return new ApiException(503,"STORAGE_UNAVAILABLE","文件维护暂时不可用，请保留审计后重试");}
  private void safeDirectory(Path dir)throws IOException{if(Files.isSymbolicLink(dir))throw new IOException("Symbolic directory is not managed");}
  private String digest(Object value){try{return HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(value.toString().getBytes(StandardCharsets.UTF_8)));}catch(java.security.NoSuchAlgorithmException e){throw new IllegalStateException(e);}}
- private boolean managed(String name){return name.matches("[a-f0-9-]{36}\\.(png|jpg)")||name.matches("(upload|result)-[A-Za-z0-9-]+\\.part");}
+ private boolean managed(String name){return name.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\\.(png|jpg)")||name.matches("(upload|result)-[0-9]+\\.part");}
  public synchronized Report report(){
   try{
    safeDirectory(root);var protectedFiles=new HashSet<>(mapper.protectedPaths());var candidates=new ArrayList<Candidate>();
@@ -32,7 +32,9 @@ public class StorageLifecycle {
     }}
    }
    candidates.sort(Comparator.comparing(Candidate::path));var expired=mapper.expired().stream().filter(row->!protectedFiles.contains(row.path())).toList();
-   return new Report(digest(candidates),List.copyOf(candidates),digest(expired),expired);
+   Path isolated=root.resolve(".quarantine");safeDirectory(isolated);var purgeState=new ArrayList<String>();
+   for(var row:expired){Path file=isolated.resolve(row.id());if(Files.exists(file,LinkOption.NOFOLLOW_LINKS)&&!Files.isRegularFile(file,LinkOption.NOFOLLOW_LINKS))throw new IOException("Unexpected quarantined file");purgeState.add(row.toString()+":"+(Files.exists(file,LinkOption.NOFOLLOW_LINKS)?Files.size(file)+":"+Files.getLastModifiedTime(file,LinkOption.NOFOLLOW_LINKS).toMillis():"missing"));}
+   return new Report(digest(candidates),List.copyOf(candidates),digest(purgeState),expired);
   }catch(IOException e){throw unavailable();}
  }
  private void confirm(Confirmation input,String current){if(input==null||!input.confirm())throw new ApiException(422,"CONFIRMATION_REQUIRED","请先核对文件盘点并明确确认操作");if(!current.equals(input.snapshot()))throw new ApiException(409,"STALE_SNAPSHOT","文件盘点已变化，请重新核对快照");}

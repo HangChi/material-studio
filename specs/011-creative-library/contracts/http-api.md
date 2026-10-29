@@ -1,6 +1,6 @@
 # HTTP Contracts
 ## Internal storage
-GET /actuator/storage -> {snapshot,candidates:[{path,sizeBytes,modifiedAt}],purgeSnapshot,expired:[audit rows]}，只读。POST /actuator/storage/quarantine 或 /purge body {snapshot,confirm:true}；重扫摘要不符409 STALE_SNAPSHOT，缺确认422。成功返回当前盘点；审计GET /actuator/storage/audit只读最近100条。不加入Next代理。
+GET /actuator/storage -> {snapshot,candidates:[{path,sizeBytes,modifiedAt}],purgeSnapshot,expired:[audit rows]}，只读。POST /actuator/storage/quarantine 或 /purge body {snapshot,confirm:true}；重扫文件大小/修改时间与审计摘要不符409 STALE_SNAPSHOT，缺确认422。成功返回当前盘点；审计GET /actuator/storage/audit只读最近100条。不加入Next代理。
 ## Batches
 POST /api/batches，必需Idempotency-Key，body {name,items:[单项POST /jobs载荷]}，202 {batch}，同key同内容回放，异内容409；非法/超配额整批回滚且不调度。GET /api/batches?limit=20&cursor=本人批次UUID ->{items,nextCursor}；limit1～50。GET /api/batches/{id}->{batch:{id,name,createdAt,items:Job[],counts:{queued,running,succeeded,failed,cancelled}}}。POST /api/batches/{id}/cancel ->{batch}，只取消未终态，重复安全；他人404。
 ## Organization
@@ -10,3 +10,5 @@ POST /api/account/register body{username,password}需当前匿名Cookie，201 {u
 POST /api/account/login body{username,password,mergeGuest:false|true}，200同user但不含recoveryCode，轮换当前Cookie；merge需显式true、仅匿名源，无活动源任务及无提交/批次key碰撞。两个账号间直接登录要求先退出409，源活动409 MIGRATION_BUSY，冲突409 MIGRATION_CONFLICT。
 POST /api/account/recover body{username,recoveryCode,password}，200 {user,recoveryCode:新码}；成功轮换密码/恢复码、撤销所有旧会话并发新Cookie。错误认证401 AUTH_FAILED；5次失败/15min后429 AUTH_THROTTLED（Retry-After900），不透露用户名存在与否。字段不合法422。
 GET/POST /api/session返回user增加可空username；DELETE只撤销当前session，账号记录保留。新session仅HttpOnly/SameSite=Lax，HTTPS由COOKIE_SECURE控制；恢复码不写日志或浏览器存储。
+
+POST /api/account/recovery-code body{password}需已登录账号，重新验证密码后仅返回一次新恢复码并撤销旧码，用于首次响应丢失；不改变密码、不撤销其他设备正常会话，当前会话轮换。错误密码复用认证失败窗口。

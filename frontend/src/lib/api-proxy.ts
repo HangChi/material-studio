@@ -2,6 +2,7 @@ function methodsFor(path: string[]): string[] | null {
   if (path.some(part => !/^[a-zA-Z0-9_.-]+$/.test(part) || part === ".." || part === ".")) return null;
   const joined = path.join("/");
   if (/^(template-categories|templates(?:\/[a-zA-Z0-9_-]+)?|demo\/[a-z0-9-]+\.png)$/.test(joined)) return ["GET"];
+  if (/^account\/(register|login|recover|recovery-code)$/.test(joined)) return ["POST"];
   if (joined === "session") return ["GET", "POST", "DELETE"];
   if (joined === "assets") return ["GET", "POST"];
   if (/^assets\/[a-zA-Z0-9_-]+\/content$/.test(joined)) return ["GET"];

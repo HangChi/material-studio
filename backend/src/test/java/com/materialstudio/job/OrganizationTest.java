@@ -13,9 +13,13 @@ class OrganizationTest extends ApiTestSupport {
  String job(String cookie)throws Exception{String id=call("/api/jobs",HttpMethod.POST,cookie,Map.of("templateId","demo-portrait","assetIds",List.of(asset(cookie)))).getBody().path("job").path("id").asText();jdbc.update("UPDATE job SET status='SUCCEEDED',stage='FINALIZE',result_path=?,finished_at=CURRENT_TIMESTAMP(6) WHERE id=?",id+".png",id);Files.createDirectories(STORAGE.resolve("results"));Files.write(STORAGE.resolve("results/"+id+".png"),image("png"));return id;}
  @Test void normalizesTagsAndFiltersTheWholeOwnedHistory()throws Exception{
   String cookie=session(),id=job(cookie);var response=call("/api/works/bulk",HttpMethod.POST,cookie,Map.of("ids",List.of(id),"tags",List.of(" 旅行 ","旅行","A"),"favorite",true));assertThat(response.getStatusCode().value()).isEqualTo(200);
+  var unchanged=call("/api/works/bulk",HttpMethod.POST,cookie,Map.of("ids",List.of(id),"tags",List.of("旅行","A")));assertThat(unchanged.getBody().path("items").get(0).path("displayName").isNull()).isTrue();
   var tags=call("/api/jobs/"+id+"/tags",HttpMethod.GET,cookie,null).getBody().path("items");assertThat(tags.toString()).isEqualTo("[\"a\",\"旅行\"]");
   assertThat(call("/api/jobs?tag=旅行",HttpMethod.GET,cookie,null).getBody().path("items").size()).isEqualTo(1);
   assertThat(call("/api/jobs?tag=missing",HttpMethod.GET,cookie,null).getBody().path("items").size()).isZero();
+ }
+ @Test void distinguishesAccentedTagsAfterNormalization()throws Exception{
+  String cookie=session(),id=job(cookie);var r=call("/api/works/bulk",HttpMethod.POST,cookie,Map.of("ids",List.of(id),"tags",List.of("cafe","café")));assertThat(r.getStatusCode().value()).isEqualTo(200);assertThat(call("/api/jobs/"+id+"/tags",HttpMethod.GET,cookie,null).getBody().path("items").size()).isEqualTo(2);
  }
  @Test void rejectsWholeBulkForForeignOrInvalidSelection()throws Exception{
   String cookie=session(),mine=job(cookie),foreign=job(session());

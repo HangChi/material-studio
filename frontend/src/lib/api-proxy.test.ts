@@ -45,3 +45,6 @@ it("preserves admission backoff and keeps internal monitoring inaccessible",asyn
  for(const path of [["actuator","studio"],["studio"]])expect((await proxyTemplates(new Request("http://studio/api/"+path.join("/")),path)).status).toBe(404);
  expect(upstream).toHaveBeenCalledTimes(1);
 });
+
+it.each([["batches"],["batches","id","cancel"],["works","bulk"],["works","archive"],["account","register"],["account","login"],["account","recover"],["account","recovery-code"]])("forwards extended POST routes %j",async(...path)=>{const mocked=vi.fn().mockResolvedValue(Response.json({ok:true}));vi.stubGlobal("fetch",mocked);const response=await proxyTemplates(new Request("http://studio/api/"+path.join("/"),{method:"POST",body:"{}"}),path);expect(response.status).toBe(200);expect(mocked).toHaveBeenCalledTimes(1);});
+it("keeps storage maintenance outside the browser allowlist",async()=>{const mocked=vi.fn();vi.stubGlobal("fetch",mocked);expect((await proxyTemplates(new Request("http://studio/api/actuator/storage"),["actuator","storage"])).status).toBe(404);expect(mocked).not.toHaveBeenCalled();});

@@ -25,7 +25,7 @@ public class ApiErrors {
     public ResponseEntity<?> parameter(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException e) { return error(400,"INVALID_REQUEST","请求参数格式不正确"); }
     private ResponseEntity<?> error(int status, String code, String message) {
         var response=ResponseEntity.status(status).header("Cache-Control", "no-store");
-        if(status==429)response.header("Retry-After","60");
+        if(status==429)response.header("Retry-After",code.equals("AUTH_THROTTLED")?"900":"60");
         return response.body(Map.of("error", Map.of("code", code, "message", message)));
     }
 }

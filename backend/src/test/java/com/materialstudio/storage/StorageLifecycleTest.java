@@ -35,6 +35,11 @@ class StorageLifecycleTest extends ApiTestSupport {
   var expired=report();assertThat(call("/actuator/storage/purge",HttpMethod.POST,null,Map.of("snapshot",expired.path("purgeSnapshot").asText(),"confirm",true)).getStatusCode().value()).isEqualTo(200);
   assertThat(Files.exists(isolated)).isFalse();assertThat(jdbc.queryForObject("SELECT status FROM storage_audit WHERE id=?",String.class,id)).isEqualTo("PURGED");
  }
+ @Test void rejectsPurgeSnapshotWhenQuarantinedBytesChanged()throws Exception{
+  Path file=oldFile(UUID.randomUUID()+".png");var r=report();call("/actuator/storage/quarantine",HttpMethod.POST,null,Map.of("snapshot",r.path("snapshot").asText(),"confirm",true));String id=jdbc.queryForObject("SELECT id FROM storage_audit WHERE relative_path=?",String.class,file.getFileName().toString());jdbc.update("UPDATE storage_audit SET created_at=DATE_SUB(CURRENT_TIMESTAMP(6),INTERVAL 8 DAY) WHERE id=?",id);var before=report();Path isolated=STORAGE.resolve(".quarantine/"+id);Files.write(isolated,new byte[]{9,8});
+  assertThat(call("/actuator/storage/purge",HttpMethod.POST,null,Map.of("snapshot",before.path("purgeSnapshot").asText(),"confirm",true)).getStatusCode().value()).isEqualTo(409);assertThat(Files.readAllBytes(isolated)).containsExactly(9,8);
+  Files.deleteIfExists(isolated);jdbc.update("UPDATE storage_audit SET status='PURGED' WHERE id=?",id);
+ }
  @Test void failedAuditInsertionRestoresMovedFile()throws Exception{
   Path file=oldFile(UUID.randomUUID()+".png");var snapshot=report().path("snapshot").asText();
   jdbc.execute("CREATE TRIGGER reject_storage_audit BEFORE INSERT ON storage_audit FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='audit outage'");

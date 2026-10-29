@@ -14,9 +14,12 @@ import java.util.*;
 @Service
 public class AssetService {
     private final AssetMapper assets;
+    private final com.materialstudio.job.CreationMapper ownership;
     private final Path root;
-    public AssetService(AssetMapper assets, @Value("${studio.storage-root:/data}") String root) { this.assets = assets; this.root = Path.of(root).toAbsolutePath().normalize(); }
+    public AssetService(AssetMapper assets, @Value("${studio.storage-root:/data}") String root, com.materialstudio.job.CreationMapper ownership) { this.ownership=ownership;this.assets = assets; this.root = Path.of(root).toAbsolutePath().normalize(); }
+    @org.springframework.transaction.annotation.Transactional
     public AssetRow upload(String owner, MultipartFile file) {
+        if(ownership.lockOwner(owner)==null)throw new ApiException(401,"UNAUTHENTICATED","访客身份已失效，请刷新后重试");
         String mime = file.getContentType();
         if (mime == null || !Set.of("image/png", "image/jpeg").contains(mime.toLowerCase(Locale.ROOT))) throw new ApiException(415, "UNSUPPORTED_MEDIA_TYPE", "请选择JPEG或PNG图片");
         mime = mime.toLowerCase(Locale.ROOT);

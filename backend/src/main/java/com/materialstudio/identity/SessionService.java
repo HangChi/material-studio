@@ -19,10 +19,12 @@ public class SessionService {
         return user;
     }
     public String newToken() { byte[] bytes = new byte[32]; random.nextBytes(bytes); return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes); }
+    @org.springframework.transaction.annotation.Transactional
     public DemoUser create(String token) {
         DemoUser user = new DemoUser(UUID.randomUUID().toString(), hash(token), Instant.now(), true);
-        users.insert(user); return user;
+        users.insert(user); users.addSession(hash(token),user.id(),Instant.now().plusSeconds(365L*86400));return user;
     }
+    public DemoUser attach(String token,String owner,int days){users.addSession(hash(token),owner,Instant.now().plusSeconds(days*86400L));return users.find(hash(token));}
     public void revoke(String token) { if (token != null) users.revoke(hash(token)); }
     private String hash(String token) {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8))); }

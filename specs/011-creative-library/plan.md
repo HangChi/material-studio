@@ -1,6 +1,6 @@
 # Implementation Plan
 ## Summary / Technical Context
-沿用Next16/React19/TS与Java21/Spring Boot/MyBatis/MySQL、单worker。四个故事依次实现，不新增外部服务。迁移V8文件审计、V9批次、V10标签、V11账号/会话；已执行迁移不回写。
+沿用Next16/React19/TS与Java21/Spring Boot/MyBatis/MySQL、单worker。四个故事依次实现，不新增外部服务。迁移V8文件审计、V9批次、V10标签、V11账号/会话、V12标签精确比较；已执行迁移不回写。
 ## Constitution Check
 约章1.1.0为用户授权本地账号/安全清理明确边界；Java掌握业务/事务，保持TDD与容器执行、身份隔离和单智能体串行。设计前后通过，无额外复杂度例外。
 ## Design
@@ -11,6 +11,6 @@
 - 迁移：登录显式mergeGuest；锁源/目标user并用全局受理锁，源有活动任务409，已绑定源账号409，job_request或batch key碰撞409，全部事务回滚；更新asset/job/batch/receipt owner并撤销源全部会话。本地草稿不跨设备迁移，不承诺合并活跃任务。
 - UI沿用现有组件/风格，新增/batches和/account；批次复用UploadSlots/JobTracker/JobCards；History选择已加载作品最多50、批量操作/标签和ZIP；敏感恢复码只在组件内存显示，保存后用户继续，不写存储。
 ## Structure
-backend/src/main/java/com/materialstudio/{storage,batch,identity,job}；frontend/src/features/{batches,identity,jobs}；新页面/batches、/account；V8～V11迁移；scripts/verify-011.mjs；docs/011-validation.md。
+backend/src/main/java/com/materialstudio/{storage,batch,identity,job}；frontend/src/features/{batches,identity,jobs}；新页面/batches、/account；V8～V12迁移；scripts/verify-011.mjs；docs/011-validation.md。
 ## Verification
 各故事真实RED→最小GREEN→相关回归后提交；最终全量前后端、独立空卷/迁移/故障/桌面375px、公开仓库CI。文件清理/认证/迁移只用独立生成的测试数据，原3000数据卷不做清理验收。
