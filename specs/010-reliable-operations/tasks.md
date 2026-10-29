@@ -29,6 +29,6 @@
 
 ## Delivery
 - [x] T015 scripts/verify-010.mjs、docs/010-validation.md补充真实排队/配额/监控验收；容器全量前后端回归与生产重建。
-- [ ] T016 README.md、docs/roadmap.md、docs/acceptance.md、docs/async-workflow.md与docs/work-log.md同步，提交推送并确认最新远端CI。
+- [x] T016 README.md、docs/roadmap.md、docs/acceptance.md、docs/async-workflow.md与docs/work-log.md同步，提交推送并确认最新远端CI。
 
 依赖：T001→T002→T003/T004基线→T006/T007→T008/T009→T010～012→T013/T014→T005/T015/T016最终验收。CI等待期间仅处理同一执行者的独立工作，所有源码/TDD串行。US2是最小用户可见增量；本次授权包含全部五项，不以US2完成结束。

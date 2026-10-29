@@ -13,7 +13,7 @@
 - GREEN：原生confirm前置于身份变更/撤销，取消保持私有视图；lint/typecheck及session/history共13项通过。
 
 ## 交付检查
-- 最终实现与浏览器检查已完成，最新提交远端CI等待推送后核实。
+- 最终实现与浏览器检查已完成，代码交付提交b60eac2的远端CI前后端均通过，见末尾结果。
 
 ## US3动态模板
 - RED：容器template-filter.test.tsx三个测试均因动态选项/重试/abort缺失失败。
@@ -41,7 +41,13 @@
 - 监控零样本counts全0、queue.samples=0、stages=[]、failureRate=0，无NaN。链路后counts.succeeded=12、其余0，queue及三阶段均12样本，retries=0、scanner.failures=0；总排队58705.222ms、平均4892.10183333ms（本次运行样本，不作为性能承诺）。
 - 127.0.0.1:3102真实浏览器确认：Escape取消后a19ffa6f保持；Return确认后两个标签均变为dc6e99e4。原生confirm最初使自动化挂起，使用键盘处理后恢复，没有把未完成操作记作通过。
 - Java动态加载三模板，键盘选择旅行明信片并应用筛选后出现没有匹配的作品。375px实测innerWidth=scrollWidth=375，模板含全部及三模板共4选项；已恢复临时视口。
-- 截图：[桌面](010-history-desktop.png)、[375px](010-history-mobile.png)。高对比由Chrome真实forced-colors模拟验证，非截图换色；不宣称完整屏幕阅读器或所有操作系统覆盖。
+- 截图：[桌面](010-history-desktop.jpg)、[375px](010-history-mobile.jpg)。高对比由Chrome真实forced-colors模拟验证，非截图换色；不宣称完整屏幕阅读器或所有操作系统覆盖。
 - 原3000项目更新使用保留卷的docker compose up --build -d --wait；不删除或重置原演示数据。独立验收项目仅含本轮测试数据，收尾停服务保留卷。
 
 - 独立final项目再次运行verify-008成功，覆盖全三模板、素材分页、编辑配方、重命名/收藏/隐藏恢复/搜索、取消、排队和隐私；这是12样本核对后的追加测试数据。verify-010/005脚本node --check通过。原3000仅重建和健康检查，未执行写入演示记录的验收脚本。
+
+## 最终远端CI与收尾
+- 代码/验收交付提交：`b60eac270f8510220cc2eb4180cceea945b299b6`。
+- [远端CI 40908726624](https://github.com/HangChi/material-studio/actions/runs/40908726624)：completed/success，backend与frontend均success；包括最新95项前端/59项Java、依赖安装与构建。
+- 010全部16项任务完成。此后仅文档状态与原生JPEG截图扩展名修正；最终包含收尾文档的提交以git rev-parse HEAD为准，不将文档提交当新业务实现。
+- material-studio-010-cold及material-studio-010-final均down，保留独立验收数据卷；原material-studio前端/Java/MySQL均healthy，3000继续运行，未清空原数据卷。

@@ -332,8 +332,11 @@ US5监控初始RED为/actuator/studio404，两项均失败；实现OperationsMap
 
 010最终本地交付：95项前端/20文件及lint/typecheck/build通过，Java59项及mvn verify通过。生产独立项目material-studio-010-final从空卷V1～V7启动（复用依赖镜像层），配置内存1/全局8/本人6/分钟10。verify-010真实链路通过8项待办各成功一次六事件、本人/全局拒绝、幂等回放、本人10项后速率拒绝和隐私；总计12个成功，监控queue/三阶段各12样本，扫描错误0。零样本统计已读到全部0与空stages，无NaN。主3000使用保留卷Compose重建，三服务健康，未删除演示卷。
 
-浏览器最终用127.0.0.1:3102隔离localhost Cookie。Escape取消后身份a19ffa6f保持，Return确认后两个标签均为dc6e99e4；新模板从Java加载，旅行明信片键盘选择并应用筛选正常。原生confirm需要按键处理，未将工具中间挂起算通过。375px检查innerWidth=scrollWidth=375、四个模板选项，截图010-history-desktop.png/010-history-mobile.png，只含本项目界面；临时视口已恢复。高对比另在Chrome真实forced-colors中验证并恢复。原IAB viewport仅作用于可见标签，最初1280截图已归为desktop，没有把错误视口截图记为375。
+浏览器最终用127.0.0.1:3102隔离localhost Cookie。Escape取消后身份a19ffa6f保持，Return确认后两个标签均为dc6e99e4；新模板从Java加载，旅行明信片键盘选择并应用筛选正常。原生confirm需要按键处理，未将工具中间挂起算通过。375px检查innerWidth=scrollWidth=375、四个模板选项，截图010-history-desktop.jpg/010-history-mobile.jpg，只含本项目界面；临时视口已恢复。高对比另在Chrome真实forced-colors中验证并恢复。原IAB viewport仅作用于可见标签，最初1280截图已归为desktop，没有把错误视口截图记为375。
 
 本轮跨过客户端日期边界至2026-10-30；按实际命令/日志记录，不虚构人工工时。后续收尾：文档链接/语法核对、最新远端CI与最终任务勾选。全程单智能体串行，无新运行依赖、外部监控服务或消息队列。
 
 文档16文件169相对链接/代码围栏及git diff --check通过；脚本005/010容器node --check通过。自动审批拒绝在原3000运行会写模拟数据的verify-008，改在独立final项目执行并通过全部原有三模板/管理/隐私检查（ef2d0a70）；未绕过审批或向原环境写入此轮验收记录。原3000仅保留卷更新并健康检查。
+
+
+010交付收尾：b60eac270f8510220cc2eb4180cceea945b299b6已推送公开仓库，GitHub Actions40908726624 completed/success，backend/frontend均success；010共16/16任务。原生截图字节为JPEG，收尾按真实格式更名.jpg并同步引用，没有修改图片内容。两套本轮临时Compose项目均down保留测试卷，原项目三服务healthy、3000保持运行。公开前凭据模式检查无命中，文档及脚本检查通过。最终收尾仅文档与图片文件名，不重复运行无关业务测试；仍确认收尾提交对应CI结果。
