@@ -36,8 +36,11 @@ public class PipelineState {
     public void fail(String id,String code,String message) {
         transaction.executeWithoutResult(tx->{
             var job=events.lock(id);if(job==null||!isUnfinished(job))return;
-            write(job,"FAILED",job.stage(),"FAILED",null,code,message,message);
+            write(job,"FAILED",job.stage(),code.equals("PROCESS_INTERRUPTED")?"INTERRUPTED":"FAILED",null,code,message,message);
         });
+    }
+    public void interruptUnfinished() {
+        for(String id:events.unfinished())fail(id,"PROCESS_INTERRUPTED","服务已中断，任务未完成，请重新提交");
     }
     private boolean isUnfinished(JobRow job) { return job.status().equals("QUEUED")||job.status().equals("RUNNING"); }
     private void write(JobRow job,String status,String stage,String kind,String result,String code,String error,String message) {

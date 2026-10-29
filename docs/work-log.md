@@ -116,3 +116,7 @@
 - Pipeline GREEN：11:32:58，7/7通过；完整Java回归11:33:32，29/29与mvn verify打包通过。
 - 新增V3阶段事件/执行配置，行锁下状态与事件同事务；无HTTP查询仍完成，六事件顺序、三个指定阶段失败、终态10次稳定、私有PNG、写盘失败和按序独立配置均已验证。
 - 测试与构建未升级依赖；003默认不可用测试按新真实后台契约更新，既有受理事务/隔离测试仍通过。启动/关停中断可靠性尚待后续测试实现。
+
+- Lifecycle RED：11:34:20，队列容量1/FIFO/后台线程测试通过，启动与关停两个用例因仍为QUEUED失败，0环境错误。
+- Lifecycle GREEN：11:35:07完整Java32/32及打包通过；启动/关停标PROCESS_INTERRUPTED并持久事件，终态不改、重复初始化不再加版本；队列满202持久QUEUE_REJECTED，绝不CallerRuns。
+- 前端RED：events/result白名单两项、阶段/结果与查询异常保留两项失败，原19项仍通过；GREEN：完整45/45、lint、typecheck与Next生产构建均通过。成功图片使用原生同源请求（Next Image unoptimized），保留cookie归属校验。
