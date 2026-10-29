@@ -5,14 +5,17 @@ import org.springframework.http.*;
 import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 class DefaultDispatcherTest extends ApiTestSupport {
- @Test void unavailableWorkerNeverLeavesAnUnexecutableQueuedTask() throws Exception {
+ @Test void defaultDispatcherExecutesTheRealPipeline() throws Exception {
   String owner=session();
-  var response=call("/api/jobs",HttpMethod.POST,owner,Map.of("templateId","demo-portrait","assetIds",List.of(asset(owner))));
+  var response=call("/api/jobs",HttpMethod.POST,owner,Map.of("templateId","demo-portrait","assetIds",List.of(asset(owner)),
+          "simulation",Map.of("stageDurationsMs",Map.of("ASSET_CHECK",0,"GENERATE",0,"FINALIZE",0))));
   assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
-  var job=response.getBody().path("job");
-  assertThat(job.path("status").asText()).isEqualTo("FAILED");
-  assertThat(job.path("errorCode").asText()).isEqualTo("PROCESSOR_NOT_AVAILABLE");
-  assertThat(job.path("stage").isNull()).isTrue();
-  assertThat(call("/api/jobs/"+job.path("id").asText(),HttpMethod.GET,owner,null).getBody().path("job")).isEqualTo(job);
+  String id=response.getBody().path("job").path("id").asText();
+  for(int n=0;n<100;n++) {
+   var job=call("/api/jobs/"+id,HttpMethod.GET,owner,null).getBody().path("job");
+   if(job.path("status").asText().equals("SUCCEEDED")) { assertThat(job.path("resultUrl").asText()).endsWith("/result");return; }
+   Thread.sleep(20);
+  }
+  throw new AssertionError("default background dispatcher did not finish");
  }
 }

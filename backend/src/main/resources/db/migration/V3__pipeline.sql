@@ -1,0 +1,14 @@
+CREATE TABLE job_execution (
+ job_id CHAR(36) PRIMARY KEY, fail_stage VARCHAR(30),
+ check_ms INT NOT NULL DEFAULT 2000, generate_ms INT NOT NULL DEFAULT 2000, finalize_ms INT NOT NULL DEFAULT 2000,
+ FOREIGN KEY(job_id) REFERENCES job(id),
+ CHECK(fail_stage IS NULL OR fail_stage IN ('ASSET_CHECK','GENERATE','FINALIZE')),
+ CHECK(check_ms BETWEEN 0 AND 10000), CHECK(generate_ms BETWEEN 0 AND 10000), CHECK(finalize_ms BETWEEN 0 AND 10000)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE job_event (
+ job_id CHAR(36) NOT NULL, version BIGINT NOT NULL, stage VARCHAR(30), kind VARCHAR(20) NOT NULL,
+ created_at TIMESTAMP(6) NOT NULL, message VARCHAR(500) NOT NULL,
+ PRIMARY KEY(job_id,version), FOREIGN KEY(job_id) REFERENCES job(id), CHECK(version > 0),
+ CHECK(stage IS NULL OR stage IN ('ASSET_CHECK','GENERATE','FINALIZE')),
+ CHECK(kind IN ('STARTED','COMPLETED','FAILED','INTERRUPTED'))
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

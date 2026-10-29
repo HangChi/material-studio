@@ -10,6 +10,9 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: true
+      accept-float-as-int: false
+    mapper:
+      allow-coercion-of-scalars: false
   flyway:
     enabled: true
 mybatis:
