@@ -1,8 +1,8 @@
 # Tasks: 持续创作与身份恢复
 全程串行；约章1.1.0、规格质量6/6通过。
 - [x] T001 同步AGENTS.md、约章1.1.0与specs/011-creative-library规格/计划/数据/契约/验收指南。
-- [ ] T002 [US1] backend storage/StorageLifecycleTest.java先RED，验证登记/活动/近期/链接保护、只读盘点/过期快照/隔离7天到期审计。
-- [ ] T003 [US1] backend storage实现、V8迁移，容器GREEN后提交；不触碰原卷。
+- [x] T002 [US1] backend storage/StorageLifecycleTest.java先RED，验证登记/活动/近期/链接保护、只读盘点/过期快照/隔离7天到期审计。
+- [x] T003 [US1] backend storage实现、V8迁移，容器GREEN后提交；不触碰原卷。
 - [ ] T004 [US2] backend batch/BatchApiTest.java先RED，覆盖批次原子受理/提交后调度/幂等/配额/归属/分页/取消。
 - [ ] T005 [US2] backend batch、V9迁移及JobSubmissionService afterCommit实现GREEN。
 - [ ] T006 [US2] frontend batches测试先RED，新增/batches、独立上传/提交标识/恢复和JobTracker跟踪，导航及代理同步。

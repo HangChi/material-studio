@@ -340,3 +340,7 @@ US5监控初始RED为/actuator/studio404，两项均失败；实现OperationsMap
 
 
 010交付收尾：b60eac270f8510220cc2eb4180cceea945b299b6已推送公开仓库，GitHub Actions40908726624 completed/success，backend/frontend均success；010共16/16任务。原生截图字节为JPEG，收尾按真实格式更名.jpg并同步引用，没有修改图片内容。两套本轮临时Compose项目均down保留测试卷，原项目三服务healthy、3000保持运行。公开前凭据模式检查无命中，文档及脚本检查通过。最终收尾仅文档与图片文件名，不重复运行无关业务测试；仍确认收尾提交对应CI结果。
+
+
+### 011 · 扩展6～9 / 资源生命周期
+用户授权四项扩展，约章1.1.0明确本地账号与安全文件维护范围，规格质量6/6。US1 RED：StorageLifecycleTest4项均因/actuator/storage404失败；GREEN：新增V8审计、只识别24h前孤儿、登记/活动/近期/符号链接保护、快照确认、隔离事务补偿、7天后DELETING→PURGED审计。容器命令backend-test mvn -B -Dtest=StorageLifecycleTest test四项通过，含审计插入故障注入恢复原文件。所有文件在ApiTestSupport临时目录，未清理原卷。日志/tmp/material-011-storage-{red,green}.log。
