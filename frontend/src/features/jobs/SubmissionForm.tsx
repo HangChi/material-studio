@@ -1,5 +1,6 @@
 "use client";
 
+import { PostcardEditor, defaultParameters } from "./PostcardEditor";
 import { SessionGate } from "../identity/SessionGate";
 import { JobCards } from "./JobCards";
 import { isJob } from "./JobTracker";
@@ -14,6 +15,7 @@ function SubmissionBody({template,owner}:{template:Template;owner:string}) {
  const heading=useId();
  const {tracker,snapshot}=useJobTracker(owner);
  const jobs=snapshot.jobs;
+ const [parameters,setParameters]=useState(defaultParameters);
  const [assets,setAssets]=useState<(string|null)[]>([]);
  const [resetKey,setResetKey]=useState(0);
  const storageKey=`material-pending:${owner}:${template.id}`;
@@ -37,7 +39,7 @@ function SubmissionBody({template,owner}:{template:Template;owner:string}) {
  const ready=assets.length===template.requiredImageCount&&assets.every(id=>typeof id==="string"&&id.length>0);
  async function submit(retry=false){
   if(retry?(mode!=="unknown"||!pending):(locked.current||!ready))return;
-  const operation=retry?pending!:{key:crypto.randomUUID(),body:JSON.stringify({templateId:template.id,assetIds:assets})};
+  const operation=retry?pending!:{key:crypto.randomUUID(),body:JSON.stringify({templateId:template.id,assetIds:assets,...(template.id==="demo-postcard"?{parameters}:{})})};
   remember(operation);
   locked.current=true;setMode("submitting");setError("");
   const state=resources.current,controller=new AbortController();state.controllers.add(controller);
@@ -74,6 +76,7 @@ function SubmissionBody({template,owner}:{template:Template;owner:string}) {
   <h2 id={heading}>上传素材</h2><p className="form-help">准备 {template.requiredImageCount} 张图片，支持JPEG、PNG，每张最多5 MiB、2000万像素。</p>
   <form onSubmit={event=>{event.preventDefault();void submit();}}>
    <UploadSlots key={resetKey} template={template} onChange={setAssets} disabled={mode==="submitting"||mode==="unknown"}/>
+   {template.id==="demo-postcard"&&<PostcardEditor value={parameters} onChange={setParameters} assets={assets} disabled={mode==="submitting"||mode==="unknown"}/>}
    {storageWarning&&<p role="status">{storageWarning}</p>}
    {mode==="unknown"&&pending&&<button type="button" onClick={()=>void submit(true)}>安全重试本次提交</button>}
    {error&&<p role="alert">{error}</p>}

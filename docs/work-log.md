@@ -202,3 +202,13 @@
 - 后端RED：CreationApiTest新增2项失败，recreate/download均404（预期409/200）；GREEN：CreationApiTest+JobSubmissionTest 11项通过。真实PNG字节与原预览一致；失败重试清除failStage后成功；保留源记录/素材顺序；丢素材后原key可回放，新key422；其他身份404。
 - 前端RED：actions.test.tsx 2项缺操作按钮；events.test.tsx 2项缺展开入口。GREEN：lint/tsc及actions/events/submission/history/submission-proxy 38项通过。中途测试代码signal可空类型错误已修复，不算业务RED。
 - 详情只在展开时读取并跟随任务version更新；收起/unmount abort，保留旧详情直到读取成功；401清理当前身份。下载先验证状态/类型再创建blob，失败显示原资源错误。
+
+## 007 US4 — 真实明信片与参数编辑
+- 后端RED：CreationApiTest两项新增测试失败，parameters尚未被接受（400而非202/422）；使用真实HTTP而非缺失类/编译错误。
+- GREEN：CreationApiTest/JobSubmissionTest/PipelineApiTest共20项通过；全量mvn verify共44项通过、打包成功。新增用例包含原图颜色、相同比例裁剪位置改变、标题像素变化、两种尺寸/配色、中文字体支持、非法参数不落任务及重做保留配方。
+- 中文字体环境：backend Dockerfile新增tools层安装Ubuntu fonts-wqy-zenhei，测试与运行一致；不引入真实AI。GENERATE内存合成，FINALIZE原子PNG发布，异常清理临时文件并释放图像。
+- 前端RED：postcard.test.tsx 2项缺标题/裁剪控件；实现后测试发现output嵌套label造成重复可访问名称，已将数值从label移出。GREEN：默认frontend-test入口npm ci/lint/typecheck/78项测试/next build全通过（13个测试文件）。
+- 浏览器发现时间线真实合成仍使用旧模拟生成文案，补充事件message断言观察RED后增加按模板区分；最终后端再次全量44项通过。旧历史事件保持不改写。
+- 运行脚本 `docker compose exec -T frontend node --input-type=module < scripts/verify-007.mjs` 已通过实际Next→Java→MySQL/卷链路：并发同key、冲突409、PNG1000×1000、配方、六事件、下载与预览字节一致、再次制作幂等、失败重试成功、他人404。脚本撤销自身测试身份，不打印token；保留演示任务和文件。
+- 浏览器真实双图上传（项目portrait/collage自制图）、标题“旅途里的两段故事”、海蓝方版、键盘放大、提交后后台完成；下载文件material-abb74254-31bd-409c-ae6d-e3cd8dbe55b9.png成功；再次制作编号2c8917f3-859d-4a02-9879-695cc1d982e0，历史与原编号并存，均1000×1000结果。
+- 桌面1366×900、375×812编辑页/历史页检查；两页document.scrollWidth=375，无横向溢出；Home/ArrowRight可把裁剪位置调整为0.01。截图docs/007-editor-desktop.jpg、007-editor-mobile.jpg。未声称浏览器故障注入，丢响应/abort由组件与接口测试证明。

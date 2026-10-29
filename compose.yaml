@@ -57,7 +57,9 @@ services:
       MYSQL_ROOT_PASSWORD: test-only-root
     tmpfs: [/var/lib/mysql]
   backend-test:
-    image: *java-image
+    build:
+      context: ./backend
+      target: tools
     profiles: [test]
     working_dir: /workspace
     volumes: ["./backend:/workspace", "maven-cache:/root/.m2"]

@@ -26,10 +26,10 @@
 
 ## US4 真实明信片
 独立测试：输出像素/尺寸证明上传、裁剪、标题/配色/比例生效。
-- [ ] T012 [US4] 在backend/src/test/java/com/materialstudio/job/CreationApiTest.java与PostcardRendererTest.java测试真实结果/非法参数/中文字体并观察RED。
-- [ ] T013 [US4] 实现backend/src/main/java/com/materialstudio/job/PostcardParameters.java、PostcardRenderer.java、PipelineWorker.java、ResultStore.java；title最多40Unicode码点无控制字符，crops恰2项，x/y有限0～1、zoom有限1～3，验证GREEN。
-- [ ] T014 [US4] 在frontend/src/features/jobs/postcard.test.tsx新增参数、预览、隔离测试并观察RED。
-- [ ] T015 [US4] 实现frontend/src/features/jobs/PostcardEditor.tsx与SubmissionForm.tsx，沿用src/app/globals.css设计，验证GREEN。
+- [x] T012 [US4] 在backend/src/test/java/com/materialstudio/job/CreationApiTest.java（输出像素测试）测试真实结果/非法参数/中文字体并观察RED。
+- [x] T013 [US4] 实现backend/src/main/java/com/materialstudio/job/PostcardParameters.java、PostcardRenderer.java、PipelineWorker.java、ResultStore.java；title最多40Unicode码点无控制字符，crops恰2项，x/y有限0～1、zoom有限1～3，验证GREEN。
+- [x] T014 [US4] 在frontend/src/features/jobs/postcard.test.tsx新增参数、预览、隔离测试并观察RED。
+- [x] T015 [US4] 实现frontend/src/features/jobs/PostcardEditor.tsx与SubmissionForm.tsx，沿用src/app/globals.css设计，验证GREEN。
 
 ## 交付
 - [ ] T016 更新README.md、docs/roadmap.md、docs/acceptance.md与docs/work-log.md，完整容器回归、浏览器验收并记录实际结果。

@@ -108,3 +108,42 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .result-preview-error { min-height: 180px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 16px; padding: 24px; background: var(--canvas); border: 1px dashed var(--line); border-radius: 8px; }
 .result-preview-error p { color: var(--muted); margin: 0; }
 @media(max-width:760px) { .header-inner { flex-wrap: wrap; } nav { gap: 20px; } .visitor-panel,.history-toolbar { flex-direction: column; align-items: stretch; gap: 16px; } .has-result { grid-template-columns: minmax(0,1fr); gap: 20px; } .history-cards .job-receipt { padding: 20px; } }
+
+/* Creation workbench: reuse the existing paper, ink and focus tokens. */
+.job-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+.job-actions > div { min-width:0; }
+.job-actions p { font-size:14px; }
+.job-events { margin-top:16px; }
+.event-panel { padding-top:12px; }
+.event-timeline { padding-left:20px; font-size:14px; }
+.event-timeline li { padding:8px 0; }
+.event-timeline time { display:block; margin-top:4px; color:var(--muted); font-size:12px; }
+.event-kind { display:inline-block; margin-right:8px; font-weight:600; }
+.postcard-editor { margin-top:32px; border-top:1px solid var(--line); padding-top:24px; }
+.editor-heading h3 { margin:0 0 8px; font-size:22px; }
+.editor-heading p,.field-help { color:var(--muted); font-size:13px; line-height:1.6; }
+.editor-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:32px; margin-top:24px; align-items:start; }
+.editor-fields { border:0; padding:0; margin:0; min-width:0; }
+.editor-fields legend { font-size:14px; font-weight:600; margin-bottom:16px; }
+.editor-fields label { display:block; font-size:14px; margin-bottom:8px; }
+.editor-fields input:not([type=range]),.editor-fields select { width:100%; min-height:44px; padding:10px 12px; font:inherit; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:6px; }
+.editor-fields :is(input,select):focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
+.editor-fields input[type=range] { width:100%; min-height:44px; margin:0; accent-color:var(--action); }
+.editor-selects { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; margin:20px 0; }
+.crop-controls { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+.crop-control { border-top:1px solid var(--line); padding-top:12px; }
+.crop-control h4 { margin:0 0 16px; font-size:14px; }
+.crop-control label { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin:0; }
+.crop-control output { color:var(--muted); }
+.crop-control button { font-size:12px; margin-top:8px; }
+.postcard-preview-wrap { position:sticky; top:24px; min-width:0; }
+.postcard-preview { --postcard-bg:#f5efdf; --postcard-ink:#523a2c; background:var(--postcard-bg); color:var(--postcard-ink); width:100%; position:relative; overflow:hidden; container-type:inline-size; box-shadow:0 8px 24px #0000000c; }
+.postcard-preview.palette-ocean { --postcard-bg:#e7f2f5; --postcard-ink:#174a5b; }
+.postcard-rule { position:absolute; left:6%; top:7%; width:12%; height:2px; background:var(--postcard-ink); }
+.postcard-photo { position:absolute; top:12%; width:42%; height:62%; overflow:hidden; display:grid; place-items:center; background:color-mix(in srgb,var(--postcard-ink) 8%,var(--postcard-bg)); font-size:14px; }
+.postcard-photo.photo-0 { left:6%; }.postcard-photo.photo-1 { left:52%; }
+.postcard-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+.postcard-title { position:absolute; left:6%; right:6%; top:80%; margin:0; line-height:1.2; white-space:nowrap; }
+.postcard-imprint { position:absolute; left:6%; top:91%; margin:0; font-size:1.2cqw; letter-spacing:.04em; }
+@media(max-width:1000px) { .editor-layout { grid-template-columns:minmax(0,1fr); }.postcard-preview-wrap { position:static; max-width:640px; width:100%; } }
+@media(max-width:440px) { .editor-selects,.crop-controls { grid-template-columns:minmax(0,1fr); }.editor-layout { gap:24px; } }

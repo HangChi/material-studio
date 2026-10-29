@@ -67,7 +67,7 @@ Java素材默认STORAGE_ROOT=/data，Compose的asset-data命名卷持久保存�
 反向代理提供HTTPS时设置APP_ORIGIN为公开源（如https://studio.example.com），同时设置COOKIE_SECURE=true。
 修改数据库用户名/密码不会重设已初始化的MySQL卷，须同步数据库配置或仅在本地演示时重置卷。
 
-Flyway自动执行V1模板种子、V2身份/素材/任务和V3执行配置/事件迁移；兼容已有002/003数据，无需清空数据库。
+Flyway自动执行V1模板种子、V2身份/素材/任务、V3执行配置/事件和V4配方/幂等操作迁移；兼容已有002/003数据，无需清空数据库。
 封面是项目自制PNG，位于 `backend/src/main/resources/demo/`，Java白名单接口提供；无需外部图片网络。
 可在容器中重新生成：
 
@@ -85,8 +85,8 @@ docker compose --profile test run --rm frontend-test
 docker compose --profile test run --rm backend-test
 ```
 
-前端入口从锁文件npm ci，再执行eslint、tsc、70个Vitest测试、next build。
-后端入口mvn verify，执行38个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
+前端入口从锁文件npm ci，再执行eslint、tsc、78个Vitest测试、next build。
+后端入口mvn verify，执行44个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
 GitHub Actions在push/PR执行上述两条容器入口；远端流水线尚未运行，本地验证结果见[工作日志](docs/work-log.md)。
@@ -125,7 +125,7 @@ Cookie为HttpOnly/SameSite=Lax，数据库仅保存SHA-256哈希，客户端不�
 
 004已接通真实Java后台；003时期的PROCESSOR_NOT_AVAILABLE历史记录仍保留，不改写为新结果。
 页面区分提交请求失败与已受理任务失败。网络、5xx或无效受理响应进入“结果尚未确认”，禁用重复提交；
-点击“查看已受理任务”核对成功后，再明确“已核对，继续准备”，不会自动重发POST。
+007起可点击“安全重试本次提交”复用原Idempotency-Key及完整请求找回原任务；sessionStorage按本人/模板保存未确认请求，刷新可恢复。也保留“查看已受理任务”与“已核对，继续准备”的人工路径。
 核对失败保留既有快照和提交限制。上传移除仅移除当前选择，不删除后台文件，避免影响已受理任务。
 
 真实代理/上传/受理及流水线验收脚本（创建本地演示数据并撤销测试身份；文件和记录保留）：
@@ -151,7 +151,7 @@ Java使用单工作线程与容量16的有界FIFO队列；提交先事务提交�
 后台按素材检查ASSET_CHECK→模拟生成GENERATE→结果整理FINALIZE执行，每一步开始和完成都独立写事件并递增任务版本。
 状态为QUEUED→RUNNING→SUCCEEDED/FAILED；任一步失败中断后续阶段。正常成功恰6个事件/version6，图片先原子落盘，再提交成功状态。
 延迟/文件IO不持有数据库行锁；阶段状态与事件处于同一短事务；GET只读且终态不会回退。
-模拟产物是模板对应自制PNG的独立私有副本，不对上传图片做真实AI或图像合成。
+日光肖像与周末拼贴的模拟产物仍为模板自制PNG的独立私有副本；007起旅行明信片使用上传图片做真实Java2D合成，不调用AI。
 
 页面按模板数量上传并提交，初次展示瞬时受理快照，可能等待、处理中或已结束。受理后自动跟踪各任务，可继续准备下一项；离开页面后Java继续制作，进入“制作记录”恢复历史并继续跟踪。刷新保留访客身份。
 
@@ -182,7 +182,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 ```
 
 仅支持单后端进程，不允许多副本共用队列/启动对账逻辑。进程被强杀可能留下未登记结果/临时文件；孤儿文件自动清理不在范围，演示重置卷时统一清理。
-数据库不可写时可能无法保存最新失败，恢复服务重启后对账；没有自动重试、受理幂等、断点续跑、真实AI、支付或复杂模板后台。
+数据库不可写时可能无法保存最新失败，恢复服务重启后对账；没有自动重试、断点续跑、真实AI、支付或复杂模板后台；007新增受理幂等及用户主动重试。
 原题业务闭环已按002～005完成，具体实现与运行证据见验收对照；上述可选扩展不在当前范围。
 后端运行镜像暂复用固定Maven/Java镜像以简化演示，体积可在后续优化。
 
@@ -210,6 +210,31 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 ```sh
 docker compose exec -T frontend node --input-type=module < scripts/measure-admission.mjs
 ```
+
+
+## 007 制作工作台拓展
+
+本迭代包含用户选定的全部范围：提交幂等、失败重试、执行详情、PNG下载、再次制作，以及真实明信片合成与模板参数化。[规格](specs/007-creation-workbench/spec.md)、[接口契约](specs/007-creation-workbench/contracts/http-api.md)、[任务与验证状态](specs/007-creation-workbench/tasks.md)。
+
+**使用方式**：打开旅行明信片，上传两张图片，在“作品设置”中输入最多40字单行标题、选择奶油纸/海蓝信笺，以及横版1200×800/方版1000×1000。每张图片可分别调整横向/纵向位置（0～100%）和放大（1～3倍），也可重置。构图预览实时更新；提交后由Java后台GENERATE阶段渲染，FINALIZE阶段原子发布私有PNG。预览字体由浏览器提供，下载作品由容器中的文泉驿正黑渲染中文。
+
+成功卡片提供“下载 PNG”和“再次制作”；失败卡片提供“重试失败任务”。重新制作从第一步开始，复用原素材顺序和配方、保留模拟耗时、清除模拟failStage，新任务关联原任务；原记录/结果不变。已失效素材会提示重新上传。历史旧任务无配方时，明信片采用默认参数。点击“查看执行详情”查看阶段事件；活动任务版本变化时更新已展开详情，收起/离开停止查询。
+
+| 新增/扩展接口 | 行为 |
+| --- | --- |
+| POST /api/jobs，Idempotency-Key头 | 可选key兼容旧客户端；相同本人key+规范化内容返回同任务最新快照；内容冲突409，非法key400 |
+| POST /api/jobs/{id}/recreate | 必需key；仅本人终态任务；202新任务，可安全重试同操作 |
+| GET /api/jobs/{id}/recipe | 本人素材ID顺序、配方参数和sourceJobId |
+| GET /api/jobs/{id}/download | 本人成功PNG附件；缺失/非成功404 |
+| GET /api/jobs/{id}/events | 已有阶段事件API，新增前端时间线 |
+
+可选parameters仅用于demo-postcard，省略时采用默认标题“旅途来信”、奶油/横版/居中不放大。提供时必须包含title/palette/format/crops；crops恰2项，每项x/y为0～1、zoom为1～3的有限数字。前后端采用cover×zoom及剩余空间位置的相同裁剪规则。详细示例见契约。
+
+幂等操作以(owner_id,request_key)为数据库唯一键，在同一短事务保存任务/配方/操作/素材关联，并序列化同身份受理；文件渲染不持有该锁。重复操作不重新调度，已受理但进程中断仍按原中断策略标失败，不自动重新执行。
+
+前端在未确认提交时锁定输入，允许重试同一载荷。浏览器禁止sessionStorage时，当前页面仍可安全重试，但刷新不能恢复该标识；页面会提示保留当前页。匿名身份丢失仍无找回入口。未确认操作中的素材ID/参数仅存当前浏览器会话，不含cookie令牌。
+
+字体来源：Ubuntu官方软件包fonts-wqy-zenhei（文泉驿正黑）；安装在backend Dockerfile的tools基础层，测试与运行共用字体环境。首次构建需访问Ubuntu软件源；未增加应用服务或真实AI依赖。
 
 ## 部署、回滚、投入与来源
 

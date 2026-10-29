@@ -15,7 +15,7 @@
 ## Project Structure
 backend/src/main/java/com/materialstudio/job/：SubmissionService、CreationMapper、PostcardParameters、PostcardRenderer、Controller、Worker、ResultStore。
 backend/src/main/resources/db/migration/V4__creation.sql：新增表。
-backend/src/test/java/com/materialstudio/job/CreationApiTest.java、PostcardRendererTest.java。
+backend/src/test/java/com/materialstudio/job/CreationApiTest.java（含输出像素与中文字体测试）。
 frontend/src/features/jobs/：SubmissionForm、PostcardEditor、JobActions、JobEvents、DownloadResult及对应测试。
 frontend/src/lib/api-proxy.ts：透传操作标识/下载头，严格放行新接口。
 

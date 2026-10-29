@@ -21,7 +21,7 @@ public class PipelineState {
                 Stage previous=Stage.values()[stage.ordinal()-1];
                 if(!job.status().equals("RUNNING")||!Objects.equals(job.stage(),previous.name())||history.isEmpty()||!history.getLast().kind().equals("COMPLETED"))return false;
             }
-            write(job,"RUNNING",stage.name(),"STARTED",null,null,null,label(stage)+"开始");return true;
+            write(job,"RUNNING",stage.name(),"STARTED",null,null,null,label(stage,job.templateId())+"开始");return true;
         }));
     }
     public boolean complete(String id,Stage stage,String result) {
@@ -30,7 +30,7 @@ public class PipelineState {
             var history=events.events(id);if(history.isEmpty()||!history.getLast().kind().equals("STARTED"))return false;
             boolean done=stage==Stage.FINALIZE;
             if(done && result==null)throw new IllegalArgumentException("Result required");
-            write(job,done?"SUCCEEDED":"RUNNING",stage.name(),"COMPLETED",result,null,null,label(stage)+"完成");return true;
+            write(job,done?"SUCCEEDED":"RUNNING",stage.name(),"COMPLETED",result,null,null,label(stage,job.templateId())+"完成");return true;
         }));
     }
     public void fail(String id,String code,String message) {
@@ -49,5 +49,6 @@ public class PipelineState {
         events.update(new EventMapper.Transition(job.id(),status,stage,version,now,terminal?now:null,result,code,error));
         events.append(job.id(),new EventMapper.Event(version,stage,kind,now,message));
     }
+    public static String label(Stage stage,String template) { return stage==Stage.GENERATE&&"demo-postcard".equals(template)?"图片合成":label(stage); }
     public static String label(Stage stage) { return switch(stage) { case ASSET_CHECK->"素材检查";case GENERATE->"模拟生成";case FINALIZE->"结果整理"; }; }
 }

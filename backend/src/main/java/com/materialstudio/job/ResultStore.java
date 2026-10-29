@@ -21,6 +21,13 @@ public class ResultStore {
             return id+".png";
         } finally { Files.deleteIfExists(temporary); }
     }
+    public String publish(String id,java.awt.image.BufferedImage image) throws IOException {
+        Files.createDirectories(root);Path temporary=Files.createTempFile(root,"result-",".part");
+        try {
+            if(!javax.imageio.ImageIO.write(image,"png",temporary.toFile()))throw new IOException("PNG encoder unavailable");
+            Files.move(temporary,root.resolve(id+".png"),StandardCopyOption.ATOMIC_MOVE);return id+".png";
+        } finally { Files.deleteIfExists(temporary); }
+    }
     public Resource read(JobRow job) {
         if(!job.status().equals("SUCCEEDED")||job.resultPath()==null||!job.resultPath().matches("[a-f0-9-]{36}\\.png"))throw unavailable();
         Path file=root.resolve(job.resultPath());
