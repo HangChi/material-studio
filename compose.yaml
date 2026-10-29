@@ -44,6 +44,8 @@ services:
       retries: 20
   test-mysql:
     <<: *mysql
+    # Disposable integration database: permit failure-injection triggers without SUPER.
+    command: ["--skip-log-bin"]
     profiles: [test]
     environment:
       MYSQL_DATABASE: material_studio_test

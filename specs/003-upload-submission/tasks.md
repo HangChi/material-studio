@@ -18,10 +18,10 @@
 **Goal**: 真实图片保存服务端，各槽预览/替换/移除/失败恢复。
 **Independent Test**: 本人读回原字节，越权404；坏图/MIME/大小/像素拒绝；旧上传不填回。
 
-- [ ] T005 [US1] 在 backend/src/test/java/com/materialstudio/asset/AssetApiTest.java 编写完整读回/越权/零字节/5MiB边界/超限/伪MIME/坏图/像素上限测试，观察RED。
-- [ ] T006 [US1] 在 backend/src/main/java/com/materialstudio/asset/ 实现随机文件名落盘/失败清理/MyBatis登记及私有读取；落实mimeType ∈ {image/jpeg,image/png}、0<sizeBytes<=5242880、像素<=20000000，完成T005 GREEN。
-- [ ] T007 [US1] 在 frontend/src/features/assets/upload.test.tsx 编写选择预览/替换/移除/上传失败重试/过时响应/卸载释放/前端校验测试，观察RED。
-- [ ] T008 [US1] 在 frontend/src/features/assets/UploadSlots.tsx 实现每槽独立状态、图片解码与像素校验、abort/requestId/objectURL生命周期，完成T007 GREEN。
+- [x] T005 [US1] 在 backend/src/test/java/com/materialstudio/asset/AssetApiTest.java 编写完整读回/越权/零字节/5MiB边界/超限/伪MIME/坏图/像素上限测试，观察RED。
+- [x] T006 [US1] 在 backend/src/main/java/com/materialstudio/asset/ 实现随机文件名落盘/失败清理/MyBatis登记及私有读取；落实mimeType ∈ {image/jpeg,image/png}、0<sizeBytes<=5242880、像素<=20000000，完成T005 GREEN。
+- [x] T007 [US1] 在 frontend/src/features/assets/upload.test.tsx 编写选择预览/替换/移除/上传失败重试/过时响应/卸载释放/前端校验测试，观察RED。
+- [x] T008 [US1] 在 frontend/src/features/assets/UploadSlots.tsx 实现每槽独立状态、图片解码与像素校验、abort/requestId/objectURL生命周期，完成T007 GREEN。
 
 ## Phase 4: US2 以当前身份受理任务 (P2)
 

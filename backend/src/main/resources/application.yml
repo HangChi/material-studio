@@ -3,6 +3,13 @@ spring:
     url: ${DATABASE_URL:jdbc:mysql://mysql:3306/material_studio?useUnicode=true&characterEncoding=UTF-8&connectionTimeZone=UTC}
     username: ${DATABASE_USER:studio}
     password: ${DATABASE_PASSWORD:local-demo-password}
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   flyway:
     enabled: true
 mybatis:
@@ -14,6 +21,12 @@ management:
       exposure:
         include: health
 server:
+  tomcat:
+    max-swallow-size: 6MB
   error:
     include-message: never
     include-stacktrace: never
+
+studio:
+  storage-root: ${STORAGE_ROOT:/data}
+  cookie-secure: ${COOKIE_SECURE:false}
