@@ -24,7 +24,7 @@ export async function proxyTemplates(request: Request, path: string[]): Promise<
   const url = new URL(`/api/${path.map(encodeURIComponent).join("/")}`, process.env.JAVA_API_BASE_URL ?? "http://backend:8080");
   url.search = source.search;
   const upstreamHeaders = new Headers();
-  for (const name of ["cookie", "content-type", "accept"]) {
+  for (const name of ["cookie", "content-type", "accept", "idempotency-key"]) {
     const value = request.headers.get(name); if (value) upstreamHeaders.set(name, value);
   }
   const options: RequestInit & { duplex?: "half" } = {
@@ -34,7 +34,7 @@ export async function proxyTemplates(request: Request, path: string[]): Promise<
   try {
     const upstream = await fetch(url, options);
     const headers = new Headers({ "cache-control": "no-store" });
-    for (const name of ["content-type", "x-content-type-options", "location"]) {
+    for (const name of ["content-type", "x-content-type-options", "location", "content-disposition"]) {
       const value = upstream.headers.get(name); if (value) headers.set(name, value);
     }
     for (const cookie of upstream.headers.getSetCookie()) headers.append("set-cookie", cookie);

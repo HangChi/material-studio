@@ -190,3 +190,10 @@
 - 全部逐次测量、工具计时边界及本地负载条件写入docs/admission-measurements.md。001原故事/FR/SC和原题副本保留；更新归档缺口、README、验收对照及006任务9/9。无新依赖/表/后端变更，无子智能体；远端CI、TLS/公网和真实双标签联动仍未实测。
 - 工具时钟与容器/浏览器服务端创建时间不完全一致；不跨时钟相减。此前日志内17:51:23/18:15:24为相应日志记录时间，不能用于推算真实人工耗时。本轮包含多次工具连接/审批等待，不虚构精确人工工时。
 - 最终136处本地文档链接、001原spec/原题逐字保留、006九项任务/16项质量清单及git diff --check通过；frontend/backend/mysql均healthy，test-mysql已停止，图片原文件存在且.audit-hold不存在。规格与代码分别提交f3986d7、9934a67，本次文档验收以最后Git提交为准。
+
+## 007 US1 — 提交幂等与刷新安全重试（2026-10-29）
+- RED：容器 `backend-test mvn -B -Dtest=CreationApiTest test`，2项失败：并发产生4编号、无效key返回202，非环境问题。
+- GREEN：`backend-test mvn -B -Dtest=CreationApiTest,JobSubmissionTest test`，9项通过；事务锁本人行+持久唯一操作表，回放不重复调度。
+- 前端RED：`frontend-test npm test -- src/features/jobs/submission.test.tsx src/lib/submission-proxy.test.ts`，2失败/24通过：缺安全重试入口、未透传key。
+- GREEN：同两文件26项通过，另lint/tsc通过。未确认请求sessionStorage按本人/模板保存完整载荷，重试原key，存储不可用明确提示。保留人工核对入口兼容旧流程。
+- 本轮开始约18:03（上海），按工具时段计，不声称精确人工工时。全部串行，无子智能体。

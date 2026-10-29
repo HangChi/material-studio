@@ -16,30 +16,38 @@ function SubmissionBody({template,owner}:{template:Template;owner:string}) {
  const jobs=snapshot.jobs;
  const [assets,setAssets]=useState<(string|null)[]>([]);
  const [resetKey,setResetKey]=useState(0);
- const [mode,setMode]=useState<"idle"|"submitting"|"error"|"unknown">("idle");
+ const storageKey=`material-pending:${owner}:${template.id}`;
+ const [pending,setPending]=useState<{key:string;body:string}|null>(()=>{
+  try{const value=JSON.parse(sessionStorage.getItem(storageKey)??"null");return value&&typeof value.key==="string"&&typeof value.body==="string"?value:null;}catch{return null;}
+ });
+ const [storageWarning,setStorageWarning]=useState("");
+ function remember(value:{key:string;body:string}|null){setPending(value);try{if(value)sessionStorage.setItem(storageKey,JSON.stringify(value));else sessionStorage.removeItem(storageKey);}catch{setStorageWarning("浏览器存储不可用，请保留此页面以便安全重试提交。");}}
+ const [mode,setMode]=useState<"idle"|"submitting"|"error"|"unknown">(pending?"unknown":"idle");
  const [error,setError]=useState("");
  const [checking,setChecking]=useState(false);
  const [reviewed,setReviewed]=useState(false);
  const [queryError,setQueryError]=useState("");
  const [loaded,setLoaded]=useState(false);
- const locked=useRef(false);
+ const locked=useRef(!!pending);
  const resources=useRef({active:true,controllers:new Set<AbortController>()});
  useEffect(()=>{
   const state=resources.current;state.active=true;
   return()=>{state.active=false;state.controllers.forEach(controller=>controller.abort());};
  },[]);
  const ready=assets.length===template.requiredImageCount&&assets.every(id=>typeof id==="string"&&id.length>0);
- async function submit(){
-  if(locked.current||!ready)return;
+ async function submit(retry=false){
+  if(retry?(mode!=="unknown"||!pending):(locked.current||!ready))return;
+  const operation=retry?pending!:{key:crypto.randomUUID(),body:JSON.stringify({templateId:template.id,assetIds:assets})};
+  remember(operation);
   locked.current=true;setMode("submitting");setError("");
   const state=resources.current,controller=new AbortController();state.controllers.add(controller);
   try{
-   const response=await fetch("/api/jobs",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({templateId:template.id,assetIds:assets}),signal:controller.signal});
+   const response=await fetch("/api/jobs",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json","Idempotency-Key":operation.key},body:operation.body,signal:controller.signal});
    if(response.status===401){tracker.expire();return;}
    const result=await response.json();if(!state.active)return;
-   if(response.status>=400&&response.status<500){setMode("error");setError(result.error?.message??"提交参数不正确，请检查素材");locked.current=false;return;}
+   if(response.status>=400&&response.status<500){remember(null);setMode("error");setError(result.error?.message??"提交参数不正确，请检查素材");locked.current=false;return;}
    if(response.status!==202||!isJob(result.job))throw new Error("提交结果无效");
-   tracker.seed([result.job]);
+   remember(null);tracker.seed([result.job]);
    setAssets([]);setResetKey(key=>key+1);setMode("idle");locked.current=false;
   }catch{if(state.active){setMode("unknown");setReviewed(false);setError("提交结果尚未确认，请先查看已受理任务核对，确认前不要重复提交。");}}
   finally{state.controllers.delete(controller);}
@@ -59,13 +67,15 @@ function SubmissionBody({template,owner}:{template:Template;owner:string}) {
  }
  function confirmReview(){
   if(!reviewed||mode!=="unknown")return;
-  locked.current=false;setMode("idle");setError("");setAssets([]);setResetKey(key=>key+1);setReviewed(false);
+  remember(null);locked.current=false;setMode("idle");setError("");setAssets([]);setResetKey(key=>key+1);setReviewed(false);
  }
  if(snapshot.authExpired)return <p role="alert">访客身份已失效，请刷新页面重新建立。</p>;
  return <section className="submission-panel" aria-labelledby={heading}>
   <h2 id={heading}>上传素材</h2><p className="form-help">准备 {template.requiredImageCount} 张图片，支持JPEG、PNG，每张最多5 MiB、2000万像素。</p>
   <form onSubmit={event=>{event.preventDefault();void submit();}}>
    <UploadSlots key={resetKey} template={template} onChange={setAssets} disabled={mode==="submitting"||mode==="unknown"}/>
+   {storageWarning&&<p role="status">{storageWarning}</p>}
+   {mode==="unknown"&&pending&&<button type="button" onClick={()=>void submit(true)}>安全重试本次提交</button>}
    {error&&<p role="alert">{error}</p>}
    <button className="primary submit-button" type="submit" disabled={!ready||mode==="submitting"||mode==="unknown"}>{mode==="submitting"?"提交中…":"提交制作"}</button>
   </form>

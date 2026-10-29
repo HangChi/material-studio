@@ -7,10 +7,10 @@
 
 ## US1 安全提交
 独立测试：并发相同操作一次调度，冲突409；浏览器丢响应、刷新可安全重试。
-- [ ] T002 [US1] 在backend/src/test/java/com/materialstudio/job/CreationApiTest.java新增真实HTTP并发/冲突/身份/无效key测试并观察RED。
-- [ ] T003 [US1] 实现backend/src/main/resources/db/migration/V4__creation.sql及job/CreationMapper.java、JobSubmissionService.java、JobController.java；key为1～80位[A-Za-z0-9_-]，唯一(owner,key)，事务内关联，验证GREEN。
-- [ ] T004 [US1] 在frontend/src/features/jobs/submission.test.tsx、src/lib/submission-proxy.test.ts测试丢响应同key重试、刷新恢复、代理透传，观察RED。
-- [ ] T005 [US1] 更新frontend/src/features/jobs/SubmissionForm.tsx及src/lib/api-proxy.ts，实现不可变请求与按本人存储恢复，验证GREEN。
+- [x] T002 [US1] 在backend/src/test/java/com/materialstudio/job/CreationApiTest.java新增真实HTTP并发/冲突/身份/无效key测试并观察RED。
+- [x] T003 [US1] 实现backend/src/main/resources/db/migration/V4__creation.sql及job/CreationMapper.java、JobSubmissionService.java、JobController.java；key为1～80位[A-Za-z0-9_-]，唯一(owner,key)，事务内关联，验证GREEN。
+- [x] T004 [US1] 在frontend/src/features/jobs/submission.test.tsx、src/lib/submission-proxy.test.ts测试丢响应同key重试、刷新恢复、代理透传，观察RED。
+- [x] T005 [US1] 更新frontend/src/features/jobs/SubmissionForm.tsx及src/lib/api-proxy.ts，实现不可变请求与按本人存储恢复，验证GREEN。
 
 ## US2 下载与重新制作
 独立测试：原记录不变，新编号关联并保留参数，下载本人PNG。

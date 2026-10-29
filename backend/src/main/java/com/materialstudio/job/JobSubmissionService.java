@@ -14,22 +14,37 @@ public class JobSubmissionService {
     public record Request(String templateId,List<String> assetIds,Simulation simulation) {
         public Request(String templateId,List<String> assetIds) { this(templateId,assetIds,null); }
     }
+    private final CreationMapper creation;
+    private final com.fasterxml.jackson.databind.ObjectMapper json;
     private final JobMapper jobs;
     private final EventMapper events;
     private final TemplateMapper templates;
     private final AssetService assets;
     private final JobDispatcher dispatcher;
     private final TransactionTemplate transaction;
-    public JobSubmissionService(JobMapper jobs,EventMapper events,TemplateMapper templates,AssetService assets,JobDispatcher dispatcher,PlatformTransactionManager manager) {
-        this.jobs=jobs;this.events=events;this.templates=templates;this.assets=assets;this.dispatcher=dispatcher;this.transaction=new TransactionTemplate(manager);
+    public JobSubmissionService(JobMapper jobs,EventMapper events,TemplateMapper templates,AssetService assets,JobDispatcher dispatcher,PlatformTransactionManager manager,CreationMapper creation,com.fasterxml.jackson.databind.ObjectMapper json) {
+        this.creation=creation;this.json=json;this.jobs=jobs;this.events=events;this.templates=templates;this.assets=assets;this.dispatcher=dispatcher;this.transaction=new TransactionTemplate(manager);
     }
-    public JobView submit(String owner,Request request) {
+    public JobView submit(String owner,Request request) { return submit(owner,request,null); }
+    public JobView submit(String owner,Request request,String key) {
+        validateKey(key);
+        String fingerprint=fingerprint(request);
         if(request.templateId()==null || request.templateId().isBlank() || request.assetIds()==null || request.assetIds().isEmpty()
                 || request.assetIds().size()>3 || request.assetIds().stream().anyMatch(id->id==null || id.isBlank())
                 || new HashSet<>(request.assetIds()).size()!=request.assetIds().size()) throw invalid();
         String id=UUID.randomUUID().toString();
         var configuration=(request.simulation()==null?new Simulation(null,null):request.simulation()).resolve(id);
+        boolean[] fresh={true};
+        String[] accepted={id};
         transaction.executeWithoutResult(status -> {
+            if(creation.lockOwner(owner)==null)throw new ApiException(401,"UNAUTHENTICATED","访客身份已失效");
+            if(key!=null) {
+                var previous=creation.receipt(owner,key);
+                if(previous!=null) {
+                    if(!previous.fingerprint().equals(fingerprint))throw new ApiException(409,"IDEMPOTENCY_CONFLICT","同一提交标识的内容不同，请核对原操作");
+                    fresh[0]=false;accepted[0]=previous.jobId();return;
+                }
+            }
             var template=templates.find(request.templateId());
             if(template==null) throw new ApiException(404,"RESOURCE_NOT_FOUND","模板不存在");
             if(request.assetIds().size()!=template.requiredImageCount()) throw invalid();
@@ -37,15 +52,26 @@ public class JobSubmissionService {
             Instant now=Instant.now();
             jobs.insert(new JobRow(id,owner,template.id(),template.title(),"QUEUED",null,0,now,now,null,null,null,null));
             events.configure(configuration);
+            if(key!=null)creation.remember(owner,key,fingerprint,id);
             for(int slot=0;slot<request.assetIds().size();slot++) jobs.link(id,request.assetIds().get(slot),slot);
         });
         // This boundary is intentionally outside the database transaction and never waits for a worker result.
+        if(!fresh[0])return owned(accepted[0],owner);
         try { dispatcher.dispatch(id); }
         catch(RuntimeException rejected) {
             transaction.executeWithoutResult(status -> jobs.failQueued(id,"QUEUE_REJECTED",
                     "制作队列暂不可用，任务未开始处理",Instant.now()));
         }
         return owned(id,owner);
+    }
+    private void validateKey(String key) {
+        if(key!=null&&!key.matches("[A-Za-z0-9_-]{1,80}"))throw new ApiException(400,"INVALID_IDEMPOTENCY_KEY","提交标识格式不正确");
+    }
+    private String fingerprint(Request request) {
+        try {
+            var simulation=(request.simulation()==null?new Simulation(null,null):request.simulation()).resolve("");
+            return HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(json.writeValueAsBytes(Arrays.asList(request.templateId(),request.assetIds(),simulation))));
+        } catch(java.io.IOException|java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
     }
     public JobView owned(String id,String owner) {
         JobRow row=jobs.owned(id,owner);

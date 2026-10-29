@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SubmissionForm } from "./SubmissionForm";
 import type { UploadSlotsProps } from "../assets/UploadSlots";
 vi.mock("../assets/UploadSlots",()=>({UploadSlots:({onChange,disabled}:UploadSlotsProps)=><button type="button" disabled={disabled} onClick={()=>onChange(["asset-1"])}>准备测试素材</button>}));
+beforeEach(()=>sessionStorage.clear());
 const template={id:"demo-portrait",title:"日光肖像",description:"样张",categoryId:"creative",coverUrl:"/cover.png",requiredImageCount:1,acceptedMimeTypes:["image/png"],maxFileSizeBytes:5242880};
 const job={id:"job-1",templateId:"demo-portrait",templateTitle:"日光肖像",status:"QUEUED",stage:null,version:0,createdAt:"2026-10-29T02:00:00Z",errorCode:null,errorMessage:null};
 function api(){return vi.fn(async(url:string,options?:RequestInit)=>{
@@ -103,4 +104,20 @@ it("automatically tracks each accepted task to a terminal result without another
   return Response.json({items:[],nextCursor:null});
  });vi.stubGlobal("fetch",mock);render(<SubmissionForm template={template}/>);await prepare();fireEvent.click(screen.getByRole("button",{name:"提交制作"}));
  expect(await screen.findByText("任务编号：job-1")).toBeVisible();expect(await screen.findByRole("img",{name:"日光肖像制作结果"},{timeout:3000})).toHaveProperty("src",new URL("/api/jobs/job-1/result",window.location.href).href);
+});
+
+it("safely retries a lost response with the identical persisted key and body after remount",async()=>{
+ const posts:RequestInit[]=[];
+ vi.stubGlobal("fetch",vi.fn(async(url:string,options?:RequestInit)=>{
+  if(url==="/api/session")return Response.json({user:{id:"user-1"}});
+  if(options?.method==="POST"){posts.push(options);if(posts.length===1)throw new Error("lost");return Response.json({job},{status:202});}
+  return Response.json({items:[]});
+ }));
+ const view=render(<SubmissionForm template={template}/>);await prepare();fireEvent.click(screen.getByRole("button",{name:"提交制作"}));
+ await screen.findByText(/提交结果尚未确认/);view.unmount();
+ render(<SubmissionForm template={template}/>);
+ fireEvent.click(await screen.findByRole("button",{name:"安全重试本次提交"}));
+ expect(await screen.findByText("任务编号：job-1")).toBeVisible();expect(posts).toHaveLength(2);
+ expect(new Headers(posts[0].headers).get("Idempotency-Key")).toBeTruthy();
+ expect(new Headers(posts[1].headers).get("Idempotency-Key")).toBe(new Headers(posts[0].headers).get("Idempotency-Key"));expect(posts[1].body).toBe(posts[0].body);
 });

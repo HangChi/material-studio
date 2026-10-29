@@ -16,8 +16,8 @@ public class JobController {
     private final HistoryService history;
     public JobController(SessionService sessions,JobSubmissionService jobs,EventMapper events,ResultStore results,HistoryService history) { this.sessions=sessions;this.jobs=jobs;this.events=events;this.results=results;this.history=history; }
     @PostMapping
-    public ResponseEntity<?> submit(@CookieValue(name="material_session",required=false) String token,@RequestBody JobSubmissionService.Request request) {
-        var job=jobs.submit(sessions.require(token).id(),request);
+    public ResponseEntity<?> submit(@CookieValue(name="material_session",required=false) String token,@RequestBody JobSubmissionService.Request request,@RequestHeader(name="Idempotency-Key",required=false) String key) {
+        var job=jobs.submit(sessions.require(token).id(),request,key);
         return ResponseEntity.accepted().location(URI.create("/api/jobs/"+job.id())).header("Cache-Control","no-store").body(Map.of("job",job));
     }
     @GetMapping("/{id}")

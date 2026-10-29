@@ -69,3 +69,10 @@ it.each(["events","result"])("allows private pipeline %s GET only and forwards c
  expect((fetcher.mock.calls[0][1].headers as Headers).get("cookie")).toBe("material_session=secret");
  expect((await proxyTemplates(new Request("http://localhost/api/jobs/job-1/"+endpoint,{method:"POST"}),["jobs","job-1",endpoint])).status).toBe(405);
 });
+
+it("forwards idempotency keys and attachment headers on allowed routes",async()=>{
+ const mock=vi.fn().mockResolvedValue(new Response("png",{headers:{"content-type":"image/png","content-disposition":"attachment; filename=material.png"}}));vi.stubGlobal("fetch",mock);
+ const response=await proxyTemplates(new Request("http://studio/api/jobs",{method:"POST",headers:{"Idempotency-Key":"operation-1"},body:"{}"}),["jobs"]);
+ expect(new Headers(mock.mock.calls[0][1].headers).get("Idempotency-Key")).toBe("operation-1");
+ expect(response.headers.get("content-disposition")).toContain("attachment");
+});
