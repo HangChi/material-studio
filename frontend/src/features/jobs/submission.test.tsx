@@ -17,7 +17,7 @@ describe("submission admission form",()=>{
  it("requires an initialized identity and complete uploaded assets",async()=>{
   let resolve!:(r:Response)=>void;vi.stubGlobal("fetch",vi.fn(()=>new Promise<Response>(r=>{resolve=r;})));
   render(<SubmissionForm template={template}/>);
-  expect(screen.getByRole("button",{name:"准备测试素材"})).toBeDisabled();expect(screen.getByRole("button",{name:"提交制作"})).toBeDisabled();
+  expect(screen.queryByRole("button",{name:"准备测试素材"})).not.toBeInTheDocument();expect(screen.queryByRole("button",{name:"提交制作"})).not.toBeInTheDocument();
   await act(async()=>{resolve(Response.json({user:{id:"user-1"}}));});await ready();
   expect(screen.getByRole("button",{name:"提交制作"})).toBeDisabled();
   fireEvent.click(screen.getByRole("button",{name:"准备测试素材"}));expect(screen.getByRole("button",{name:"提交制作"})).toBeEnabled();
@@ -93,4 +93,14 @@ describe("pipeline snapshots",()=>{
   expect(await screen.findByText("当前阶段：素材检查")).toBeVisible();fireEvent.click(screen.getByRole("button",{name:"查看已受理任务"}));
   expect(await screen.findByText(/核对失败/)).toBeVisible();expect(screen.getByText("处理中")).toBeVisible();expect(screen.queryByText("制作失败")).not.toBeInTheDocument();
  });
+});
+
+it("automatically tracks each accepted task to a terminal result without another manual lookup",async()=>{
+ const mock=api();mock.mockImplementation(async(url:string,options?:RequestInit)=>{
+  if(url==="/api/session")return Response.json({user:{id:"user-1"}});
+  if(options?.method==="POST")return Response.json({job},{status:202});
+  if(url==="/api/jobs/job-1")return Response.json({job:{...job,status:"SUCCEEDED",stage:"FINALIZE",version:6,resultUrl:"/api/jobs/job-1/result"}});
+  return Response.json({items:[],nextCursor:null});
+ });vi.stubGlobal("fetch",mock);render(<SubmissionForm template={template}/>);await prepare();fireEvent.click(screen.getByRole("button",{name:"提交制作"}));
+ expect(await screen.findByText("任务编号：job-1")).toBeVisible();expect(await screen.findByRole("img",{name:"日光肖像制作结果"},{timeout:3000})).toHaveAttribute("src","/api/jobs/job-1/result");
 });

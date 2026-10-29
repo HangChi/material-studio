@@ -17,6 +17,7 @@ button[aria-pressed="true"], .primary { background: var(--action); border-color:
 .brand-mark i { background: var(--action); border-radius: 2px; }
 .brand-mark i:nth-child(2) { opacity: .65; }
 .brand-mark i:nth-child(3) { opacity: .4; }
+nav { display: flex; gap: 24px; flex-wrap: wrap; }
 nav a { display: inline-block; padding: 9px 0; border-bottom: 2px solid var(--action); font-weight: 600; }
 .workspace { max-width: 1280px; margin: 0 auto; padding: 62px 40px 80px; min-height: calc(100vh - 200px); }
 .intro { margin-bottom: 46px; }
@@ -85,3 +86,22 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 @media(max-width:760px) { .submission-panel { padding: 20px; margin-top: 32px; } .upload-grid { grid-template-columns: minmax(0,1fr); } .submit-button { width: 100%; } }
 
 .job-result { display: block; width: 100%; max-width: 560px; height: auto; margin-top: 16px; border-radius: 6px; }
+
+.visitor-panel,.history-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 0 0 24px; }
+.visitor-panel { padding: 24px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+.visitor-panel p,.history-toolbar p { color: var(--muted); margin: 6px 0 0; font-size: 14px; }
+.visitor-panel button,.history-toolbar button { flex-shrink: 0; }
+.history-cards .job-receipt { background: var(--paper); padding: 28px; }
+.job-copy { min-width: 0; }
+.job-copy h3,.job-copy h4 { margin: 0 0 10px; font-size: 21px; }
+.has-result { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: start; gap: 32px; }
+.has-result .job-result { margin: 0; }
+.task-number { font-family: ui-monospace, monospace; }
+.job-status { font-weight: 600; }
+.status-succeeded { color: #186242; }
+.status-failed,.execution-error { color: #a32d2d; }
+.tracking-note { color: var(--muted); font-size: 13px; }
+.query-error { color: #855500; overflow-wrap: anywhere; }
+.history-more { margin: 32px 0; text-align: center; }
+.text-action { display: inline-block; padding: 12px; color: var(--action); font-weight: 600; }
+@media(max-width:760px) { .header-inner { flex-wrap: wrap; } nav { gap: 20px; } .visitor-panel,.history-toolbar { flex-direction: column; align-items: stretch; gap: 16px; } .has-result { grid-template-columns: minmax(0,1fr); gap: 20px; } .history-cards .job-receipt { padding: 20px; } }
