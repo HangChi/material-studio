@@ -33,8 +33,8 @@
 ## Phase 5 · 完整交付
 
 - [x] T013 执行 compose.yaml 全量前端lint/typecheck/test/build与后端verify；审查 .github/workflows/ci.yml 保留push/PR关键检查，记录 docs/work-log.md。
-- [ ] T014 在 scripts/verify-005.mjs 运行真实历史分页/活动/多任务/私有结果与身份切换验收；浏览器核对自动更新、刷新、空态和375px。
-- [ ] T015 在 docs/acceptance.md 完成R01～14源码/测试/运行证据，更新 README.md、docs/roadmap.md、specs/005-history-tracking/quickstart.md，按commit完整交付。
+- [x] T014 在 scripts/verify-005.mjs 运行真实历史分页/活动/多任务/私有结果与身份切换验收；浏览器核对自动更新、刷新、空态、访客切换和375px。
+- [x] T015 在 docs/acceptance.md 完成R01～14源码/测试/运行证据，更新 README.md、docs/roadmap.md、specs/005-history-tracking/quickstart.md，按commit完整交付。
 
 ## Dependencies / strategy
 

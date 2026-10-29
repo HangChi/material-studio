@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-29
 
-**Status**: Ready for implementation（2026-10-29细化）
+**Status**: Implemented and locally verified（2026-10-29）
 
 **Input**: 按项目迭代图从001总体基线拆分，独立完成SDD与TDD周期；不使用子智能体。
 
@@ -55,7 +55,8 @@
 ### Key Entities
 
 - **身份**：个人资源归属。
-- **素材/任务**：由前置feature提供或本期引入，字段约束沿用总体模型并在本feature计划细化。
+- **历史记录**：本人任务的时间倒序分页及结果/原因。
+- **任务查询状态**：按身份与任务保存快照和独立请求错误；终态、离开和切换后清理。
 
 ## Success Criteria *(mandatory)*
 

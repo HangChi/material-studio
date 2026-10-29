@@ -1,7 +1,8 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**当前完成002～004：模板浏览、身份与私有上传、三阶段后台制作、模拟失败/耗时控制、手动阶段与结果预览。自动历史跟踪仍待005。**
+**002～005已完成本地验收：模板浏览、私有上传、三阶段后台制作、模拟控制、个人历史分页、多任务自动跟踪与结果预览。**
+原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；尚未执行远端CI、真实TLS或公网部署。
 
 ## 迭代与开发入口
 
@@ -13,17 +14,17 @@
 | [002](specs/002-template-catalog/spec.md) | 模板浏览、详情、当前切片工程交付 | 已实现并完成本地容器/浏览器验收 |
 | [003](specs/003-upload-submission/spec.md) | 身份、上传与受理 | 已完成本地验收；18/18任务 |
 | [004](specs/004-async-pipeline/spec.md) | 三阶段异步执行与模拟控制 | 已完成本地验收；17/17任务 |
-| [005](specs/005-history-tracking/spec.md) | 历史、多任务跟踪、完整交付 | 规格已建，待plan/tasks/implement |
+| [005](specs/005-history-tracking/spec.md) | 历史、多任务跟踪、完整交付 | 已完成本地验收；15/15任务 |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/004-async-pipeline .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/005-history-tracking .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前入口为[004任务](specs/004-async-pipeline/tasks.md)，下一步为005的plan/tasks。每期完成后更新本机feature指针，不继续执行001原始大任务清单。
+当前交付入口为[005任务](specs/005-history-tracking/tasks.md)及[验收对照](docs/acceptance.md)。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -83,8 +84,8 @@ docker compose --profile test run --rm frontend-test
 docker compose --profile test run --rm backend-test
 ```
 
-前端入口从锁文件npm ci，再执行eslint、tsc、45个Vitest测试、next build。
-后端入口mvn verify，执行35个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
+前端入口从锁文件npm ci，再执行eslint、tsc、64个Vitest测试、next build。
+后端入口mvn verify，执行38个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
 GitHub Actions在push/PR执行上述两条容器入口；远端流水线尚未运行，本地验证结果见[工作日志](docs/work-log.md)。
@@ -115,7 +116,8 @@ Template含id、title、categoryId、coverUrl、description、requiredImageCount
 | GET /api/assets/{id}/content | 仅本人读取图片，其他身份404 |
 | POST /api/jobs | {templateId,assetIds,simulation?}，保存任务/关联/配置后调度；202返回快照和Location |
 | GET /api/jobs/{id} | 本人单条任务快照，查询不驱动执行 |
-| GET /api/jobs | 本人最近50条倒序，用于手动核对，不自动轮询 |
+| GET /api/jobs?limit=20&cursor={id} | 本人历史分页，items/nextCursor；limit为1～50，默认20 |
+| GET /api/jobs/active | 本人全部QUEUED/RUNNING，恢复首屏之外活动任务 |
 
 Cookie为HttpOnly/SameSite=Lax，数据库仅保存SHA-256哈希，客户端不得提交ownerId；删除身份撤销token但保留资源。
 同一浏览器刷新保留身份，另一个浏览器/无痕窗口为新身份；清除cookie或撤销后无账号找回入口。
@@ -130,6 +132,7 @@ Cookie为HttpOnly/SameSite=Lax，数据库仅保存SHA-256哈希，客户端不�
 ```sh
 docker compose exec -T frontend node --input-type=module < scripts/verify-003.mjs
 docker compose exec -T frontend node --input-type=module < scripts/verify-004.mjs
+docker compose exec -T frontend node --input-type=module < scripts/verify-005.mjs
 ```
 
 
@@ -149,8 +152,7 @@ Java使用单工作线程与容量16的有界FIFO队列；提交先事务提交�
 延迟/文件IO不持有数据库行锁；阶段状态与事件处于同一短事务；GET只读且终态不会回退。
 模拟产物是模板对应自制PNG的独立私有副本，不对上传图片做真实AI或图像合成。
 
-页面按模板数量上传并提交，初次展示瞬时受理快照，可能等待、处理中或已结束。可继续浏览其他页面；稍后回到详情点击“查看已受理任务”读取阶段、失败原因和成功图片，刷新保留身份。
-当前为手动核对，不自动轮询；自动跟踪与完整历史页待005。
+页面按模板数量上传并提交，初次展示瞬时受理快照，可能等待、处理中或已结束。受理后自动跟踪各任务，可继续准备下一项；离开页面后Java继续制作，进入“制作记录”恢复历史并继续跟踪。刷新保留访客身份。
 
 默认每阶段2000ms，不随机失败。通过同源API POST /api/jobs传可选simulation演示失败/耗时（先按003接口取得当前身份和assetId，可用保留cookie的HTTP客户端）：
 
@@ -180,18 +182,33 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 
 仅支持单后端进程，不允许多副本共用队列/启动对账逻辑。进程被强杀可能留下未登记结果/临时文件；孤儿文件自动清理不在范围，演示重置卷时统一清理。
 数据库不可写时可能无法保存最新失败，恢复服务重启后对账；没有自动重试、受理幂等、断点续跑、真实AI、支付或复杂模板后台。
-当前交付002～004切片，R-08/09自动多任务跟踪/完整历史以及最终全题验收须随005补上。
+原题业务闭环已按002～005完成，具体实现与运行证据见验收对照；上述可选扩展不在当前范围。
 后端运行镜像暂复用固定Maven/Java镜像以简化演示，体积可在后续优化。
+
+## 005个人记录与自动跟踪
+
+打开 [制作记录](http://localhost:3000/history)，自动建立或复用当前匿名身份，恢复创建时间、状态、当前阶段、失败原因及成功图片。空记录提供模板入口，“加载更多”读取下一页；分页失败保留已加载记录和游标。
+历史按created_at/id倒序，游标为末条本人任务UUID；同时间排序稳定，新插入不移动旧页。非法/他人游标400，不泄漏他人记录；无效limit400。接口详情见[005契约](specs/005-history-tracking/contracts/http-api.md)。
+
+详情页和历史页分别维护当前身份/任务的跟踪器，每个未终结任务在前一次查询完成后1秒再查，绝不重叠；收到终态停止，无活动任务不继续请求。离开页面abort请求并清理计时器。
+查询失败只暂停对应任务，保留最后快照并显示“恢复查询”；点击后继续读取服务端状态，不自动重发制作。旧请求、旧身份、低版本和相同版本不覆盖较新快照，终态不会回退。
+历史首页同时读取active集合，即使某未完成任务在后续页也继续跟踪；记录按ID去重。浏览器时间比较保留服务端微秒精度。
+
+演示：连续提交不同配置的任务，进入记录页查看各自结果；刷新可恢复未完成任务。浏览器临时离线只会出现查询暂停，恢复在线后点击“恢复查询”读取真实结果；后台服务无需停止。
+记录页“切换为新访客”先卸载旧视图、撤销cookie，再建立新身份，旧任务后台继续；原身份没有找回入口。其他浏览器/无痕窗口天然隔离。
+同源标签页共享cookie，成功切换后用不含token/身份的localStorage标记通知其他页清理并重新建立身份；禁用本地存储时其他标签需手动刷新。401也会清掉当前私有快照并停止查询。
+
+本地验收已覆盖真实24条记录跨四页、三任务成功/失败隔离、旧身份撤销、新身份空记录；浏览器验证自动更新、离线暂停后恢复、历史刷新和375px布局。乱序/旧版本/跨标签清理及精确两周期无多余请求由可控组件/跟踪器测试证明，不混称浏览器故障注入。
 
 ## 部署、回滚、投入与来源
 
 部署固定源码commit并运行Compose，等待健康检查后验证列表/详情、一次成功任务及私有结果。发布前备份数据库和素材卷。
 回滚到上一验收commit重建；V3等schema变更须同时恢复匹配备份，不能假定旧应用兼容新表。
-当前无需公网部署。验收commit及运行证据由最终提交记录和工作日志确认。
+当前无需公网部署。完整源码在本地独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、SQL种子、CI及全部Spec Kit产物；验收commit由最终提交记录和工作日志确认。未创建远端仓库或向外发送源码。
 实际投入按工具可核对时段记录在[docs/work-log.md](docs/work-log.md)，不虚构精确人工工时。
 
 使用Codex辅助：原题→总体基线→独立feature规格→计划/契约/任务→测试先失败→最小实现→重构/完整检查→提交。
-例如受理测试先得到404，再用独立数据库连接证明dispatch前任务已提交；注入关联写入失败时验证任务回滚且无dispatch；未知提交结果测试先失败，再实现核对门禁。
+例如受理测试先得到404，再用独立数据库连接证明dispatch前已提交；005先用三任务503/迟到Promise/假时钟观察RED，再实现独立请求生命周期；微秒排序回归先失败，再修正浏览器时间精度丢失。
 环境错误单独记录，不能算业务RED；未运行的远端CI不声称通过。全程未使用子智能体。
 
 Spec Kit模板、脚本、skills来自[github/spec-kit](https://github.com/github/spec-kit)，本地CLI0.16.4生成。
