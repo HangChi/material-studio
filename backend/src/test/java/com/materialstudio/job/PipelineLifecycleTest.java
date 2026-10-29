@@ -39,7 +39,7 @@ class PipelineLifecycleTest extends ApiTestSupport {
             assertThat(order).containsExactly(first,second);assertThat(threads).containsOnly("material-pipeline");
         } finally { release.countDown(); }
     }
-    @Test @Order(2) void startupMarksOnlyUnfinishedJobsInterruptedAndRecordsAnEvent() throws Exception {
+    @Test @Order(2) void startupRequeuesUnfinishedJobsAndPreservesTerminalRecords() throws Exception {
         reset(worker);String owner=session(),asset=asset(owner);
         String queued=submit(owner,asset).path("id").asText(),running=submit(owner,asset).path("id").asText();
         // Deterministic persisted state from an earlier process; no worker is executing real stages here.
@@ -50,18 +50,18 @@ class PipelineLifecycleTest extends ApiTestSupport {
         dispatcher.run(null);
         for(String id:List.of(queued,running)) {
             var job=call("/api/jobs/"+id,HttpMethod.GET,owner,null).getBody().path("job");
-            assertThat(job.path("status").asText()).isEqualTo("FAILED");assertThat(job.path("errorCode").asText()).isEqualTo("PROCESS_INTERRUPTED");
+            assertThat(job.path("status").asText()).isEqualTo("QUEUED");assertThat(job.path("errorCode").isNull()).isTrue();
             var events=call("/api/jobs/"+id+"/events",HttpMethod.GET,owner,null).getBody().path("items");
-            assertThat(events.size()).isEqualTo(1);assertThat(events.get(0).path("kind").asText()).isEqualTo("INTERRUPTED");
+            if(id.equals(running)){assertThat(events.size()).isEqualTo(1);assertThat(events.get(0).path("kind").asText()).isEqualTo("INTERRUPTED");}else assertThat(events.size()).isZero();
         }
         assertThat(call("/api/jobs/"+terminal,HttpMethod.GET,owner,null).getBody()).isEqualTo(before);
-        dispatcher.run(null);assertThat(jdbc.queryForObject("SELECT version FROM job WHERE id=?",Long.class,queued)).isEqualTo(1L);
+        dispatcher.run(null);assertThat(jdbc.queryForObject("SELECT version FROM job WHERE id=?",Long.class,queued)).isEqualTo(0L);
     }
-    @Test @Order(3) void shutdownMarksWaitingJobsInterruptedAndRejectsFurtherAdmission() throws Exception {
+    @Test @Order(3) void shutdownPreservesWaitingJobsAndRejectsFurtherAdmission() throws Exception {
         reset(worker);String owner=session(),asset=asset(owner);String id=submit(owner,asset).path("id").asText();
         dispatcher.close();
         var job=call("/api/jobs/"+id,HttpMethod.GET,owner,null).getBody().path("job");
-        assertThat(job.path("status").asText()).isEqualTo("FAILED");assertThat(job.path("errorCode").asText()).isEqualTo("PROCESS_INTERRUPTED");
+        assertThat(job.path("status").asText()).isEqualTo("QUEUED");assertThat(job.path("errorCode").isNull()).isTrue();
         assertThat(submit(owner,asset).path("errorCode").asText()).isEqualTo("QUEUE_REJECTED");
     }
 }

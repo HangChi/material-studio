@@ -11,10 +11,15 @@ import org.springframework.test.context.DynamicPropertySource;
 import java.nio.file.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@org.springframework.test.annotation.DirtiesContext(classMode=org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class ApiTestSupport {
     @Autowired protected TestRestTemplate http;
     @Autowired protected JdbcTemplate jdbc;
+    @org.junit.jupiter.api.AfterEach void releaseUnfinishedFixtures(){
+        // Scheduler scans persisted tasks; fixtures must not leak into a later application context.
+        jdbc.update("UPDATE job SET status='FAILED',error_code='TEST_CLEANUP',error_message='测试结束',finished_at=CURRENT_TIMESTAMP(6),updated_at=CURRENT_TIMESTAMP(6),version=version+1 WHERE status IN ('QUEUED','RUNNING')");
+    }
     protected static final Path STORAGE;
     static { try { STORAGE = Files.createTempDirectory("studio-assets-test-"); } catch (Exception e) { throw new ExceptionInInitializerError(e); } }
     @DynamicPropertySource static void storage(DynamicPropertyRegistry registry) {

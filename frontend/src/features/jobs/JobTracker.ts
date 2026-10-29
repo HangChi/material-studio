@@ -35,6 +35,7 @@ export class JobTracker {
   for(const job of incoming){
    if(!isJob(job))continue;
    const previous=jobs.get(job.id);
+   if(previous&&job.version===previous.version&&unfinished(previous)&&job.status===previous.status&&typeof job.queueAhead==="number")jobs.set(job.id,{...previous,queueAhead:job.queueAhead});
    if(previous&&(job.version<=previous.version||!unfinished(previous)&&job.status!==previous.status))continue;
    jobs.set(job.id,job);
    if(!unfinished(job)){this.cancel(job.id);delete errors[job.id];}

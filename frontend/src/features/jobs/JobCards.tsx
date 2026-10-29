@@ -12,7 +12,9 @@ export function JobCards({jobs,errors,onRetry,headingLevel=3,onAccepted=()=>{},o
    <p className={`job-status status-${job.status.toLowerCase()}`} aria-live="polite">{job.errorCode==="JOB_CANCELLED"?"已取消":({QUEUED:"等待处理",RUNNING:"处理中",SUCCEEDED:"制作成功",FAILED:"制作失败"})[job.status]}</p>
    <p className="receipt-time"><time dateTime={job.createdAt}>{new Date(job.createdAt).toLocaleString("zh-CN")}</time></p>
    {job.status==="QUEUED"&&typeof job.queueAhead==="number"&&<p className="tracking-note">前方约 {job.queueAhead} 项任务，排队数量仅供参考。</p>}
-   {job.stage&&<p>当前阶段：{({ASSET_CHECK:"素材检查",GENERATE:job.templateId==="demo-postcard"?"图片合成":"模拟生成",FINALIZE:"结果整理"})[job.stage as "ASSET_CHECK"|"GENERATE"|"FINALIZE"]??job.stage}</p>}
+   {typeof job.attempt==="number"&&job.attempt>0&&<p className="tracking-note">{job.status==="QUEUED"?`已执行 ${job.attempt} / 3 次，等待下一次执行`:`第 ${job.attempt} / 3 次执行`}</p>}
+   {job.status==="QUEUED"&&job.nextAttemptAt&&<p className="tracking-note">下一次执行时间：<time dateTime={job.nextAttemptAt}>{new Date(job.nextAttemptAt).toLocaleString("zh-CN")}</time></p>}
+   {job.stage&&<p>当前阶段：{({ASSET_CHECK:"素材检查",GENERATE:"图片合成",FINALIZE:"结果整理"})[job.stage as "ASSET_CHECK"|"GENERATE"|"FINALIZE"]??job.stage}</p>}
    {job.errorMessage&&<p className="execution-error">{job.errorMessage}</p>}
    {errors[job.id]?<div className="query-error"><p role="alert">{errors[job.id]}</p><button type="button" aria-label={`恢复查询 ${job.id}`} onClick={()=>onRetry(job.id)}>恢复查询</button></div>:unfinished(job)&&<p className="tracking-note">正在自动更新</p>}
    <WorkControls job={job} onUpdate={onAccepted} onExpire={onExpire}/>

@@ -8,6 +8,7 @@ import static com.materialstudio.job.Simulation.Stage;
 
 @Service
 public class PipelineWorker {
+    private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger(PipelineWorker.class);
     private final PipelineState state;
     private final EventMapper events;
     private final AssetService assets;
@@ -40,11 +41,13 @@ public class PipelineWorker {
                 if(!state.complete(id,stage,published)) { results.cleanup(published);return; }
             }
         } catch(InterruptedException e) {
-            results.cleanup(published);state.fail(id,"PROCESS_INTERRUPTED","服务已中断，任务未完成，请重新提交");Thread.currentThread().interrupt();
+            results.cleanup(published);state.retry(id,"PROCESS_INTERRUPTED","服务已中断，任务等待恢复");Thread.currentThread().interrupt();
         } catch(Exception e) {
+            LOG.warn("Pipeline attempt failed for job {}",id,e);
             results.cleanup(published);
             boolean unavailable=e instanceof ApiException api && api.code().equals("ASSET_UNAVAILABLE");
-            state.fail(id,unavailable?"ASSET_UNAVAILABLE":"PIPELINE_FAILED",unavailable?"素材已失效，请重新上传":"制作阶段失败，请重新提交");
+            if(e instanceof java.io.IOException||e instanceof org.springframework.dao.TransientDataAccessException)state.retry(id,"TEMPORARY_FAILURE","暂时性制作错误");
+            else state.fail(id,unavailable?"ASSET_UNAVAILABLE":"PIPELINE_FAILED",unavailable?"素材已失效，请重新上传":"制作阶段失败，请重新提交");
         } finally { if(generated!=null)generated.flush(); }
     }
 }

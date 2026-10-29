@@ -9,13 +9,17 @@ import static com.materialstudio.job.Simulation.Stage;
 
 @Service
 public class PipelineState {
-    private final EventMapper events;
+    private final EventMapper events;private final ExecutionMapper execution;private final long backoff;
     private final TransactionTemplate transaction;
-    public PipelineState(EventMapper events,PlatformTransactionManager manager) { this.events=events;transaction=new TransactionTemplate(manager); }
+    public PipelineState(EventMapper events,PlatformTransactionManager manager,ExecutionMapper execution,@org.springframework.beans.factory.annotation.Value("${studio.retry-backoff-ms:1000}") long backoff) { this.events=events;this.execution=execution;this.backoff=Math.max(0,backoff);transaction=new TransactionTemplate(manager); }
     public boolean start(String id,Stage stage) {
         return Boolean.TRUE.equals(transaction.execute(tx->{
             var job=events.lock(id);if(job==null)return false;
-            if(stage==Stage.ASSET_CHECK) { if(!job.status().equals("QUEUED"))return false; }
+            if(stage==Stage.ASSET_CHECK) {
+                if(!job.status().equals("QUEUED"))return false;execution.ensure(id);var run=execution.runtime(id);
+                if(run.availableAt()!=null&&run.availableAt().isAfter(Instant.now()))return false;
+                if(execution.begin(id)==0){write(job,"FAILED",null,"FAILED",null,"RETRY_EXHAUSTED","已达到三次执行上限","执行次数已耗尽");return false;}
+            }
             else {
                 var history=events.events(id);
                 Stage previous=Stage.values()[stage.ordinal()-1];
@@ -47,6 +51,20 @@ public class PipelineState {
             write(job,"FAILED",job.stage(),code.equals("PROCESS_INTERRUPTED")?"INTERRUPTED":"FAILED",null,code,message,message);
         });
     }
+    public void retry(String id,String code,String message) {
+        transaction.executeWithoutResult(tx->{
+            var job=events.lock(id);if(job==null||!isUnfinished(job))return;execution.ensure(id);
+            // A transaction that failed before claiming still consumes one execution attempt.
+            if(job.status().equals("QUEUED"))execution.begin(id);
+            var run=execution.runtime(id);
+            if(run.attemptCount()>=3){write(job,"FAILED",job.stage(),"FAILED",null,code,message+"，已达到三次执行上限",message+"，不再自动重试");return;}
+            execution.defer(id,Instant.now().plusMillis(backoff*run.attemptCount()));
+            write(job,"QUEUED",null,"INTERRUPTED",null,null,null,message+"，等待自动重新执行（已执行"+run.attemptCount()+"次）");
+        });
+    }
+    public void recoverUnfinished(){
+        for(String id:events.unfinished()){var job=events.find(id);if(job!=null&&job.status().equals("RUNNING"))retry(id,"PROCESS_INTERRUPTED","服务中断后恢复任务");}
+    }
     public void interruptUnfinished() {
         for(String id:events.unfinished())fail(id,"PROCESS_INTERRUPTED","服务已中断，任务未完成，请重新提交");
     }
@@ -57,6 +75,6 @@ public class PipelineState {
         events.update(new EventMapper.Transition(job.id(),status,stage,version,now,terminal?now:null,result,code,error));
         events.append(job.id(),new EventMapper.Event(version,stage,kind,now,message));
     }
-    public static String label(Stage stage,String template) { return stage==Stage.GENERATE&&"demo-postcard".equals(template)?"图片合成":label(stage); }
+    public static String label(Stage stage,String template) { return stage==Stage.GENERATE?"图片合成":label(stage); }
     public static String label(Stage stage) { return switch(stage) { case ASSET_CHECK->"素材检查";case GENERATE->"模拟生成";case FINALIZE->"结果整理"; }; }
 }
