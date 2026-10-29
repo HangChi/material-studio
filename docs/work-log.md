@@ -296,3 +296,9 @@ TDD：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-
 没有新增业务行为，不强造RED。容器完整命令 `docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`全部通过：lint/typecheck、19个文件90项测试与生产构建。`docker compose up -d --build --no-deps frontend`生产重建启动成功。
 
 浏览器1280px/375px检查首页、明信片编辑、记录筛选。编辑两select与筛选两select的计算样式均为padding-right=38px、background-position=calc(100% - 14px) 50%；编辑配色切换OCEAN后复原，记录模板选择/重置可用。三个手机页面scrollWidth=375。仅操作草稿和筛选，没有提交新制作任务或写入作品管理。临时视口恢复。截图009-quiet-{catalog,editor,history}-{desktop,mobile}.png；editor为页面坐标裁出的编辑区，打开desktop文件核对内容。后端无变化，未重跑Java与远端CI。
+
+### 009 页脚收尾与全部提交
+
+用户指出左下角品牌突兀，并要求提交所有更改。先补规格/计划/T020，页脚去掉重复Logo与首页链接，改为统一字号/字重的轻量文字；宽度对齐工作区。桌面1280px页脚左边界48px，与main的48px内距一致；375px左边界20px，scrollWidth=375。浏览器确认footer内无SVG，截图009-footer-final.png为实际页脚局部。
+
+纯视觉变更，容器 `docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm run build'`通过。`docker compose up -d --build --no-deps frontend`生产构建与启动成功。此次不重复运行无关业务测试；上一轮90项测试已通过。没有后端变更或远端CI。初始git status为空，此前UI更改已在历史提交；本轮审查全部差异并统一提交，未推送远端。临时视口已恢复。

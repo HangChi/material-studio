@@ -11,11 +11,11 @@
 | [004-async-pipeline](../specs/004-async-pipeline/spec.md) | 三阶段执行、模拟控制、状态/事件/结果持久化、重启中断说明 | R-04/05/06；旧T022～T029 | 003 | 已完成本地验收；17/17任务 |
 | [005-history-tracking](../specs/005-history-tracking/spec.md) | 本人历史、刷新、多任务、查询异常、订阅清理、最终交付验收 | R-07/08/09/10 与完整R-11～R-14；旧T030～T044剩余部分 | 003/004 | 已完成本地验收；15/15任务 |
 | [006-mvp-hardening](../specs/006-mvp-hardening/spec.md) | 刷新游标、图片错误与重试、十次受理测量 | R-04/07/09/11；001 SC-002/005复查收尾 | 005 | 已完成本地验收；9/9任务 |
-| [007-creation-workbench](../specs/007-creation-workbench/spec.md) | 提交幂等、安全重试、下载/再次制作、执行详情、参数化真实明信片 | 用户明确新增的全部两段建议 | 006 | 已完成本地验收；19/19任务 |
+| [007-creation-workbench](../specs/007-creation-workbench/spec.md) | 提交幂等、安全重试、下载/再次制作、执行详情、参数化真实明信片 | 用户明确新增的全部两段建议 | 006 | 已完成本地验收；20/20任务 |
 
 | [008-creative-workflow](../specs/008-creative-workflow/spec.md) | 编辑、全模板合成、素材库、草稿、历史管理、取消/排队、恢复/有限重试 | 用户授权七项拓展 | 007 | 已完成本地验收；15/15任务 |
 
-| [009-studio-identity](../specs/009-studio-identity/spec.md) | 全模块UI、品牌Logo、当前导航及响应式排版 | 用户视觉优化要求 | 008 | 已完成容器检查及浏览器验收；19/19任务 |
+| [009-studio-identity](../specs/009-studio-identity/spec.md) | 全模块UI、品牌Logo、当前导航及响应式排版 | 用户视觉优化要求 | 008 | 已完成容器检查及浏览器验收；20/20任务 |
 
 007为原题MVP之后的用户授权拓展；不修改原题。007时真实合成先覆盖明信片；008扩展至全部三模板。仍为单实例匿名身份。新增V4配方与幂等表，旧记录兼容，具体验证见[验收对照](acceptance.md)。
 

@@ -24,3 +24,6 @@ PostcardEditor采用左预览右设置，手机先预览后设置。预览与画
 
 ## 视觉收敛方案
 去掉重复装饰性文案与首页CSS插图；降低标题字号、使用系统无衬线，减少浅绿底与重复边框；照片作品作为视觉主体。原生select保留，在CSS集中appearance:none、单个SVG chevron背景定位right 14px center、padding-right:38px，forced-colors恢复系统箭头。使用既有回归及桌面/375px实际原生下拉选择、计算样式和截图验证。
+
+## 页脚收尾方案
+RootLayout页脚改为普通文字，CSS宽度calc(100% - 96px)/最大1224px对齐工作区，小屏calc(100% - 40px)，统一字号和字重。纯视觉，使用容器lint/typecheck/build和浏览器验证；审查全部未提交文件后统一提交。
