@@ -6,13 +6,13 @@
 - [x] T002 完成specs/010-reliable-operations/plan.md、research.md、data-model.md、contracts/http-api.md与quickstart.md。
 
 ## US1 · 验证基线
-- [ ] T003 [US1] 独立空卷启动并运行scripts/verify-008.mjs，记录docs/010-validation.md。
+- [x] T003 [US1] 独立空卷启动并运行scripts/verify-008.mjs，记录docs/010-validation.md。
 - [ ] T004 [US1] 审查历史公开文件、创建公开仓库，运行.github/workflows/ci.yml并记录真实结果。
 - [ ] T005 [US1] 浏览器真实双标签/高对比验证，记录docs/010-validation.md。
 
 ## US2 · 身份确认
-- [ ] T006 [US2] frontend/src/features/identity/session.test.tsx新增取消/确认/重复操作测试并观察RED。
-- [ ] T007 [US2] frontend/src/features/identity/SessionGate.tsx实现原生确认并验证GREEN，更新其他切换测试。
+- [x] T006 [US2] frontend/src/features/identity/session.test.tsx新增取消/确认/重复操作测试并观察RED。
+- [x] T007 [US2] frontend/src/features/identity/SessionGate.tsx实现原生确认并验证GREEN，更新其他切换测试。
 
 ## US3 · 模板一致
 - [ ] T008 [US3] frontend/src/features/jobs/template-filter.test.tsx覆盖新增模板/请求失败恢复/卸载清理并观察RED。

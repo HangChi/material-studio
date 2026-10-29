@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionGate } from "./SessionGate";
 function deferred(){let resolve!:(r:Response)=>void;return {promise:new Promise<Response>(r=>{resolve=r;}),resolve:(r:Response)=>resolve(r)};}
+beforeEach(()=>vi.stubGlobal("confirm",vi.fn(()=>true)));
 describe("visitor identity boundary",()=>{
  it("unmounts the old private view immediately and mounts only the new identity after switch",async()=>{
   const revoked=deferred(),cleanup=vi.fn();let creates=0;
@@ -38,4 +39,14 @@ describe("visitor identity boundary",()=>{
   expect(screen.queryByText("记录归属：owner-a")).not.toBeInTheDocument();
   await act(async()=>{pending.resolve(Response.json({user:{id:"owner-b"}}));});expect(await screen.findByText("记录归属：owner-b")).toBeVisible();
  });
+});
+
+it("keeps the identity and private view when visitor switch is cancelled",async()=>{
+ const confirm=vi.fn(()=>false);vi.stubGlobal("confirm",confirm);
+ const fetcher=vi.fn(async()=>Response.json({user:{id:"owner-a"}}));vi.stubGlobal("fetch",fetcher);
+ render(<SessionGate allowSwitch>{owner=><p>保留记录：{owner}</p>}</SessionGate>);
+ await screen.findByText("保留记录：owner-a");fireEvent.click(screen.getByRole("button",{name:"切换为新访客"}));
+ expect(confirm).toHaveBeenCalledWith(expect.stringContaining("无法找回"));
+ expect(screen.getByText("保留记录：owner-a")).toBeVisible();
+ expect(fetcher).toHaveBeenCalledTimes(1);
 });

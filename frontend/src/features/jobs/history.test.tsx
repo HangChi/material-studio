@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { History } from "./History";
 const job=(id:string,extra:Record<string,unknown>={})=>({id,templateId:"demo-portrait",templateTitle:"日光肖像",status:"FAILED",stage:"GENERATE",version:4,createdAt:"2026-10-29T00:00:00Z",errorCode:"SIMULATED_FAILURE",errorMessage:"模拟生成失败",...extra});
 function api(pages:(url:string)=>Response|Promise<Response>){return vi.fn(async(url:string)=>url==="/api/session"?Response.json({user:{id:"owner-a"}}):url==="/api/jobs/active"?Response.json({items:[]}):pages(url));}
+beforeEach(()=>vi.stubGlobal("confirm",vi.fn(()=>true)));
 describe("personal history",()=>{
  it("offers a useful empty state without polling or inventing records",async()=>{
   const fetcher=api(()=>Response.json({items:[],nextCursor:null}));vi.stubGlobal("fetch",fetcher);render(<History/>);

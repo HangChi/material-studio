@@ -310,3 +310,12 @@ TDD：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-
 前一轮逐项复查实际执行：`docker run --rm -v /Users/songhangchi/Project/xiaoying/material-studio/frontend/src:/app/src:ro material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`通过19文件90项测试、lint/typecheck/生产构建；`docker compose --profile test run --rm backend-test`通过53项测试（0失败/错误/跳过）及mvn verify。采用既有前端依赖镜像，未重跑全新npm ci；Java使用独立test-mysql。复查期间009末尾改动由已有工作收尾提交，不再报告为未完成。
 
 新增docs/async-workflow.md，逐项对应受理事务、线程池/扫描、阶段状态机、文件发布、恢复/取消，以及上传/提交/查询独立状态、epoch/version、轮询和身份生命周期；扩展建议明确未实施。当前未验证的远端CI、空卷冷启动、真实双标签与forced-colors单列保留。没有业务/API变更，不强造RED或重复无关应用测试；文档采用git diff --check、相对链接/代码围栏检查和feature任务计数核对。实际投入为本轮源码核对、文档编辑与检查，不虚构人工小时；不推送远端。
+
+
+### 010 · 验证基线与访客确认
+
+用户授权实施顺序1～5并创建新公开仓库。使用Spec Kit生成010规格/计划/契约/数据模型/任务，规格7/7通过；单智能体串行，无委派。49历史提交扫描未见常见凭据特征后，创建HangChi/material-studio公开仓库并推送规格提交ccd44b7，首次CI40901483518等待结果。
+
+独立cold项目3101、新MySQL和文件卷启动健康，使用既有Docker缓存层；容器执行verify-008通过三模板真实结果及素材/管理/取消/隐私。两个真实标签身份由609b26d9同步为6639c02e，原3000身份未动。
+
+US2 RED：`docker run --rm -v /Users/songhangchi/Project/xiaoying/material-studio/frontend/src:/app/src:ro material-studio-frontend-check npm test -- src/features/identity/session.test.tsx`，4通过/1失败，取消操作未调用confirm，属于目标业务缺失。GREEN：前置原生confirm，取消不撤销、不清理；容器lint/typecheck与session/history13项通过，确认/失败恢复/重复点击/迟到响应仍通过。未把环境故障当RED。具体执行证据与后续未完成项见docs/010-validation.md。

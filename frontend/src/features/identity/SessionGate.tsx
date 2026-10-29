@@ -22,6 +22,7 @@ export function SessionGate({children,allowSwitch=false}:{children:(owner:string
  },[]);
  async function switchVisitor(){
   if(switching.current||identity.status!=="ready")return;
+  if(!window.confirm("切换后将无法找回当前访客的记录，后台制作仍会继续。请先保存需要的结果。确定切换为新访客吗？"))return;
   switching.current=true;const state=lifecycle.current,serial=++state.generation,controller=new AbortController();state.switchRequest=controller;
   setIdentity({status:"switching",id:null});
   try{
