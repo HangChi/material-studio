@@ -41,6 +41,19 @@ describe("identity and admission proxy", () => {
     const response = await proxyTemplates(new Request("http://studio/api/jobs", { method: "POST", headers: { origin: "https://other.example" }, body: "{}" }), ["jobs"]);
     expect(response.status).toBe(403); expect(mock).not.toHaveBeenCalled();
   });
+  it("uses the incoming Host for container requests instead of the internal listen address", async () => {
+    vi.stubGlobal("fetch",vi.fn().mockResolvedValue(Response.json({user:{id:"demo"}})));
+    const response=await proxyTemplates(new Request("http://0.0.0.0:3000/api/session",{method:"POST",headers:{host:"localhost:3000",origin:"http://localhost:3000"}}),["session"]);
+    expect(response.status).toBe(200);
+  });
+  it("uses an explicitly configured public HTTPS origin behind a reverse proxy", async () => {
+    vi.stubEnv("APP_ORIGIN","https://studio.example");
+    try {
+      vi.stubGlobal("fetch",vi.fn().mockResolvedValue(Response.json({user:{id:"demo"}})));
+      const response=await proxyTemplates(new Request("http://0.0.0.0:3000/api/session",{method:"POST",headers:{host:"frontend:3000",origin:"https://studio.example"}}),["session"]);
+      expect(response.status).toBe(200);
+    } finally { vi.unstubAllEnvs(); }
+  });
   it("does not expand arbitrary write routes", async () => {
     const mock = vi.fn(); vi.stubGlobal("fetch", mock);
     expect((await proxyTemplates(new Request("http://studio/api/assets/id/content", { method: "DELETE" }), ["assets", "id", "content"])).status).toBe(405);

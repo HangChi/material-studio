@@ -16,7 +16,9 @@ export async function proxyTemplates(request: Request, path: string[]): Promise<
   if (!methods.includes(request.method)) return new Response(null, { status: 405, headers: { Allow: methods.join(", ") } });
   const source = new URL(request.url);
   const origin = request.headers.get("origin");
-  if (request.method !== "GET" && origin && origin !== source.origin) {
+  // Next standalone may construct request.url from its internal listen address.
+  const publicOrigin = new URL(process.env.APP_ORIGIN || `${source.protocol}//${request.headers.get("host") ?? source.host}`).origin;
+  if (request.method !== "GET" && origin && origin !== publicOrigin) {
     return Response.json({ error: { code: "ORIGIN_NOT_ALLOWED", message: "请求来源不正确" } }, { status: 403 });
   }
   const url = new URL(`/api/${path.map(encodeURIComponent).join("/")}`, process.env.JAVA_API_BASE_URL ?? "http://backend:8080");

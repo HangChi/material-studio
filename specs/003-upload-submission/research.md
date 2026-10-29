@@ -12,3 +12,5 @@
 - Decision: 003默认处理器拒绝且保存明确失败，测试替身验证可受理QUEUED；004再接实际worker。
   Rationale: 不以永久QUEUED/前端计时器冒充制作。Alternatives: 提前实现整个004会破坏feature边界。
 - Decision: 提供最近50条只读核对与单条读取，解决响应丢失后的人工核对；不做005轮询和完整历史页。
+
+- 实测修正：Next standalone的request.url可使用0.0.0.0内部监听地址；同源校验改用入站Host/协议，或显式APP_ORIGIN。不得信任任意X-Forwarded-Host，也不放开所有Origin。两个回归场景先RED后修正。

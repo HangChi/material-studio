@@ -87,3 +87,18 @@
 - Form GREEN：10:44:10，5/5通过；Unknown/detail integration RED：10:44:40，新增4个未知结果用例和详情接入断言失败，旧7个通过。
 - Frontend GREEN：10:46:26，lint/typecheck、39/39测试及Next生产构建通过；覆盖网络丢失/5xx/无效202、核对失败保持禁用、核对成功后显式继续且无自动POST。
 - 真实业务边界保持：默认worker返回持久FAILED/PROCESSOR_NOT_AVAILABLE，不假装三阶段成功；004仍待实现。
+
+### 003运行与浏览器验收
+
+- 首次Docker重建因Maven Central连接超时失败；官方仓库curl确认200后重试成功。没有把网络错误当RED，也没有更换依赖来源或跳过验证。
+- 初次真实Origin写入验收发现Next内部0.0.0.0监听地址导致合法请求403；补2个容器Host/公开HTTPS Origin回归测试，先RED（2失败/8通过），再修复为入站Host/协议或显式APP_ORIGIN，继续拒绝跨站写入。
+- 最终完整前端检查通过：lint、typecheck、41/41测试、Next生产构建。APP_ORIGIN只在服务端使用，不信任任意X-Forwarded-Host。
+- `docker compose up --build -d`成功；既有002演示数据库自动应用V2，asset-data命名卷挂载/data。
+- `docker compose exec -T frontend node --input-type=module < scripts/verify-003.mjs`通过：真实Origin/Cookie、multipart、图片原字节读回、陌生身份404、错误参数不受理、202持久失败、单条/最近记录核对及拒绝ownerId字段。
+- 内置浏览器自动化接口当前不可用；原生Chrome首次导航审核为保护既有页面而拦截，改为独立空白验收窗口后完成，未操作或提交其他页面。
+- Chrome真实验收：上传项目自制portrait/postcard PNG并预览；移除第二槽后提交禁用；重新上传解锁；202后清空槽位并显示持久任务32667803-c547-4780-a820-f6d74b84fac6与FAILED/处理器不可用原因。
+- 刷新后不自动轮询；手动查看已受理记录可恢复同一任务编号，证明cookie/数据库记录保留。
+- Chrome DevTools临时设375×812，触屏滚动确认单列表单、按钮和长任务ID/错误原因正常换行，无视觉横向溢出；随后退出响应式模式并关闭DevTools。
+- /tmp/material-studio-003.png为桌面回执截图，/tmp/material-studio-003-mobile.png为375px证据，/tmp/material-studio-003-upload.png为双槽上传证据（临时产物未提交）。
+- 未知结果的网络/5xx/无效202及核对失败门禁由组件测试验证；未伪称浏览器丢包注入。HTTPS配置有单测，未做真实TLS部署。远端CI未运行。
+- 可核对时段：01:40:03～01:50:17（10分14秒），10:30:03～11:22:10（52分07秒），合计62分21秒观测窗口，含下载/验证与整理，不等同纯人工时；两段之间等待用户继续不计入。

@@ -33,5 +33,5 @@ Job={id,templateId,templateTitle,status,stage,version,createdAt,updatedAt,finish
 
 仅上述路径允许GET/POST/DELETE的对应组合；模板端点继续只读，其他路径404/方法405。
 保留Cookie/Set-Cookie/Content-Type/Location及状态码，multipart不重编码；禁止缓存。
-写请求若有Origin必须匹配当前请求origin，否则403 ORIGIN_NOT_ALLOWED；允许无Origin的命令行测试。
+写请求若有Origin必须匹配入站Host与协议组成的origin；HTTPS反代可显式设置APP_ORIGIN，否则403 ORIGIN_NOT_ALLOWED；允许无Origin的命令行测试。
 连接失败502 UPSTREAM_UNAVAILABLE。POST网络/5xx响应视为结果未知，提示手动核对，不自动重提。
