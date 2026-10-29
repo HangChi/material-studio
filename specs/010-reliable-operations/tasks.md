@@ -7,7 +7,7 @@
 
 ## US1 · 验证基线
 - [x] T003 [US1] 独立空卷启动并运行scripts/verify-008.mjs，记录docs/010-validation.md。
-- [ ] T004 [US1] 审查历史公开文件、创建公开仓库，运行.github/workflows/ci.yml并记录真实结果。
+- [x] T004 [US1] 审查历史公开文件、创建公开仓库，运行.github/workflows/ci.yml并记录真实结果。
 - [ ] T005 [US1] 浏览器真实双标签/高对比验证，记录docs/010-validation.md。
 
 ## US2 · 身份确认
@@ -15,8 +15,8 @@
 - [x] T007 [US2] frontend/src/features/identity/SessionGate.tsx实现原生确认并验证GREEN，更新其他切换测试。
 
 ## US3 · 模板一致
-- [ ] T008 [US3] frontend/src/features/jobs/template-filter.test.tsx覆盖新增模板/请求失败恢复/卸载清理并观察RED。
-- [ ] T009 [US3] frontend/src/features/jobs/History.tsx实现动态模板选项与错误重试，验证GREEN。
+- [x] T008 [US3] frontend/src/features/jobs/template-filter.test.tsx覆盖新增模板/请求失败恢复/卸载清理并观察RED。
+- [x] T009 [US3] frontend/src/features/jobs/History.tsx实现动态模板选项与错误重试，验证GREEN。
 
 ## US4 · 持久受理
 - [ ] T010 [US4] backend/src/test/java/com/materialstudio/job/{AdmissionPolicyTest,JobSubmissionTest,PipelineLifecycleTest,PersistedBacklogTest}.java验证队列满仍等待、六项完成一次、全局100/本人20未完成及60秒10项（测试覆盖小值）、幂等回放/并发/回滚，观察RED。

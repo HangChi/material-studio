@@ -319,3 +319,6 @@ TDD：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-
 独立cold项目3101、新MySQL和文件卷启动健康，使用既有Docker缓存层；容器执行verify-008通过三模板真实结果及素材/管理/取消/隐私。两个真实标签身份由609b26d9同步为6639c02e，原3000身份未动。
 
 US2 RED：`docker run --rm -v /Users/songhangchi/Project/xiaoying/material-studio/frontend/src:/app/src:ro material-studio-frontend-check npm test -- src/features/identity/session.test.tsx`，4通过/1失败，取消操作未调用confirm，属于目标业务缺失。GREEN：前置原生confirm，取消不撤销、不清理；容器lint/typecheck与session/history13项通过，确认/失败恢复/重复点击/迟到响应仍通过。未把环境故障当RED。具体执行证据与后续未完成项见docs/010-validation.md。
+
+
+US1首次远端CI40901483518前后端均success（真实GitHub runner容器下载/检查）；公开仓库已创建。US3模板筛选RED：template-filter三个测试缺失选项/重试/abort而失败；实现独立模板请求、错误恢复和卸载取消，保留当前选项；旧history桩新增模板路由避免污染分页计数后，完整前端94项、lint/typecheck/build通过。命令为既有frontend-check容器挂载当前src，执行npm run lint && npm run typecheck && npm test && npm run build。无新依赖或风格重做。上次提交调用因自动审批服务用量限制而未执行，用户要求继续后核对状态再重试，未绕过审批。

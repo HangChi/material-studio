@@ -13,11 +13,25 @@ const emptyFilters:Filters={q:"",templateId:"",status:"",from:"",to:"",favorite:
 function matches(job:Job,filter:Filters){
  return !!job.hidden===filter.hidden&&(!filter.favorite||job.favorite)&&(!filter.templateId||job.templateId===filter.templateId)&&(!filter.q||[job.displayName,job.templateTitle].some(title=>title?.toLocaleLowerCase().includes(filter.q.toLocaleLowerCase())))&&(!filter.status||(filter.status==="CANCELLED"?job.errorCode==="JOB_CANCELLED":job.status===filter.status&&(filter.status!=="FAILED"||job.errorCode!=="JOB_CANCELLED")))&&(!filter.from||Date.parse(job.createdAt)>=new Date(`${filter.from}T00:00:00`).getTime())&&(!filter.to||Date.parse(job.createdAt)<new Date(new Date(`${filter.to}T00:00:00`).getTime()+86400000).getTime());
 }
+function TemplateFilter({value,onChange}:{value:string;onChange:(value:string)=>void}){
+ const [items,setItems]=useState<{id:string;title:string}[]>([]),[status,setStatus]=useState<"loading"|"ready"|"error">("loading"),[attempt,setAttempt]=useState(0);
+ useEffect(()=>{
+  const controller=new AbortController();let active=true;
+  fetch("/api/templates",{cache:"no-store",signal:controller.signal}).then(async response=>{
+   const payload=await response.json();
+   if(!response.ok||!Array.isArray(payload.items)||!payload.items.every((item:Record<string,unknown>)=>item&&typeof item.id==="string"&&typeof item.title==="string"))throw new Error("Invalid templates");
+   if(active){setItems(payload.items);setStatus("ready");}
+  }).catch(()=>{if(active)setStatus("error");});
+  return()=>{active=false;controller.abort();};
+ },[attempt]);
+ return <div><label>模板<select value={value} disabled={status!=="ready"} onChange={event=>onChange(event.target.value)}><option value="">全部模板</option>{value&&!items.some(item=>item.id===value)&&<option value={value}>已选模板</option>}{items.map(item=><option key={item.id} value={item.id}>{item.title}</option>)}</select></label>
+ {status==="loading"&&<p role="status">正在加载模板选项…</p>}{status==="error"&&<><p role="alert">模板选项暂时不可用，仍可查看记录。</p><button type="button" onClick={()=>{setStatus("loading");setAttempt(value=>value+1);}}>重新加载模板选项</button></>}</div>;
+}
 function HistoryBody({owner}:{owner:string}){
  const [form,setForm]=useState(emptyFilters),[filter,setFilter]=useState(emptyFilters);
  return <><form className="history-filters" onSubmit={event=>{event.preventDefault();setFilter({...form});}}>
   <label>搜索作品<input aria-label="搜索作品" value={form.q} maxLength={60} placeholder="名称或模板" onChange={event=>setForm({...form,q:event.target.value})}/></label>
-  <label>模板<select value={form.templateId} onChange={event=>setForm({...form,templateId:event.target.value})}><option value="">全部模板</option><option value="demo-portrait">日光肖像</option><option value="demo-postcard">旅行明信片</option><option value="demo-collage">周末拼贴</option></select></label>
+  <TemplateFilter value={form.templateId} onChange={templateId=>setForm({...form,templateId})}/>
   <label>任务状态<select value={form.status} onChange={event=>setForm({...form,status:event.target.value})}><option value="">全部状态</option>{[["QUEUED","待处理任务"],["RUNNING","正在制作"],["SUCCEEDED","成功任务"],["FAILED","失败任务"],["CANCELLED","取消任务"]].map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
   <label>开始日期<input type="date" value={form.from} onChange={event=>setForm({...form,from:event.target.value})}/></label><label>结束日期<input type="date" value={form.to} min={form.from} onChange={event=>setForm({...form,to:event.target.value})}/></label>
   <label><input type="checkbox" checked={form.favorite} onChange={event=>setForm({...form,favorite:event.target.checked})}/>只看收藏</label><label><input type="checkbox" checked={form.hidden} onChange={event=>setForm({...form,hidden:event.target.checked})}/>查看已隐藏作品</label>
