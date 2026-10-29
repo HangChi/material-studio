@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-29
 
-**Status**: Ready for implementation（设计细化，未实现）
+**Status**: Implemented and locally verified（2026-10-29）
 
 **Input**: 按项目迭代图从001总体基线拆分，独立完成SDD与TDD周期；不使用子智能体。
 
@@ -55,7 +55,9 @@
 ### Key Entities
 
 - **身份**：个人资源归属。
-- **素材/任务**：由前置feature提供或本期引入，字段约束沿用总体模型并在本feature计划细化。
+- **任务与阶段记录**：任务拥有整体状态、当前阶段和单调版本；每阶段保存开始/完成/失败事件。
+- **模拟配置**：按任务保存指定失败阶段及各阶段耗时，互不影响。
+- **制作结果**：结果整理完成后可由本人预览的持久图片。
 
 ## Success Criteria *(mandatory)*
 

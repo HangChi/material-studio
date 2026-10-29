@@ -1,7 +1,7 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**当前完成002与003：模板浏览、匿名身份、私有图片上传、任务受理和手动记录核对。真正的后台制作与自动历史跟踪仍待004/005。**
+**当前完成002～004：模板浏览、身份与私有上传、三阶段后台制作、模拟失败/耗时控制、手动阶段与结果预览。自动历史跟踪仍待005。**
 
 ## 迭代与开发入口
 
@@ -12,18 +12,18 @@
 | --- | --- | --- |
 | [002](specs/002-template-catalog/spec.md) | 模板浏览、详情、当前切片工程交付 | 已实现并完成本地容器/浏览器验收 |
 | [003](specs/003-upload-submission/spec.md) | 身份、上传与受理 | 已完成本地验收；18/18任务 |
-| [004](specs/004-async-pipeline/spec.md) | 三阶段异步执行与模拟控制 | 规格已建，待plan/tasks/implement |
+| [004](specs/004-async-pipeline/spec.md) | 三阶段异步执行与模拟控制 | 已完成本地验收；17/17任务 |
 | [005](specs/005-history-tracking/spec.md) | 历史、多任务跟踪、完整交付 | 规格已建，待plan/tasks/implement |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/003-upload-submission .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/004-async-pipeline .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前入口为[003任务](specs/003-upload-submission/tasks.md)，下一步为004的plan/tasks。每期完成后更新本机feature指针，不继续执行001原始大任务清单。
+当前入口为[004任务](specs/004-async-pipeline/tasks.md)，下一步为005的plan/tasks。每期完成后更新本机feature指针，不继续执行001原始大任务清单。
 
 ## 技术版本与结构
 
@@ -65,7 +65,7 @@ Java素材默认STORAGE_ROOT=/data，Compose的asset-data命名卷持久保存�
 反向代理提供HTTPS时设置APP_ORIGIN为公开源（如https://studio.example.com），同时设置COOKIE_SECURE=true。
 修改数据库用户名/密码不会重设已初始化的MySQL卷，须同步数据库配置或仅在本地演示时重置卷。
 
-Flyway自动执行V1模板种子和V2身份/素材/任务迁移；V2兼容已有002数据，无需清空数据库。
+Flyway自动执行V1模板种子、V2身份/素材/任务和V3执行配置/事件迁移；兼容已有002/003数据，无需清空数据库。
 封面是项目自制PNG，位于 `backend/src/main/resources/demo/`，Java白名单接口提供；无需外部图片网络。
 可在容器中重新生成：
 
@@ -83,8 +83,8 @@ docker compose --profile test run --rm frontend-test
 docker compose --profile test run --rm backend-test
 ```
 
-前端入口从锁文件npm ci，再执行eslint、tsc、41个Vitest测试、next build。
-后端入口mvn verify，执行22个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
+前端入口从锁文件npm ci，再执行eslint、tsc、45个Vitest测试、next build。
+后端入口mvn verify，执行35个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
 GitHub Actions在push/PR执行上述两条容器入口；远端流水线尚未运行，本地验证结果见[工作日志](docs/work-log.md)。
@@ -113,23 +113,23 @@ Template含id、title、categoryId、coverUrl、description、requiredImageCount
 | POST/GET/DELETE /api/session | 创建/读取/撤销匿名cookie身份；返回user.id，绝不返回token/hash |
 | POST /api/assets | multipart单file，201素材id/url/mimeType/sizeBytes/createdAt |
 | GET /api/assets/{id}/content | 仅本人读取图片，其他身份404 |
-| POST /api/jobs | {templateId,assetIds}，保存任务和有序关联后调度；202返回持久任务和Location |
+| POST /api/jobs | {templateId,assetIds,simulation?}，保存任务/关联/配置后调度；202返回快照和Location |
 | GET /api/jobs/{id} | 本人单条任务快照，查询不驱动执行 |
 | GET /api/jobs | 本人最近50条倒序，用于手动核对，不自动轮询 |
 
 Cookie为HttpOnly/SameSite=Lax，数据库仅保存SHA-256哈希，客户端不得提交ownerId；删除身份撤销token但保留资源。
 同一浏览器刷新保留身份，另一个浏览器/无痕窗口为新身份；清除cookie或撤销后无账号找回入口。
 
-**003尚未接通004处理器**：受理事务先写QUEUED，再明确保存FAILED/PROCESSOR_NOT_AVAILABLE和“制作服务暂不可用，任务未开始处理”。
-这是受理记录与调度边界的交付，不能作为制作成功演示。不得用前端计时器假装执行。
+004已接通真实Java后台；003时期的PROCESSOR_NOT_AVAILABLE历史记录仍保留，不改写为新结果。
 页面区分提交请求失败与已受理任务失败。网络、5xx或无效受理响应进入“结果尚未确认”，禁用重复提交；
 点击“查看已受理任务”核对成功后，再明确“已核对，继续准备”，不会自动重发POST。
 核对失败保留既有快照和提交限制。上传移除仅移除当前选择，不删除后台文件，避免影响已受理任务。
 
-当前切片的真实代理/上传/受理验收脚本（会创建演示素材与失败任务并撤销测试身份）：
+真实代理/上传/受理及流水线验收脚本（创建本地演示数据并撤销测试身份；文件和记录保留）：
 
 ```sh
 docker compose exec -T frontend node --input-type=module < scripts/verify-003.mjs
+docker compose exec -T frontend node --input-type=module < scripts/verify-004.mjs
 ```
 
 
@@ -138,19 +138,55 @@ docker compose exec -T frontend node --input-type=module < scripts/verify-003.mj
 已实测桌面与375px列表/详情、键盘进入详情和3px焦点、未知模板提示、停启Java服务后的错误/重试恢复；
 空数据与乱序由组件测试覆盖。完整证据见工作日志。
 
-## 后续业务方案与边界
+## 004后台执行与模拟演示
 
-003已由Java提供身份、素材、任务及手动核对。004将增加三阶段执行、任务级失败/耗时控制与成功结果；
-005将增加完整个人历史、刷新后自动跟踪、轮询和身份切换清理。
-尚不能演示制作成功、指定阶段失败或自动多任务更新。不实现真实AI、支付、复杂后台、自动重试、受理幂等和重启续跑。
-孤儿文件清理不在当前范围，演示重置数据卷时统一清理；服务崩溃中断的持久QUEUED任务由004补中断对账。
-当前未满足全题R-01～R-14，仅交付002/003切片；关键流水线和多任务测试必须随004/005补上。
+[004契约](specs/004-async-pipeline/contracts/http-api.md)补充GET /api/jobs/{id}/events（按version升序的阶段事件）和GET /api/jobs/{id}/result（本人PNG，其他身份404）。
+任务快照含id/templateId/templateTitle/status/stage/version/createdAt/updatedAt/finishedAt/resultUrl/errorCode/errorMessage；resultUrl只在成功后有值。
+
+Java使用单工作线程与容量16的有界FIFO队列；提交先事务提交再调度，不等待制作完成。当1个任务运行且16个等待时，新增任务仍返回202和持久FAILED/QUEUE_REJECTED，绝不转到请求线程制作。
+后台按素材检查ASSET_CHECK→模拟生成GENERATE→结果整理FINALIZE执行，每一步开始和完成都独立写事件并递增任务版本。
+状态为QUEUED→RUNNING→SUCCEEDED/FAILED；任一步失败中断后续阶段。正常成功恰6个事件/version6，图片先原子落盘，再提交成功状态。
+延迟/文件IO不持有数据库行锁；阶段状态与事件处于同一短事务；GET只读且终态不会回退。
+模拟产物是模板对应自制PNG的独立私有副本，不对上传图片做真实AI或图像合成。
+
+页面按模板数量上传并提交，初次展示瞬时受理快照，可能等待、处理中或已结束。可继续浏览其他页面；稍后回到详情点击“查看已受理任务”读取阶段、失败原因和成功图片，刷新保留身份。
+当前为手动核对，不自动轮询；自动跟踪与完整历史页待005。
+
+默认每阶段2000ms，不随机失败。通过同源API POST /api/jobs传可选simulation演示失败/耗时（先按003接口取得当前身份和assetId，可用保留cookie的HTTP客户端）：
+
+```json
+{
+  "templateId": "demo-portrait",
+  "assetIds": ["<本人已上传素材ID>"],
+  "simulation": {
+    "failStage": "GENERATE",
+    "stageDurationsMs": {"ASSET_CHECK": 500, "GENERATE": 3000, "FINALIZE": 1000}
+  }
+}
+```
+
+省略simulation或failStage为null演示成功；failStage分别设ASSET_CHECK/GENERATE/FINALIZE可重复演示三种失败。耗时允许部分覆盖，每值必须是0～10000整数；省略阶段默认2000，null值/越界422，未知字段/阶段/字符串/小数/数字枚举400，无任务写入。
+连续提交不同配置验证隔离：一项指定失败、一项成功，单线程依次执行，阶段记录与结果各自保存。快速验证将三个耗时均设0，慢速观察可设10000。
+
+服务启动将上次遗留QUEUED/RUNNING标FAILED/PROCESS_INTERRUPTED并保存INTERRUPTED事件，保留原阶段；关停也执行中断对账，不自动续跑。成功/失败终态与成功文件保留。
+真实强杀恢复验证入口如下，仅用于本项目本地演示，保留卷；脚本把临时核对身份存在前端容器/tmp，不打印token：
+
+```sh
+docker compose exec -T -e VERIFY_MODE=restart-prepare frontend node --input-type=module < scripts/verify-004.mjs
+docker compose kill -s SIGKILL backend
+docker compose up -d --wait backend
+docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=module < scripts/verify-004.mjs
+```
+
+仅支持单后端进程，不允许多副本共用队列/启动对账逻辑。进程被强杀可能留下未登记结果/临时文件；孤儿文件自动清理不在范围，演示重置卷时统一清理。
+数据库不可写时可能无法保存最新失败，恢复服务重启后对账；没有自动重试、受理幂等、断点续跑、真实AI、支付或复杂模板后台。
+当前交付002～004切片，R-08/09自动多任务跟踪/完整历史以及最终全题验收须随005补上。
 后端运行镜像暂复用固定Maven/Java镜像以简化演示，体积可在后续优化。
 
 ## 部署、回滚、投入与来源
 
-部署固定源码commit并运行Compose，等待健康检查后验证列表/详情与图片。发布前备份数据库卷。
-回滚到上一验收commit重建；未来涉及schema变更时须同时恢复匹配备份，不能假定旧应用兼容新表。
+部署固定源码commit并运行Compose，等待健康检查后验证列表/详情、一次成功任务及私有结果。发布前备份数据库和素材卷。
+回滚到上一验收commit重建；V3等schema变更须同时恢复匹配备份，不能假定旧应用兼容新表。
 当前无需公网部署。验收commit及运行证据由最终提交记录和工作日志确认。
 实际投入按工具可核对时段记录在[docs/work-log.md](docs/work-log.md)，不虚构精确人工工时。
 

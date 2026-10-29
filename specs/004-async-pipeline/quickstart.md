@@ -16,3 +16,14 @@ docker compose exec -T frontend node --input-type=module < scripts/verify-004.mj
 队列容量16，1个运行+16个等待；满时新增任务202且持久QUEUE_REJECTED。集成测试使用更小队列与阻塞栅栏可靠验证，不依赖长时间睡眠。
 
 本文件为计划验证入口，实际结果及RED/GREEN证据填写docs/work-log.md。
+
+## 已执行结果（2026-10-29）
+
+- Java容器完整35/35测试及mvn verify打包通过；前端45/45、lint/typecheck/生产构建通过。
+- 最终Compose重建成功；真实verify-003与verify-004均通过，V3兼容既有演示数据。
+- restart-prepare→SIGKILL backend→up --wait→restart-check通过：运行和排队任务中断，成功快照及结果图片保留。
+- Chrome上传两图并提交，离开详情再回来手动读取同一任务成功阶段和图片；375×812确认长编号换行、图片缩放，已恢复桌面模式。
+- 队列满/FIFO由容量1加阻塞栅栏的真实HTTP/MySQL测试验证；没有伪称浏览器或运行脚本塞满默认16队列。
+- 临时截图/tmp/material-studio-004.png与/tmp/material-studio-004-mobile.png；远端CI及真实TLS未执行。
+
+详见[工作日志](../../docs/work-log.md)。005尚未实现，不把手动核对宣传为自动历史跟踪。

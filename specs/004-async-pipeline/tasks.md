@@ -38,8 +38,8 @@
 - [x] T013 在 frontend/src/lib/submission-proxy.test.ts、frontend/src/features/jobs/submission.test.tsx 增加events/result白名单、中文阶段/私有图片/查询错误保留测试，观察RED。
 - [x] T014 在 frontend/src/lib/api-proxy.ts、frontend/src/features/jobs/SubmissionForm.tsx 实现相应展示，通过前端测试；本期不轮询。
 - [x] T015 执行 compose.yaml 的完整前后端测试/构建，更新 docs/work-log.md RED/GREEN与异常证据。
-- [ ] T016 在 scripts/verify-004.mjs 完成真实接口成功/失败/多任务与重启验证，浏览器核对结果与小屏。
-- [ ] T017 更新 README.md、docs/roadmap.md 与 specs/004-async-pipeline/quickstart.md 的完成范围/限制/模拟方法，完成需求追踪与提交。
+- [x] T016 在 scripts/verify-004.mjs 完成真实接口成功/失败/多任务与重启验证，浏览器核对结果与小屏。
+- [x] T017 更新 README.md、docs/roadmap.md 与 specs/004-async-pipeline/quickstart.md 的完成范围/限制/模拟方法，完成需求追踪与提交。
 
 ## Dependencies and strategy
 
