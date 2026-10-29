@@ -1,21 +1,21 @@
-> 001作为总体需求归档；本页仅汇总后续已交付项目的当前操作入口。现行约束见[README](../../README.md)，接口以008及其引用的002～007契约为准，009不改接口；复查收尾与未验证边界见[归档说明](README.md)。
+> 001作为总体需求归档；本页仅汇总后续已交付项目的当前操作入口。现行约束见[README](../../README.md)，接口以010和008及其引用的002～007契约为准，009不改接口；复查收尾与未验证边界见[归档说明](README.md)。
 
 # 启动与验证指南（当前项目入口）
 
-前后端源码、Compose、Dockerfile、依赖锁文件与V1～V6 SQL已由002～008交付，009完成全模块界面优化。
-本页命令从仓库根目录执行；当前交付包含002～009，实际执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
+前后端源码、Compose、Dockerfile、依赖锁文件与V1～V7 SQL已由002～008交付，009完成全模块界面优化。
+本页命令从仓库根目录执行；当前交付包含002～010，实际执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
 
 ## 规格与仓库检查
 
 从仓库根目录运行：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/009-studio-identity .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/010-reliable-operations .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 git status --short
 git log --oneline -5
 ```
 
-feature.json是忽略的本机指针，不依赖Git分支解析。当前交付入口为009，不将001设为implement目标。
+feature.json是忽略的本机指针，不依赖Git分支解析。当前交付入口为010，不将001设为implement目标。
 
 ## 一键运行
 
@@ -81,3 +81,5 @@ docker compose exec -T frontend node --input-type=module < scripts/measure-admis
 
 本地需要彻底重置演示数据时才可使用 `docker compose down -v`；这会删除数据库、身份、上传和结果。
 普通停止用 `docker compose down` 保留卷。008起，服务启动把遗留RUNNING任务恢复为QUEUED并记录中断，原QUEUED任务继续排队，从第一阶段重新执行；最多三次执行，终态不重做。仅支持单后端实例，不支持阶段断点续跑。
+
+010追加访客确认、动态模板筛选、持久排队/事务配额及内部监控；独立压力验收与配置见[010 quickstart](../010-reliable-operations/quickstart.md)。

@@ -328,3 +328,12 @@ US4 RED证据/tmp/material-010-admission-red.log：14项6失败，配额/并发�
 
 
 US5监控初始RED为/actuator/studio404，两项均失败；实现OperationsMapper/Endpoint只读聚合与QueueScanMonitor。发现管理属性会增加job.version但不写事件，补相邻事件版本跳号测试，RED为期望样本1实际0；SQL配对上一执行事件而非version-1后GREEN。MyBatis代理抽象接口doCallRealMethod恢复及具体dispatcher注入与Mockito替换冲突属于测试整合问题，独立扫描监控组件消除执行器耦合，不作为业务RED。最终Compose backend-test59项、0失败/错误/跳过及打包通过（/tmp/material-010-backend-final2.log）。可配置内存队列容量供真实压力演示，统计入口仍仅内部容器网络可达，通用Actuator指标未开放。补充纠正：不同端口只隔离后端数据，不隔离同主机浏览器Cookie；后续浏览器验收使用127.0.0.1主机名，先前“原身份未动”仅能证明未向原服务撤销，不能证明Cookie未受影响。
+
+
+010最终本地交付：95项前端/20文件及lint/typecheck/build通过，Java59项及mvn verify通过。生产独立项目material-studio-010-final从空卷V1～V7启动（复用依赖镜像层），配置内存1/全局8/本人6/分钟10。verify-010真实链路通过8项待办各成功一次六事件、本人/全局拒绝、幂等回放、本人10项后速率拒绝和隐私；总计12个成功，监控queue/三阶段各12样本，扫描错误0。零样本统计已读到全部0与空stages，无NaN。主3000使用保留卷Compose重建，三服务健康，未删除演示卷。
+
+浏览器最终用127.0.0.1:3102隔离localhost Cookie。Escape取消后身份a19ffa6f保持，Return确认后两个标签均为dc6e99e4；新模板从Java加载，旅行明信片键盘选择并应用筛选正常。原生confirm需要按键处理，未将工具中间挂起算通过。375px检查innerWidth=scrollWidth=375、四个模板选项，截图010-history-desktop.png/010-history-mobile.png，只含本项目界面；临时视口已恢复。高对比另在Chrome真实forced-colors中验证并恢复。原IAB viewport仅作用于可见标签，最初1280截图已归为desktop，没有把错误视口截图记为375。
+
+本轮跨过客户端日期边界至2026-10-30；按实际命令/日志记录，不虚构人工工时。后续收尾：文档链接/语法核对、最新远端CI与最终任务勾选。全程单智能体串行，无新运行依赖、外部监控服务或消息队列。
+
+文档16文件169相对链接/代码围栏及git diff --check通过；脚本005/010容器node --check通过。自动审批拒绝在原3000运行会写模拟数据的verify-008，改在独立final项目执行并通过全部原有三模板/管理/隐私检查（ef2d0a70）；未绕过审批或向原环境写入此轮验收记录。原3000仅保留卷更新并健康检查。

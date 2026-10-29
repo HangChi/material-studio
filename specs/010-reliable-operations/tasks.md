@@ -8,7 +8,7 @@
 ## US1 · 验证基线
 - [x] T003 [US1] 独立空卷启动并运行scripts/verify-008.mjs，记录docs/010-validation.md。
 - [x] T004 [US1] 审查历史公开文件、创建公开仓库，运行.github/workflows/ci.yml并记录真实结果。
-- [ ] T005 [US1] 浏览器真实双标签/高对比验证，记录docs/010-validation.md。
+- [x] T005 [US1] 浏览器真实双标签/高对比验证，记录docs/010-validation.md。
 
 ## US2 · 身份确认
 - [x] T006 [US2] frontend/src/features/identity/session.test.tsx新增取消/确认/重复操作测试并观察RED。
@@ -28,7 +28,7 @@
 - [x] T014 [US5] backend/src/main/java/com/materialstudio/job/{OperationsMapper,OperationsEndpoint}.java和QueueScanMonitor.java/BackgroundJobDispatcher.java实现内部只读统计，仅Java容器网络可达，验证GREEN。
 
 ## Delivery
-- [ ] T015 scripts/verify-010.mjs、docs/010-validation.md补充真实排队/配额/监控验收；容器全量前后端回归与生产重建。
+- [x] T015 scripts/verify-010.mjs、docs/010-validation.md补充真实排队/配额/监控验收；容器全量前后端回归与生产重建。
 - [ ] T016 README.md、docs/roadmap.md、docs/acceptance.md、docs/async-workflow.md与docs/work-log.md同步，提交推送并确认最新远端CI。
 
 依赖：T001→T002→T003/T004基线→T006/T007→T008/T009→T010～012→T013/T014→T005/T015/T016最终验收。CI等待期间仅处理同一执行者的独立工作，所有源码/TDD串行。US2是最小用户可见增量；本次授权包含全部五项，不以US2完成结束。

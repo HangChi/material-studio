@@ -12,9 +12,8 @@
 - RED：容器session.test.tsx为4通过/1失败，取消用例断言confirm被调用实际0次，目标行为缺失。
 - GREEN：原生confirm前置于身份变更/撤销，取消保持私有视图；lint/typecheck及session/history共13项通过。
 
-## 待完成
-- 确认功能更新后的真实取消/确认双标签验收、高对比模式实测。
-- US3～US5、最终全量检查、最新提交远端CI。
+## 交付检查
+- 最终实现与浏览器检查已完成，最新提交远端CI等待推送后核实。
 
 ## US3动态模板
 - RED：容器template-filter.test.tsx三个测试均因动态选项/重试/abort缺失失败。
@@ -34,3 +33,15 @@
 - 修复过程中发现：MyBatis代理无法用doCallRealMethod恢复抽象接口桩；独立调度器和可控mapper测试扫描故障。监控最初直接依赖具体dispatcher，导致旧测试替换JobDispatcher时上下文不兼容；拆分QueueScanMonitor后解耦恢复。此类测试基础设施错误不记作业务RED。
 - GREEN：全量Java59项、0失败/错误/跳过、mvn verify打包通过。统计用一致只读事务，取消单列；完成阶段/首次排队毫秒样本来自事件，重试来自runtime，扫描失败及最近成功为进程指标。
 - /actuator/studio是内部只读MVC监控入口；Actuator通用指标未开放，Next代理不允许访问，无用户/任务/文件标识。
+
+## 最终真实验收
+- 最终前端95项/20文件、lint/typecheck/生产构建通过；Java59项（0失败/错误/跳过）及mvn verify通过。
+- 新项目material-studio-010-final、端口3102、首次创建独立MySQL和文件卷，生产镜像构建与三服务健康通过；Flyway V1～V7从空库初始化。依赖层使用Docker缓存，首次公开CI已在runner实际安装。
+- 验收配置：STUDIO_QUEUE_CAPACITY=1、STUDIO_MAX_PENDING=8、STUDIO_MAX_PENDING_PER_USER=6、STUDIO_SUBMISSIONS_PER_MINUTE=10。容器执行scripts/verify-010.mjs通过：本人6待办拒第7项、其他访客2待办后达到全局8、相同key回放、八项各成功一次/六事件/可读PNG、本人累计10次后限流、外人404、Next无法代理监控。共本人10项、其他2项，全部成功。
+- 监控零样本counts全0、queue.samples=0、stages=[]、failureRate=0，无NaN。链路后counts.succeeded=12、其余0，queue及三阶段均12样本，retries=0、scanner.failures=0；总排队58705.222ms、平均4892.10183333ms（本次运行样本，不作为性能承诺）。
+- 127.0.0.1:3102真实浏览器确认：Escape取消后a19ffa6f保持；Return确认后两个标签均变为dc6e99e4。原生confirm最初使自动化挂起，使用键盘处理后恢复，没有把未完成操作记作通过。
+- Java动态加载三模板，键盘选择旅行明信片并应用筛选后出现没有匹配的作品。375px实测innerWidth=scrollWidth=375，模板含全部及三模板共4选项；已恢复临时视口。
+- 截图：[桌面](010-history-desktop.png)、[375px](010-history-mobile.png)。高对比由Chrome真实forced-colors模拟验证，非截图换色；不宣称完整屏幕阅读器或所有操作系统覆盖。
+- 原3000项目更新使用保留卷的docker compose up --build -d --wait；不删除或重置原演示数据。独立验收项目仅含本轮测试数据，收尾停服务保留卷。
+
+- 独立final项目再次运行verify-008成功，覆盖全三模板、素材分页、编辑配方、重命名/收藏/隐藏恢复/搜索、取消、排队和隐私；这是12样本核对后的追加测试数据。verify-010/005脚本node --check通过。原3000仅重建和健康检查，未执行写入演示记录的验收脚本。
