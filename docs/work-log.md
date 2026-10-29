@@ -278,3 +278,11 @@ TDD：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-
 纯视觉/DOM结构重构，保留所有原有API、授权、轮询及按钮条件，不新增业务行为，不强造RED。`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`：lint/typecheck、19个文件90项测试与生产构建全部通过，包含作品管理、筛选、状态隔离、结果资源错误与下载/再次制作回归。`docker compose up -d --build --no-deps frontend`生产重建启动成功。
 
 浏览器1280×900查看已有成功/取消记录，展开日光肖像管理与事件列表，确认名称输入、保存/收藏/隐藏、执行阶段和主操作布局；键盘Tab可进入管理入口。375×812管理展开区和主操作完整可见，页面scrollWidth=375；桌面scrollWidth=1280。未执行管理写操作或新建任务。证据：009-record-refined-desktop.png（管理展开的作品卡，1184×约402）、009-record-refined-mobile.png（同一作品375px布局）。临时视口恢复。没有后端变更，未重跑Java与远端CI。
+
+### 009 截图反馈 · 明信片编辑工作台精修
+
+根据用户截图，先补规格/计划/T014～016，然后重排PostcardEditor：桌面左预览、右设置，标题字数同行，配色和比例双列；每张图片裁剪控制使用短标签/滑轨/数值同行，重置在卡片标题旁。预览附当前尺寸、纸张/比例和缺图提示。手机先预览后设置，裁剪面板仍为紧凑行。原生input/select、图片N裁剪可访问名称、标题长度、配色/比例参数和禁用语义保留。
+
+纯视觉和信息结构调整，没有新增业务行为，不强造RED。容器命令 `docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`：lint/typecheck、19个文件90项测试与生产构建通过，包含明信片参数提交、标题编辑和操作不确定时的禁用。`docker compose up -d --build --no-deps frontend`再次成功构建并启动。
+
+实际浏览器1280×900验证两张已选素材的构图：键盘ArrowRight使图片2缩放从1变1.01，ArrowLeft复原；切换海蓝/方版，预览class=palette-ocean、aspectRatio=1/1、尺寸1000×1000px同步，随后恢复奶油/横版。桌面工作台约532px高，375px先预览后设置并保留三项裁剪行；两端页面scrollWidth分别等于1280与375。原草稿标题和素材保留，没有提交新任务。截图以页面坐标裁出编辑区，并打开本地文件复查内容：009-postcard-refined-desktop.png、009-postcard-refined-mobile.png。临时视口覆盖已恢复。未改后端、未重跑Java或远端CI。

@@ -18,3 +18,6 @@ frontend/src/components/{BrandMark,StudioIcon,SiteNav}.tsx；app/globals.css、l
 
 ## 制作记录精修方案
 JobCards使用200px预览+弹性正文的作品行，底部共享管理和执行详情区域。成功图片限制预览高度并object-fit:contain，其他状态显示克制的记录图标。JobActions保留业务逻辑，下载强调为主操作。WorkControls原生details保留，展开区统一名称表单与收藏/隐藏操作。375px纵向适配，使用现有回归与浏览器验证纯视觉调整。
+
+## 明信片编辑区精修方案
+PostcardEditor采用左预览右设置，手机先预览后设置。预览与画布stage有清晰边界；设置区共享标题/字数行，双列配色/比例控件；每张图片裁剪卡使用三列短标签、range和输出，重置按钮在卡片标题行。保留原生input/select及其可访问名称，已有业务回归和浏览器截图验证，无新增业务行为。
