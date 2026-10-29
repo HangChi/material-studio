@@ -1,7 +1,7 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～006已完成本地验收：模板浏览、私有上传、三阶段后台制作、模拟控制、个人历史分页、多任务自动跟踪与结果预览。**
+**002～007已完成本地验收：模板浏览、私有上传、三阶段后台制作、个人历史与多任务跟踪、提交幂等、失败重试/再次制作、执行详情、真实明信片与PNG下载。**
 原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；尚未执行远端CI、真实TLS或公网部署。
 
 ## 迭代与开发入口
@@ -16,16 +16,17 @@
 | [004](specs/004-async-pipeline/spec.md) | 三阶段异步执行与模拟控制 | 已完成本地验收；17/17任务 |
 | [005](specs/005-history-tracking/spec.md) | 历史、多任务跟踪、完整交付 | 已完成本地验收；15/15任务 |
 | [006](specs/006-mvp-hardening/spec.md) | 刷新分页、图片恢复、十次时延验收 | 已完成本地验收；9/9任务 |
+| [007](specs/007-creation-workbench/spec.md) | 幂等、重试/再次制作、事件详情、参数化真实明信片与下载 | 已完成本地验收；16/16任务 |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/006-mvp-hardening .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/007-creation-workbench .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[006任务](specs/006-mvp-hardening/tasks.md)及[验收对照](docs/acceptance.md)。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[007任务](specs/007-creation-workbench/tasks.md)及[验收对照](docs/acceptance.md)。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -233,6 +234,14 @@ docker compose exec -T frontend node --input-type=module < scripts/measure-admis
 幂等操作以(owner_id,request_key)为数据库唯一键，在同一短事务保存任务/配方/操作/素材关联，并序列化同身份受理；文件渲染不持有该锁。重复操作不重新调度，已受理但进程中断仍按原中断策略标失败，不自动重新执行。
 
 前端在未确认提交时锁定输入，允许重试同一载荷。浏览器禁止sessionStorage时，当前页面仍可安全重试，但刷新不能恢复该标识；页面会提示保留当前页。匿名身份丢失仍无找回入口。未确认操作中的素材ID/参数仅存当前浏览器会话，不含cookie令牌。
+
+实际运行链路验证（生成合成/失败/重试演示任务，完成后撤销脚本身份，保留文件与记录）：
+
+```sh
+docker compose exec -T frontend node --input-type=module < scripts/verify-007.mjs
+```
+
+本地测试为44项Java与78项前端测试，配套lint/typecheck/build通过；浏览器验证双图上传/参数编辑/真实结果/下载/再次制作和375px布局。截图：[真实结果与执行详情](docs/007-result.jpg)、[桌面编辑器](docs/007-editor-desktop.jpg)、[小屏编辑器](docs/007-editor-mobile.jpg)。
 
 字体来源：Ubuntu官方软件包fonts-wqy-zenhei（文泉驿正黑）；安装在backend Dockerfile的tools基础层，测试与运行共用字体环境。首次构建需访问Ubuntu软件源；未增加应用服务或真实AI依赖。
 

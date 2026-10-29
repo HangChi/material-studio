@@ -212,3 +212,9 @@
 - 运行脚本 `docker compose exec -T frontend node --input-type=module < scripts/verify-007.mjs` 已通过实际Next→Java→MySQL/卷链路：并发同key、冲突409、PNG1000×1000、配方、六事件、下载与预览字节一致、再次制作幂等、失败重试成功、他人404。脚本撤销自身测试身份，不打印token；保留演示任务和文件。
 - 浏览器真实双图上传（项目portrait/collage自制图）、标题“旅途里的两段故事”、海蓝方版、键盘放大、提交后后台完成；下载文件material-abb74254-31bd-409c-ae6d-e3cd8dbe55b9.png成功；再次制作编号2c8917f3-859d-4a02-9879-695cc1d982e0，历史与原编号并存，均1000×1000结果。
 - 桌面1366×900、375×812编辑页/历史页检查；两页document.scrollWidth=375，无横向溢出；Home/ArrowRight可把裁剪位置调整为0.01。截图docs/007-editor-desktop.jpg、007-editor-mobile.jpg。未声称浏览器故障注入，丢响应/abort由组件与接口测试证明。
+
+## 007 最终交付核对
+- 最终后端镜像重建成功，backend/frontend/mysql均healthy；重建后再次运行verify-007全链路passed，结果1000×1000，sha256 dec81f59821b1262f425513ef2ac265025f4ce0ca425fcac86e88953e6222424。
+- 最终镜像浏览器再次制作da542ff0-d161-4766-8ea7-4e93100dca97成功；展开六事件，GENERATE已显示“图片合成开始/完成”。结果与操作截图为docs/007-result.jpg。桌面/小屏viewport覆盖已恢复默认。
+- specs/007全部16项完成，规格/契约/README/roadmap/acceptance已同步；文档相对链接、任务格式及git diff --check核对通过。未声称远端CI或公网部署通过。
+- 工具可核对时段约18:03～18:28（上海），含字体/依赖下载及镜像等待；不是精确人工工时。沿用当前006分支增量提交，007以独立规格目录追踪。

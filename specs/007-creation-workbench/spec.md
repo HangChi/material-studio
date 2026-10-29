@@ -2,7 +2,7 @@
 
 **Feature Branch**: 沿用当前分支；feature目录独立编号007
 **Created**: 2026-10-29
-**Status**: Specification validated
+**Status**: Implemented and locally validated
 **Input**: 用户要求全部实现两处所选建议：提交幂等、失败重试、任务事件详情、下载、再次制作、真实明信片合成与模板参数化。
 
 ## User Scenarios & Testing

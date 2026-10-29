@@ -32,7 +32,7 @@
 - [x] T015 [US4] 实现frontend/src/features/jobs/PostcardEditor.tsx与SubmissionForm.tsx，沿用src/app/globals.css设计，验证GREEN。
 
 ## 交付
-- [ ] T016 更新README.md、docs/roadmap.md、docs/acceptance.md与docs/work-log.md，完整容器回归、浏览器验收并记录实际结果。
+- [x] T016 更新README.md、docs/roadmap.md、docs/acceptance.md与docs/work-log.md，完整容器回归、浏览器验收并记录实际结果。
 
 ## Dependencies & Strategy
 T001 → US1 → US2 → US3 → US4 → T016。各故事先后端行为测试/实现，再前端行为测试/实现；先验证独立增量再做全量。无并行任务，禁止子智能体。所有用户选择均在本轮范围，无仅做US1即结束。

@@ -9,3 +9,8 @@ POST /api/jobs/{id}/recreate：空body，必需Idempotency-Key；只允许本人
 GET /api/jobs/{id}/recipe：200 {parameters:object|null,sourceJobId:string|null,assetIds:string[]}；仅本人。历史旧数据sourceJobId为空，明信片参数返回默认值。
 GET /api/jobs/{id}/download：本人成功PNG，Content-Disposition: attachment; filename="material-{uuid}.png"；缺失/非成功404，nosniff/no-store。下载与预览读取同一结果。
 GET /api/jobs/{id}/events：沿用已有{items:[{version,stage,kind,createdAt,message}]}，version升序。
+
+示例明信片参数：
+```json
+{"templateId":"demo-postcard","assetIds":["<本人素材1>","<本人素材2>"],"parameters":{"title":"旅途来信","palette":"OCEAN","format":"SQUARE","crops":[{"x":0.5,"y":0.5,"zoom":1},{"x":0.2,"y":0.7,"zoom":1.5}]}}
+```

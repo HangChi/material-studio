@@ -7,3 +7,5 @@
 3. 展开事件，处理中随任务版本更新；失败显示原因；离线查询不改写执行状态。
 4. 成功PNG下载比对尺寸及图片；再次制作得新编号，原记录不变。API指定GENERATE失败后重试新任务成功。
 5. 换访客不可读原结果/配方/事件或重新制作。375px可操作，控件有标签及键盘焦点。
+
+完整真实API链路：`docker compose exec -T frontend node --input-type=module < scripts/verify-007.mjs`。成功输出status=passed、1000×1000及结果摘要，不打印令牌；记录与文件保留，脚本身份会撤销。

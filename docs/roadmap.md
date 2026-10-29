@@ -11,6 +11,9 @@
 | [004-async-pipeline](../specs/004-async-pipeline/spec.md) | 三阶段执行、模拟控制、状态/事件/结果持久化、重启中断说明 | R-04/05/06；旧T022～T029 | 003 | 已完成本地验收；17/17任务 |
 | [005-history-tracking](../specs/005-history-tracking/spec.md) | 本人历史、刷新、多任务、查询异常、订阅清理、最终交付验收 | R-07/08/09/10 与完整R-11～R-14；旧T030～T044剩余部分 | 003/004 | 已完成本地验收；15/15任务 |
 | [006-mvp-hardening](../specs/006-mvp-hardening/spec.md) | 刷新游标、图片错误与重试、十次受理测量 | R-04/07/09/11；001 SC-002/005复查收尾 | 005 | 已完成本地验收；9/9任务 |
+| [007-creation-workbench](../specs/007-creation-workbench/spec.md) | 提交幂等、安全重试、下载/再次制作、执行详情、参数化真实明信片 | 用户明确新增的全部两段建议 | 006 | 已完成本地验收；16/16任务 |
+
+007为原题MVP之后的用户授权拓展；不修改原题。真实合成先覆盖明信片，其他模板保留原模拟；仍为单实例匿名身份。新增V4配方与幂等表，旧记录兼容，具体验证见[验收对照](acceptance.md)。
 
 006在005交付后修复复查发现的问题，并完成001 SC-002数值验收，见[逐次测量](admission-measurements.md)。
 
@@ -25,7 +28,7 @@ Spec Kit 0.16.4 的 `.specify/feature.json` 为忽略的机器本地指针，不
 克隆/切换 feature 后显式运行（将路径替换为目标 feature）：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/006-mvp-hardening .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/007-creation-workbench .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 脚本将持久化本机 feature 指针。禁止把新功能继续加到 001 的执行清单。
