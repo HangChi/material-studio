@@ -1,4 +1,5 @@
 "use client";
+import { StudioIcon } from "../../components/StudioIcon";
 import { useEffect, useId, useRef, useState } from "react";
 type Event={version:number;stage:string|null;kind:string;createdAt:string;message:string};
 function isEvent(value:unknown):value is Event{
@@ -25,7 +26,7 @@ export function JobEvents({id,version,onExpire}:{id:string;version:number;onExpi
   })();
   return()=>{active=false;controller.abort();};
  },[id,version,open,attempt]);
- return <div className="job-events"><button type="button" aria-expanded={open} aria-controls={panel} aria-label={`${open?"收起":"查看"}执行详情 ${id}`} onClick={()=>setOpen(value=>!value)}>{open?"收起执行详情":"查看执行详情"}</button>
+ return <div className="job-events"><button type="button" aria-expanded={open} aria-controls={panel} aria-label={`${open?"收起":"查看"}执行详情 ${id}`} onClick={()=>setOpen(value=>!value)}><StudioIcon name="history" />{open?"收起执行详情":"查看执行详情"}<span className="disclosure-chevron" aria-hidden="true" /></button>
   {open&&<div id={panel} className="event-panel">
    {state.loading&&<p role="status">正在读取执行详情…</p>}
    {state.error&&<div><p role="alert">{state.error}</p><button type="button" aria-label={`重新读取详情 ${id}`} onClick={()=>setAttempt(value=>value+1)}>重新读取详情</button></div>}

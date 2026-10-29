@@ -15,3 +15,6 @@ frontend/src/components/{BrandMark,StudioIcon,SiteNav}.tsx；app/globals.css、l
 
 ## 上传区精修方案
 复用原生file input，采用视觉隐藏但可键盘聚焦的实现，关联可见label作为本地选择/预览区域；保留图片N的可访问名称。单图横向素材行，多图纵向卡片，共享空态/已有素材结构。素材库放在卡片下方的独立整行区域。底部统一状态、清空、任务核对、提交，各自语义与禁用条件不变。以既有上传/草稿/提交回归验证，无新业务行为，不强造RED。
+
+## 制作记录精修方案
+JobCards使用200px预览+弹性正文的作品行，底部共享管理和执行详情区域。成功图片限制预览高度并object-fit:contain，其他状态显示克制的记录图标。JobActions保留业务逻辑，下载强调为主操作。WorkControls原生details保留，展开区统一名称表单与收藏/隐藏操作。375px纵向适配，使用现有回归与浏览器验证纯视觉调整。

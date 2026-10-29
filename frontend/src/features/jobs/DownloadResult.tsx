@@ -1,4 +1,5 @@
 "use client";
+import { StudioIcon } from "../../components/StudioIcon";
 import { useEffect, useRef, useState } from "react";
 export function DownloadResult({id,onExpire}:{id:string;onExpire:()=>void}){
  const [busy,setBusy]=useState(false),[error,setError]=useState("");
@@ -20,5 +21,5 @@ export function DownloadResult({id,onExpire}:{id:string;onExpire:()=>void}){
   }catch(error){if(state.active)setError(error instanceof Error?error.message:"下载失败，请重试");}
   finally{state.controller=null;if(state.active)setBusy(false);}
  }
- return <div><button type="button" aria-label={`下载 PNG ${id}`} disabled={busy} onClick={()=>void download()}>{busy?"正在下载…":"下载 PNG"}</button>{error&&<p role="alert">{error}</p>}</div>;
+ return <div><button className="download-work" type="button" aria-label={`下载 PNG ${id}`} disabled={busy} onClick={()=>void download()}><StudioIcon name="download" />{busy?"正在下载…":"下载 PNG"}</button>{error&&<p role="alert">{error}</p>}</div>;
 }

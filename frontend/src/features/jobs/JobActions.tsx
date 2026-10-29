@@ -1,4 +1,5 @@
 "use client";
+import { StudioIcon } from "../../components/StudioIcon";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Job } from "./types";
@@ -34,7 +35,7 @@ export function JobActions({job,onAccepted,onExpire}:{job:Job;onAccepted:(job:Jo
  if(job.status!=="FAILED"&&job.status!=="SUCCEEDED")return null;
  const label=pending?"安全重试重新制作":job.status==="FAILED"&&job.errorCode!=="JOB_CANCELLED"?"重试失败任务":"再次制作";
  return <div className="job-actions">
-  <Link className="text-action" href={`/templates/${encodeURIComponent(job.templateId)}?from=${encodeURIComponent(job.id)}`}>编辑此作品</Link>
+  <Link className="text-action edit-work" href={`/templates/${encodeURIComponent(job.templateId)}?from=${encodeURIComponent(job.id)}`}><StudioIcon name="edit" />编辑此作品</Link>
   <div><button type="button" aria-label={`${label} ${job.id}`} disabled={busy} onClick={()=>void recreate()}>{busy?"正在受理…":label}</button>
    {pending&&!busy&&!error&&<p role="status">有一次重新制作尚未确认，可安全重试。</p>}{error&&<p role="alert">{error}</p>}
   </div>

@@ -270,3 +270,11 @@ TDD：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-
 无新增业务行为，不强造RED。容器命令 `docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'` 全部通过：19个文件90项测试，覆盖文件校验、替换迟到响应、素材复用、草稿、提交核对和轮询隔离。`docker compose up -d --build --no-deps frontend` 生产重建启动成功。
 
 浏览器1280px验证单图空态/已选预览、素材库选取及提交可用，三图统一卡片；375px查看单图、双图和三图，三页scrollWidth均为375，无横向溢出。桌面单图上传panel高约465px，草稿与提交已合并；没有新建制作任务。证据：009-upload-refined-desktop.png（单图空态局部）、009-upload-refined-mobile.png（已有素材手机全页）、009-upload-multiple-desktop.png（三图桌面全页）。临时视口覆盖已恢复。纯前端变更，未重跑Java与远端CI。
+
+### 009 截图反馈 · 制作记录精修
+
+用户要求继续优化制作记录卡，截图显示大图与元信息、管理表单、执行详情和常用操作堆叠。本轮先补009规格/计划/T011～013，再以作品行重排：左侧200px完整缩略预览，右侧标题/状态、时间/阶段/执行次数、任务编号及编辑/再次制作/下载。下载强调为主操作，管理与执行详情统一到卡片底部，展开管理后改名与收藏/隐藏位于独立紧凑区域。其他状态使用记录图标占位；不增加虚假图片、数据或业务能力。
+
+纯视觉/DOM结构重构，保留所有原有API、授权、轮询及按钮条件，不新增业务行为，不强造RED。`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`：lint/typecheck、19个文件90项测试与生产构建全部通过，包含作品管理、筛选、状态隔离、结果资源错误与下载/再次制作回归。`docker compose up -d --build --no-deps frontend`生产重建启动成功。
+
+浏览器1280×900查看已有成功/取消记录，展开日光肖像管理与事件列表，确认名称输入、保存/收藏/隐藏、执行阶段和主操作布局；键盘Tab可进入管理入口。375×812管理展开区和主操作完整可见，页面scrollWidth=375；桌面scrollWidth=1280。未执行管理写操作或新建任务。证据：009-record-refined-desktop.png（管理展开的作品卡，1184×约402）、009-record-refined-mobile.png（同一作品375px布局）。临时视口恢复。没有后端变更，未重跑Java与远端CI。
