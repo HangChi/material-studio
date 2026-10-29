@@ -80,7 +80,7 @@ function HistoryResults({owner,filter}:{owner:string;filter:Filters}){
  const visibleJobs=snapshot.jobs.filter(job=>matches(job,filter)&&(!filter.tag||tagMatches.has(job.id)));
  if(snapshot.authExpired)return <p role="alert">访客身份已失效，请刷新页面重新建立。</p>;
  return <section aria-label="个人制作记录">
-  <div className="history-toolbar"><p>记录保存在当前访客名下，未完成任务会自动更新。</p><button type="button" disabled={page.loading} onClick={()=>void load(false)}>刷新记录</button></div>
+  <div className="history-toolbar"><p>记录保存在当前身份名下，未完成任务会自动更新。</p><button type="button" disabled={page.loading} onClick={()=>void load(false)}>刷新记录</button></div>
   {page.loading&&!page.loaded&&<p role="status">正在读取制作记录…</p>}
   {page.error&&<p className="query-error" role="alert">{page.error}</p>}
   {page.loaded&&visibleJobs.length===0&&<div className="state-panel"><h2>{filtered?"没有匹配的作品":"还没有制作记录"}</h2><p>{filtered?"调整筛选条件后重新查询。":"挑选一张模板，开始你的第一份作品。"}</p>{!filtered&&<Link className="text-action" href="/">去挑选模板</Link>}</div>}

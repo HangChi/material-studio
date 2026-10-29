@@ -11,7 +11,7 @@
 - [x] T009 [US4] backend identity/AccountApiTest.java先RED，注册绑定/跨设备/退出/恢复码轮换/旧会话失效/失败限流/迁移冲突与活动源保护。
 - [x] T010 [US4] backend账号/会话、V11迁移、密码12～128/用户名3～32/失败5次15分钟/恢复码一次性，实现GREEN。
 - [x] T011 [US4] frontend账号测试先RED，/account、一次性恢复码内存显示/保存后继续、显式迁移/退出/跨标签清理，容器GREEN。
-- [ ] T012 scripts/verify-011.mjs与docs/011-validation.md真实独立空卷/迁移/失败/隐私验收、桌面375px截图和全量检查。
+- [x] T012 scripts/verify-011.mjs与docs/011-validation.md真实独立空卷/迁移/失败/隐私验收、桌面375px截图和全量检查。
 - [ ] T013 README.md、docs/roadmap.md、acceptance.md、async-workflow.md及work-log.md同步，提交推送并确认最终远端CI。
 
 依赖T001→US1→US2→US3→US4→交付。所有行为先观察真正缺失导致的RED，不将编译/依赖故障充作RED；各GREEN可审阅增量提交。不存在并行委派。此轮四项均为用户授权范围。

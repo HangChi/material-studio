@@ -351,3 +351,9 @@ US3 RED：OrganizationTest三项接口404，bulk UI两项缺少选择/标签筛�
 
 US4 RED：AccountApiTest5项均注册404；账号UI两项空组件缺恢复码/迁移确认行为。GREEN：V11独立会话从旧active token回填、用户名唯一绑定原owner、多设备30天登录会话/365天匿名会话，PBKDF2-HMAC-SHA256随机盐/600000次（OWASP官方资料记录在011 research），恢复码只存SHA256、重置轮换并撤销全部旧会话。密码验证失败按用户名5次/15分钟持久限制；迁移锁源/目标/全局受理，活动源或key冲突全回滚，不允许合并两个账号；上传获得同owner锁避免迁移漏掉并发新素材。首轮账号/匿名8项通过。补凭密码重新生成恢复码，先RED404再实现，处理首次响应丢失后的恢复码不可见问题。前端恢复码只在内存显示、保存确认后继续，显式迁移再确认、登录/恢复/退出跨标签通知。
 收尾边界RED：重音标签cafe/café因旧collation冲突500；隔离文件变化后旧purge快照仍200。新增V12精确tag比较（不改写V10迁移），purge快照纳入隔离文件大小/mtime；全部Java78项/0失败错误跳过/mvn verify打包通过，前端112项/23文件、lint/typecheck/build通过。日志/tmp/material-011-backend-final2.log与front-final.log。独立旧010环境material-studio-011端口3111已创建旧会话/素材/成功作品及幂等回执，随机测试Cookie仅保存在权限600的/tmp文件，未输出、未提交；准备真实升级V7→V12。
+
+011真实交付验收：独立新卷先旧010启动V1～V7，再原卷升级011/V8～V12，三服务healthy。verify-011首次legacyRestored=true，旧Cookie仍同owner、成功PNG可读、旧key回放同任务；批次2成功1失败/取消、标签规范化/筛选、整批越权不变、ZIP中央目录、跨设备/独立退出、访客迁移/活动源拒绝、恢复后旧会话/旧码失效全部通过。脚本增加VERIFY_ISOLATED=true显式保护后，在同一独立项目新访客链路再次通过，legacyRestored=false属正常无旧fixture重跑。凭据只在600权限临时文件，未打印/提交。临时文件因docker cp宿主属主导致EACCES，仅修改测试容器临时文件owner后继续，不将环境权限故障算业务RED。
+
+只在独立011资产卷创建两天前UUID孤儿，盘点/隔离成功、旧快照409、审计QUARANTINED；仅将该测试审计回拨8天模拟到期，清理后PURGED。没有等待真实7天、没有原卷维护清理。浏览器账号登录、两项批次素材库复用/提交/跨页恢复2/2成功、历史选中作品批量取消收藏生效。1280×900、375×812三页检查，小屏innerWidth=scrollWidth=375；原生JPEG截图011-{account,batches,history}-{desktop,mobile}.jpg，无密码或恢复码；视口恢复。浏览器未执行密码变更，恢复/码轮换由真实API及测试完成。
+
+账号兼容文案“当前访客”改为“当前身份”，容器完整lint/typecheck、23文件112测试、生产构建再次通过（/tmp/material-011-front-delivery.log）。原3000仅保留数据卷生产重建并健康检查，MySQL/Java/Next均healthy；未运行写入验收脚本。README/roadmap/acceptance/async-workflow及001当前入口统一至011、V1～V12及112/78基线，历史阶段数字保留；执行顺序1～9与未来断点/多实例/SSE明确分开。实际投入按上述命令与结果记录，不虚构人工小时；随后核对链接、差异、远端CI并完成T013。

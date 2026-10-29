@@ -1,9 +1,9 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～010已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑新版本、草稿恢复、历史管理、取消与排队提示、重启恢复和有限重试，全模块界面与品牌优化，以及访客切换确认、动态模板筛选、持久排队/受理配额和内部监控。**
-原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；公开仓库首次远端CI前后端已通过；010最新提交结果见[010验收记录](docs/010-validation.md)。真实TLS与公网部署未执行。
-当前检查基线为95项前端测试、59项Java测试及各自构建通过；检查方法与未验证边界见验收对照。异步实现与后续扩展见[异步流程与扩展分析](docs/async-workflow.md)。
+**002～011已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑新版本、草稿恢复、历史管理、取消与排队提示、重启恢复和有限重试，全模块界面与品牌优化，以及可靠受理/内部监控、文件生命周期、批量制作、标签/ZIP、本地账号与恢复。**
+原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；公开仓库首次远端CI前后端已通过；最新提交结果见[011验收记录](docs/011-validation.md)。真实TLS与公网部署未执行。
+当前检查基线为112项前端测试、78项Java测试及各自构建通过；检查方法与未验证边界见验收对照。异步实现与后续扩展见[异步流程与扩展分析](docs/async-workflow.md)。
 
 ## 迭代与开发入口
 
@@ -21,16 +21,17 @@
 | [008](specs/008-creative-workflow/spec.md) | 编辑、全模板合成、素材库、草稿、历史管理、取消/排队、恢复/重试 | 已完成本地验收；15/15任务 |
 | [009](specs/009-studio-identity/spec.md) | 全模块界面、品牌、导航、响应式排版与视觉精修 | 已完成本地验收；20/20任务 |
 | [010](specs/010-reliable-operations/spec.md) | 交付验证、身份确认、动态模板、持久排队/配额、内部监控 | 已完成本地及远端CI验收；16/16任务，见[记录](docs/010-validation.md) |
+| [011](specs/011-creative-library/spec.md) | 文件生命周期、批次、标签/批量管理/ZIP、本地账号/恢复与迁移 | 本地验收通过；交付任务和CI见[记录](docs/011-validation.md) |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/010-reliable-operations .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/011-creative-library .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[010任务](specs/010-reliable-operations/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[010契约](specs/010-reliable-operations/contracts/http-api.md)和008及前序契约为准，009不改变HTTP接口。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[011任务](specs/011-creative-library/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准，009不改变HTTP接口。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -72,7 +73,7 @@ Java素材默认STORAGE_ROOT=/data，Compose的asset-data命名卷持久保存�
 反向代理提供HTTPS时设置APP_ORIGIN为公开源（如https://studio.example.com），同时设置COOKIE_SECURE=true。
 修改数据库用户名/密码不会重设已初始化的MySQL卷，须同步数据库配置或仅在本地演示时重置卷。
 
-Flyway自动执行V1模板种子、V2身份/素材/任务、V3执行配置/事件和V4配方/幂等操作、V5作品属性、V6执行恢复、V7受理锁迁移；兼容已有002/003数据，无需清空数据库。
+Flyway自动执行V1模板种子、V2身份/素材/任务、V3执行配置/事件、V4配方/幂等、V5作品属性、V6执行恢复、V7受理锁、V8隔离审计、V9批次、V10标签、V11账号/多会话及V12标签精确排序规则；兼容既有数据和旧匿名Cookie，无需清空数据库。
 封面是项目自制PNG，位于 `backend/src/main/resources/demo/`，Java白名单接口提供；无需外部图片网络。
 可在容器中重新生成：
 
@@ -90,11 +91,11 @@ docker compose --profile test run --rm frontend-test
 docker compose --profile test run --rm backend-test
 ```
 
-前端入口从锁文件npm ci，再执行eslint、tsc、95个Vitest测试、next build。
-后端入口mvn verify，执行59个Java测试（HTTP/MySQL集成及可控故障用例）并打包；数据库使用独立test-mysql，避免污染演示数据。
+前端入口从锁文件npm ci，再执行eslint、tsc、112个Vitest测试、next build。
+后端入口mvn verify，执行78个Java测试（HTTP/MySQL集成及可控故障用例）并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
-GitHub Actions在push/PR执行上述两条容器入口；公开仓库[首次远端流水线](https://github.com/HangChi/material-studio/actions/runs/40901483518)已通过，010最新结果与本地验证见[010验收记录](docs/010-validation.md)。
+GitHub Actions在push/PR执行上述两条容器入口；公开仓库[首次远端流水线](https://github.com/HangChi/material-studio/actions/runs/40901483518)已通过，最新结果与本地验证见[011验收记录](docs/011-validation.md)。
 镜像构建使用-DskipTests，独立检查入口必须先通过；不能把镜像构建等同于测试通过。
 
 ## 当前接口与演示
@@ -117,7 +118,7 @@ Template含id、title、categoryId、coverUrl、description、requiredImageCount
 
 | 接口 | 行为 |
 | --- | --- |
-| POST/GET/DELETE /api/session | 创建/读取/撤销匿名cookie身份；返回user.id，绝不返回token/hash |
+| POST/GET/DELETE /api/session | 创建/读取/撤销当前cookie会话；返回user.id和可空username，绝不返回token/hash |
 | POST /api/assets | multipart单file，201素材id/url/mimeType/sizeBytes/createdAt |
 | GET /api/assets/{id}/content | 仅本人读取图片，其他身份404 |
 | POST /api/jobs | {templateId,assetIds,simulation?}，保存任务/关联/配置后调度；202返回快照和Location |
@@ -193,7 +194,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 
 ## 005个人记录与自动跟踪
 
-打开 [制作记录](http://localhost:3000/history)，自动建立或复用当前匿名身份，恢复创建时间、状态、当前阶段、失败原因及成功图片。空记录提供模板入口，“加载更多”读取下一页；分页失败保留已加载记录和游标。
+打开 [制作记录](http://localhost:3000/history)，自动建立或复用当前身份（访客或账号），恢复创建时间、状态、当前阶段、失败原因及成功图片。空记录提供模板入口，“加载更多”读取下一页；分页失败保留已加载记录和游标。
 历史按created_at/id倒序，游标为末条本人任务UUID；同时间排序稳定，新插入不移动旧页。非法/他人游标400，不泄漏他人记录；无效limit400。接口详情见[005契约](specs/005-history-tracking/contracts/http-api.md)。
 
 详情页和历史页分别维护当前身份/任务的跟踪器，每个未终结任务在前一次查询完成后1秒再查，绝不重叠；收到终态停止，无活动任务不继续请求。离开页面abort请求并清理计时器。
@@ -201,7 +202,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 历史首页同时读取active集合，即使某未完成任务在后续页也继续跟踪；记录按ID去重。浏览器时间比较保留服务端微秒精度。
 
 演示：连续提交不同配置的任务，进入记录页查看各自结果；刷新可恢复未完成任务。浏览器临时离线只会出现查询暂停，恢复在线后点击“恢复查询”读取真实结果；后台服务无需停止。
-010起记录页“切换为新访客”先弹出原生确认，取消保留身份及视图；确认后卸载旧视图、撤销cookie，再建立新身份，旧任务后台继续；原身份没有找回入口。其他浏览器/无痕窗口天然隔离。
+010起记录页“切换为新访客”先弹出原生确认，取消保留身份及视图；确认后卸载旧视图、撤销cookie，再建立新身份，旧任务后台继续；未绑定访客无法找回，011已绑定账号可重新登录。其他浏览器/无痕窗口天然隔离。
 同源标签页共享cookie，成功切换后用不含token/身份的localStorage标记通知其他页清理并重新建立身份；禁用本地存储时其他标签需手动刷新。401也会清掉当前私有快照并停止查询。
 
 本地验收已覆盖真实24条记录跨四页、三任务成功/失败隔离、旧身份撤销、新身份空记录；浏览器验证自动更新、离线暂停后恢复、历史刷新和375px布局。乱序/旧版本/跨标签清理及精确两周期无多余请求由可控组件/跟踪器测试证明，不混称浏览器故障注入。
@@ -237,7 +238,7 @@ docker compose exec -T frontend node --input-type=module < scripts/measure-admis
 
 幂等操作以(owner_id,request_key)为数据库唯一键，在同一短事务保存任务/配方/操作/素材关联，并序列化同身份受理；文件渲染不持有该锁。重复操作不重新调度，008起已受理任务中断会在三次执行上限内恢复，终态任务不再重新执行。
 
-前端在未确认提交时锁定输入，允许重试同一载荷。浏览器禁止sessionStorage时，当前页面仍可安全重试，但刷新不能恢复该标识；页面会提示保留当前页。匿名身份丢失仍无找回入口。未确认操作中的素材ID/参数仅存当前浏览器会话，不含cookie令牌。
+前端在未确认提交时锁定输入，允许重试同一载荷。浏览器禁止sessionStorage时，当前页面仍可安全重试，但刷新不能恢复该标识；页面会提示保留当前页。未绑定匿名身份丢失仍无找回入口，可在丢失前绑定账号。未确认操作中的素材ID/参数仅存当前浏览器会话，不含cookie令牌。
 
 实际运行链路验证（生成合成/失败/重试演示任务，完成后撤销脚本身份，保留文件与记录）：
 
@@ -288,7 +289,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 
 部署固定源码commit并运行Compose，等待健康检查后验证列表/详情、一次成功任务及私有结果。发布前备份数据库和素材卷。
 回滚到上一验收commit重建；V3等schema变更须同时恢复匹配备份，不能假定旧应用兼容新表。
-当前无需公网部署。完整源码在本地独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、SQL种子、CI及全部Spec Kit产物；009基线为 `af006c8`，010监控实现提交为 `36641f4`；010最终交付及远端CI见验收记录。交付时用 `git rev-parse HEAD` 确认包含本文档的完整提交号。源码已按用户授权推送至公开仓库 [HangChi/material-studio](https://github.com/HangChi/material-studio)。
+当前无需公网部署。完整源码在本地独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、SQL种子、CI及全部Spec Kit产物；009基线为 `af006c8`，010监控实现提交为 `36641f4`；最新交付及远端CI见[011验收](docs/011-validation.md)。交付时用 `git rev-parse HEAD` 确认包含本文档的完整提交号。源码已按用户授权推送至公开仓库 [HangChi/material-studio](https://github.com/HangChi/material-studio)。
 实际投入按工具可核对时段记录在[docs/work-log.md](docs/work-log.md)，不虚构精确人工工时。
 
 使用Codex辅助：原题→总体基线→独立feature规格→计划/契约/任务→测试先失败→最小实现→重构/完整检查→提交。
@@ -332,3 +333,14 @@ docker compose exec -T backend curl -fsS http://localhost:8080/actuator/studio
 返回状态计数、取消单列、非取消终态失败率、首次排队及已完成阶段耗时样本/总毫秒/平均毫秒、额外执行次数，以及本进程扫描失败和最近成功时间。统计按现有记录全量聚合，非持久时序监控平台；扫描指标重启清零，业务/耗时指标保留。阶段样本允许管理属性造成version跳号，不纳入未完成/失败阶段。数据库完全不可用时监控也可能返回错误，不能把查询失败当作零任务。
 
 完整压力链路使用独立项目名和小限额，勿对原数据卷重置；命令见[010 quickstart](specs/010-reliable-operations/quickstart.md)。浏览器验收使用127.0.0.1，与原localhost Cookie区分；仅换端口不能隔离身份。
+
+## 011 · 执行顺序6～9
+
+6. **文件生命周期**：内部`/actuator/storage`只读盘点24小时以上的未登记孤儿；快照加显式确认后隔离，保留7天再确认清理，审计保留。保护所有登记素材，避免破坏本机草稿。Next不代理维护入口，无自动定时删除。
+7. **批量制作**：[批量制作](http://localhost:3000/batches)一次创建1～10项，每项独立模板/素材，明信片用默认配方。整批事务受理，任一校验/配额失败全部回滚；提交后逐项跟踪，可取消未完成项。同一提交标识安全回放，刷新/跨页恢复服务端批次。
+8. **作品组织**：标签最多10个，每个20码点；选择已加载作品最多50项，批量收藏、取消收藏、隐藏、恢复或覆盖标签。ZIP最多20项成功PNG、原图合计64MiB。任一越权整批拒绝，隐藏可恢复。
+9. **账号与恢复**：[账号](http://localhost:3000/account)绑定3～32位用户名与12～128字符密码，保留当前访客数据；跨设备登录、退出仅撤销本会话。恢复码只显示当次，需自行保存，可凭密码重新生成。用恢复码重置密码会轮换码并撤销全部旧会话。迁移访客资料需勾选并确认，活动任务/提交标识冲突会拒绝；两个账号不可合并。
+
+接口与状态码见[011契约](specs/011-creative-library/contracts/http-api.md)。本机未提交草稿不自动跨设备同步；未绑定访客丢失Cookie不可恢复；密码和恢复码均丢失时不提供绕过找回。仍为单实例、全任务重启重试，无SSE、阶段断点续跑、邮件或外部身份服务。
+
+本地112项前端/78项Java及构建通过；真实V7→V12升级保留旧Cookie、成功作品与幂等回执。混合批次、ZIP、迁移、恢复、文件隔离和到期审计在独立卷验证；到期仅回拨测试审计时间模拟7天。桌面和375px三个页面无横向溢出。截图、命令和CI见[011验收](docs/011-validation.md)。
