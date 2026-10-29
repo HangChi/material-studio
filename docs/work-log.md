@@ -233,3 +233,18 @@
 - US6后端RED：queueAhead缺失/取消接口缺失；动态SQL转义错误单独修复，不记作RED。取消使用任务锁，先取消则阶段complete/start拒绝；重复取消返回原快照。
 - 前端RED：运行任务缺取消入口；GREEN结果见后续最终回归记录。排队数量为全队列前方约数，取消显示独立“已取消”，不冒充业务失败。
 - US6最终GREEN：Cancellation/WorkLibrary/Workflow 4项通过；前端lint/typecheck与actions/work-library/history/tracker 21项通过。
+
+## 008 US7、回归定位与交付验收
+- 初始RED：RecoveryTest+Lifecycle 5项中4项失败，旧实现暂时IO直接FAILED、启动/关停中断任务；GREEN：恢复、流水线、生命周期12项通过。任务运行次数/可执行时间保存在V6 job_runtime，单线程队列+每250ms持久扫描补队，进程内Set防重复入队，关停等待在锁外执行。
+- 补充RED：领取任务前configuration数据库暂时读取错误，三次后仍QUEUED；修复为领取前失败也计入执行次数。RecoveryTest覆盖临时IO成功、持久故障三次耗尽、强制模拟失败一次结束、领取前数据库错误三次结束。
+- 首次全量51项有队列失败，单独PipelineApi通过；加入内部日志后全量再次定位：独立TemplateApiTest没有关闭Context，旧扫描器使用默认/data抢走其他上下文任务，造成ASSET_UNAVAILABLE。补DirtiesContext；ApiTestSupport隔离上下文并清理未终结夹具。不是隐藏生产失败。修复后全量52项通过，增加PersistedBacklogTest（容量1恢复六个持久任务、每个一次执行/六事件）后最终53项全部通过并打包。
+- 前端自动重试文案RED：缺执行次数/计划时间；GREEN：前端lint/typecheck/84项通过。补草稿清空失败RED，修复为失败保留编辑且不误报清空。搜索补RED：重命名后按模板名搜索被漏掉，后端WorkLibrary与前端work-library均观测失败，再分别修复SQL和客户端过滤。
+- 真实链路发现PATCH library 405：Next路由只导出GET/POST/DELETE，代理函数虽然允许PATCH但入口未导出。work-route.test直接测试实际Next模块观察RED，导出PATCH后GREEN。最终前端18文件87项、lint/typecheck/生产构建通过。
+- 网络/环境分开记录：自动审批曾因服务使用额度拒绝一次Docker诊断，未执行；用户要求继续后正常审批恢复。Maven官方源下载TLS中断两次，Dockerfile加入BuildKit Maven缓存，并复用已通过测试容器中的公开依赖填充该缓存；未改TLS校验或依赖版本。全新frontend-test npm ci下载长时间挂起，已停止自己创建的临时测试容器；其间并行测试因node_modules正安装而vitest缺失不计作RED。
+- 最终前端检查使用锁文件一致的Docker构建层：`docker build --target build -t material-studio-frontend-check frontend`；`docker run --rm --mount type=bind,source=<repo>/frontend/src,target=/app/src,readonly material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`。生产Compose镜像构建通过；不声称本轮全新npm ci入口通过。
+- 最终后端命令 `docker compose --profile test run --rm backend-test`：53项通过、mvn verify打包成功；前端87项通过。当前Java/MySQL/前端均在容器，宿主没有执行应用安装/测试/构建。
+- `verify-008.mjs`真实Next→Java→MySQL/卷全部passed：本人素材分页、三模板输出尺寸、修改配方/来源/原记录不变、重命名/收藏/隐藏/恢复/搜索、运行与等待取消、队列约数、他人资源404。脚本身份撤销，不打印令牌，演示文件记录保留。
+- 真实重启：prepare创建66d5b18d-cd8e-45bf-b285-5ed99a2ec2fa运行、acd29021-7357-461d-b90b-f6572589a0ba排队；SIGKILL backend→up --wait→check passed。同编号运行任务第2次成功，排队项第1次成功，INTERRUPTED恢复事件存在；未清卷。
+- 浏览器：原da542ff0作品编辑恢复原素材/参数，从素材库换第1槽为618d2a92，标题“持续创作·第二封来信”、奶油配色、x=0.01，刷新仍恢复；提交产生6a3172ef-a428-4a9d-aa60-fd2e9d50dad5并清草稿，旧作品不变。重命名“持续创作验收作品”、收藏、按名称与模板名搜索均可找到；隐藏→隐藏列表→恢复成功。再次制作后从浏览器取消354fc102-a2c7-462d-812d-3624910f3004，显示已取消，无结果下载。
+- 浏览器桌面1366×900与375×812：历史/编辑的375px scrollWidth均375；临时viewport覆盖已恢复。docs/008-editor-desktop.jpg、008-history-desktop.jpg及两张mobile图为证据。没有声称浏览器数据库故障注入；有限重试故障由真实MySQL/HTTP与Spy IO测试验证。
+- 实际工具时段为约18:42～19:01及用户继续后的约20:51～21:15（上海），包含审批/网络/构建等待与暂停，不作为精确人工工时。全部单智能体串行，不使用子智能体。

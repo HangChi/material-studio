@@ -1,7 +1,7 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～007已完成本地验收：模板浏览、私有上传、三阶段后台制作、个人历史与多任务跟踪、提交幂等、失败重试/再次制作、执行详情、真实明信片与PNG下载。**
+**002～008已完成本地验收：三模板真实合成、素材复用、编辑新版本、草稿恢复、历史管理、取消与排队提示、重启恢复和有限重试，以及原有完整制作闭环。**
 原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；尚未执行远端CI、真实TLS或公网部署。
 
 ## 迭代与开发入口
@@ -17,16 +17,17 @@
 | [005](specs/005-history-tracking/spec.md) | 历史、多任务跟踪、完整交付 | 已完成本地验收；15/15任务 |
 | [006](specs/006-mvp-hardening/spec.md) | 刷新分页、图片恢复、十次时延验收 | 已完成本地验收；9/9任务 |
 | [007](specs/007-creation-workbench/spec.md) | 幂等、重试/再次制作、事件详情、参数化真实明信片与下载 | 已完成本地验收；16/16任务 |
+| [008](specs/008-creative-workflow/spec.md) | 编辑、全模板合成、素材库、草稿、历史管理、取消/排队、恢复/重试 | 已完成本地验收；15/15任务 |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/007-creation-workbench .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/008-creative-workflow .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[007任务](specs/007-creation-workbench/tasks.md)及[验收对照](docs/acceptance.md)。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[008任务](specs/008-creative-workflow/tasks.md)及[验收对照](docs/acceptance.md)。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -68,7 +69,7 @@ Java素材默认STORAGE_ROOT=/data，Compose的asset-data命名卷持久保存�
 反向代理提供HTTPS时设置APP_ORIGIN为公开源（如https://studio.example.com），同时设置COOKIE_SECURE=true。
 修改数据库用户名/密码不会重设已初始化的MySQL卷，须同步数据库配置或仅在本地演示时重置卷。
 
-Flyway自动执行V1模板种子、V2身份/素材/任务、V3执行配置/事件和V4配方/幂等操作迁移；兼容已有002/003数据，无需清空数据库。
+Flyway自动执行V1模板种子、V2身份/素材/任务、V3执行配置/事件和V4配方/幂等操作、V5作品属性、V6执行恢复迁移；兼容已有002/003数据，无需清空数据库。
 封面是项目自制PNG，位于 `backend/src/main/resources/demo/`，Java白名单接口提供；无需外部图片网络。
 可在容器中重新生成：
 
@@ -86,8 +87,8 @@ docker compose --profile test run --rm frontend-test
 docker compose --profile test run --rm backend-test
 ```
 
-前端入口从锁文件npm ci，再执行eslint、tsc、78个Vitest测试、next build。
-后端入口mvn verify，执行44个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
+前端入口从锁文件npm ci，再执行eslint、tsc、87个Vitest测试、next build。
+后端入口mvn verify，执行53个真实HTTP/真实MySQL集成测试并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
 GitHub Actions在push/PR执行上述两条容器入口；远端流水线尚未运行，本地验证结果见[工作日志](docs/work-log.md)。
@@ -149,10 +150,10 @@ docker compose exec -T frontend node --input-type=module < scripts/verify-005.mj
 任务快照含id/templateId/templateTitle/status/stage/version/createdAt/updatedAt/finishedAt/resultUrl/errorCode/errorMessage；resultUrl只在成功后有值。
 
 Java使用单工作线程与容量16的有界FIFO队列；提交先事务提交再调度，不等待制作完成。当1个任务运行且16个等待时，新增任务仍返回202和持久FAILED/QUEUE_REJECTED，绝不转到请求线程制作。
-后台按素材检查ASSET_CHECK→模拟生成GENERATE→结果整理FINALIZE执行，每一步开始和完成都独立写事件并递增任务版本。
-状态为QUEUED→RUNNING→SUCCEEDED/FAILED；任一步失败中断后续阶段。正常成功恰6个事件/version6，图片先原子落盘，再提交成功状态。
+后台按素材检查ASSET_CHECK→图片合成GENERATE→结果整理FINALIZE执行，每一步开始和完成都独立写事件并递增任务版本。
+状态为QUEUED→RUNNING→SUCCEEDED/FAILED；任一步失败中断后续阶段。无重试且未修改管理属性的成功任务恰6个事件/version6，图片先原子落盘，再提交成功状态。
 延迟/文件IO不持有数据库行锁；阶段状态与事件处于同一短事务；GET只读且终态不会回退。
-日光肖像与周末拼贴的模拟产物仍为模板自制PNG的独立私有副本；007起旅行明信片使用上传图片做真实Java2D合成，不调用AI。
+008起日光肖像、旅行明信片、周末拼贴均使用本人上传原图做真实Java2D合成，不调用AI；旧历史结果保持原样。
 
 页面按模板数量上传并提交，初次展示瞬时受理快照，可能等待、处理中或已结束。受理后自动跟踪各任务，可继续准备下一项；离开页面后Java继续制作，进入“制作记录”恢复历史并继续跟踪。刷新保留访客身份。
 
@@ -172,19 +173,19 @@ Java使用单工作线程与容量16的有界FIFO队列；提交先事务提交�
 省略simulation或failStage为null演示成功；failStage分别设ASSET_CHECK/GENERATE/FINALIZE可重复演示三种失败。耗时允许部分覆盖，每值必须是0～10000整数；省略阶段默认2000，null值/越界422，未知字段/阶段/字符串/小数/数字枚举400，无任务写入。
 连续提交不同配置验证隔离：一项指定失败、一项成功，单线程依次执行，阶段记录与结果各自保存。快速验证将三个耗时均设0，慢速观察可设10000。
 
-服务启动将上次遗留QUEUED/RUNNING标FAILED/PROCESS_INTERRUPTED并保存INTERRUPTED事件，保留原阶段；关停也执行中断对账，不自动续跑。成功/失败终态与成功文件保留。
+008起启动会恢复上次遗留任务：RUNNING回到QUEUED并写INTERRUPTED事件，原QUEUED保留，从第一阶段重新执行；已到三次上限则结束失败。成功/失败/取消终态与成功文件保留，关停不把等待任务改成失败。
 真实强杀恢复验证入口如下，仅用于本项目本地演示，保留卷；脚本把临时核对身份存在前端容器/tmp，不打印token：
 
 ```sh
-docker compose exec -T -e VERIFY_MODE=restart-prepare frontend node --input-type=module < scripts/verify-004.mjs
+docker compose exec -T -e VERIFY_MODE=restart-prepare frontend node --input-type=module < scripts/verify-008.mjs
 docker compose kill -s SIGKILL backend
 docker compose up -d --wait backend
-docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=module < scripts/verify-004.mjs
+docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=module < scripts/verify-008.mjs
 ```
 
 仅支持单后端进程，不允许多副本共用队列/启动对账逻辑。进程被强杀可能留下未登记结果/临时文件；孤儿文件自动清理不在范围，演示重置卷时统一清理。
-数据库不可写时可能无法保存最新失败，恢复服务重启后对账；没有自动重试、断点续跑、真实AI、支付或复杂模板后台；007新增受理幂等及用户主动重试。
-原题业务闭环已按002～005完成，具体实现与运行证据见验收对照；上述可选扩展不在当前范围。
+数据库完全不可写时可能无法保存重试状态，恢复服务后重启对账；008新增持久恢复与有限自动重试。仍不支持阶段断点续跑、真实AI、支付或复杂模板后台。
+原题业务闭环已按002～005完成，具体实现与运行证据见验收对照；后续用户授权扩展以007/008规格为准。
 后端运行镜像暂复用固定Maven/Java镜像以简化演示，体积可在后续优化。
 
 ## 005个人记录与自动跟踪
@@ -231,7 +232,7 @@ docker compose exec -T frontend node --input-type=module < scripts/measure-admis
 
 可选parameters仅用于demo-postcard，省略时采用默认标题“旅途来信”、奶油/横版/居中不放大。提供时必须包含title/palette/format/crops；crops恰2项，每项x/y为0～1、zoom为1～3的有限数字。前后端采用cover×zoom及剩余空间位置的相同裁剪规则。详细示例见契约。
 
-幂等操作以(owner_id,request_key)为数据库唯一键，在同一短事务保存任务/配方/操作/素材关联，并序列化同身份受理；文件渲染不持有该锁。重复操作不重新调度，已受理但进程中断仍按原中断策略标失败，不自动重新执行。
+幂等操作以(owner_id,request_key)为数据库唯一键，在同一短事务保存任务/配方/操作/素材关联，并序列化同身份受理；文件渲染不持有该锁。重复操作不重新调度，008起已受理任务中断会在三次执行上限内恢复，终态任务不再重新执行。
 
 前端在未确认提交时锁定输入，允许重试同一载荷。浏览器禁止sessionStorage时，当前页面仍可安全重试，但刷新不能恢复该标识；页面会提示保留当前页。匿名身份丢失仍无找回入口。未确认操作中的素材ID/参数仅存当前浏览器会话，不含cookie令牌。
 
@@ -244,6 +245,41 @@ docker compose exec -T frontend node --input-type=module < scripts/verify-007.mj
 本地测试为44项Java与78项前端测试，配套lint/typecheck/build通过；浏览器验证双图上传/参数编辑/真实结果/下载/再次制作和375px布局。截图：[真实结果与执行详情](docs/007-result.jpg)、[桌面编辑器](docs/007-editor-desktop.jpg)、[小屏编辑器](docs/007-editor-mobile.jpg)。
 
 字体来源：Ubuntu官方软件包fonts-wqy-zenhei（文泉驿正黑）；安装在backend Dockerfile的tools基础层，测试与运行共用字体环境。首次构建需访问Ubuntu软件源；未增加应用服务或真实AI依赖。
+
+
+## 008 持续创作与可靠任务
+
+本轮七项全部实现，详见[规格](specs/008-creative-workflow/spec.md)、[契约](specs/008-creative-workflow/contracts/http-api.md)与[任务](specs/008-creative-workflow/tasks.md)。
+
+| 功能 | 操作与行为 |
+| --- | --- |
+| 编辑后再次制作 | 在历史卡片点击“编辑此作品”，恢复本人原素材顺序、标题、裁剪、配色和比例；修改后提交关联的新任务，原记录保留 |
+| 全模板真实合成 | 肖像1000×1200、明信片1200×800或1000×1000、拼贴1200×900；输出实际使用上传图片，拼贴保持三图顺序 |
+| 素材库 | 每个上传位点击“从素材库选择”，分页预览/复用本人已上传图片；其他位置已使用的素材不可重复选择 |
+| 自动草稿 | 当前浏览器localStorage按本人/模板/编辑来源保存素材ID和参数；刷新恢复，可清空；上传中的本地File不保存，存储错误明确提示 |
+| 历史管理 | 按名称或模板名、模板、状态、起止日期、收藏、隐藏筛选；展开“管理作品”重命名、收藏、隐藏，隐藏列表可恢复 |
+| 取消/排队 | 等待任务显示前方任务约数；等待/运行任务可取消，重复取消安全，阶段边界停止；数据库FAILED/JOB_CANCELLED在界面显示“已取消” |
+| 恢复/有限重试 | 同一任务编号从第一阶段重做，最多三次执行；暂时IO/可恢复数据库错误按1秒/2秒间隔重试，记录次数、计划时间与恢复事件 |
+
+指定模拟失败、素材失效、用户取消不会自动重试。执行次数包含初次执行与重启后的执行，不是额外重试三次。未完成任务持久保存在MySQL，后台每250ms补入单工作线程的有界队列；重启积压超过内存队列容量也会继续补入。只支持单后端实例。绘图/文件操作可能在取消后完成当前不可分割步骤，但取消先提交时不会再发布成功状态。
+
+GET /api/assets新增本人分页；POST /api/jobs新增可选sourceJobId；GET /api/jobs新增全历史筛选；PATCH /api/jobs/{id}/library管理显示名/收藏/隐藏；POST /api/jobs/{id}/cancel取消。任务快照补充displayName/favorite/hidden/queueAhead/attempt/nextAttemptAt。完整字段边界见契约。
+
+```sh
+# 实际Next→Java→MySQL/素材卷链路，生成并保留演示记录，结束撤销脚本身份
+docker compose exec -T frontend node --input-type=module < scripts/verify-008.mjs
+# 创建专用慢任务后真实强杀恢复；同编号成功、排队任务保留
+docker compose exec -T -e VERIFY_MODE=restart-prepare frontend node --input-type=module < scripts/verify-008.mjs
+docker compose kill -s SIGKILL backend
+docker compose up -d --wait backend
+docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=module < scripts/verify-008.mjs
+```
+
+本地最终53项Java测试/打包、87项前端测试/lint/typecheck/生产构建通过。53项含容量1下恢复六项持久积压且各执行一次、临时IO恢复/耗尽、领取前数据库错误上限。实际强杀后原编号在第2次执行成功，等待项第1次成功。浏览器验证素材复用、编辑、刷新草稿、作品管理/搜索/隐藏恢复、取消和375px两页无横向溢出。
+
+本轮默认前端测试入口的全新npm ci遇到官方源下载长时间等待而中止，最终通过锁文件一致的Docker依赖层构建检查镜像，挂载当前src在容器内执行同样的lint/typecheck/test/build；生产镜像构建通过。首次Maven下载TLS中断后复用已验证容器依赖缓存；Dockerfile使用BuildKit缓存，未关闭TLS或修改依赖版本。详情见工作日志，不将网络失败记作业务测试失败。
+
+截图：[桌面历史工作台](docs/008-history-desktop.jpg)、[桌面编辑与草稿](docs/008-editor-desktop.jpg)、[375px历史页](docs/008-history-mobile.jpg)、[375px编辑页](docs/008-editor-mobile.jpg)。
 
 ## 部署、回滚、投入与来源
 

@@ -1,6 +1,6 @@
 # 原题R-01～R-14验收对照
 
-依据[原题](requirements-source.md)，001为总体基线，002～006为独立交付。实现与实际运行分别记录，最终结果及具体边界见工作日志。
+依据[原题](requirements-source.md)，001为总体基线，002～008为独立交付。实现与实际运行分别记录，最终结果及具体边界见工作日志。
 
 | 原题 | 实现证据 | 自动检查 | 运行证据及范围 |
 | --- | --- | --- | --- |
@@ -15,13 +15,13 @@
 | R-09 刷新/结果历史 | /history、HistoryService keyset分页、/jobs/active补老页任务 | HistoryApiTest55条同时间/插入稳定性；history.test.ts空态/分页失败/恢复 | verify-005覆盖24条真实记录/分页；浏览器刷新恢复与私有PNG；006原末页新增25条及旧游标替换回归通过、失败保留游标 |
 | R-10 身份 | HttpOnly cookie/hash、owner校验、SessionGate切换、storage事件 | SessionApiTest、Asset/Job归属、session.test.ts跨标签清理 | 无痕/新身份隔离；撤销旧token401，新cookie空记录 |
 | R-11 可用性 | 蓝白作品台账、语义控件、创建时间/阶段/原因/预览、移动单列 | 组件Testing Library语义断言、lint/typecheck | 002～005桌面/375px、002键盘焦点证据；无原题附件截图 |
-| R-12 CI与测试 | .github/workflows/ci.yml push/PR容器任务 | 本地44个Java测试、78个前端测试及构建（007后） | 本地容器检查已执行；未创建远端，远端CI未运行 |
+| R-12 CI与测试 | .github/workflows/ci.yml push/PR容器任务 | 本地53个Java测试、87个前端测试及构建（008后） | 本地容器检查已执行；未创建远端，远端CI未运行 |
 | R-13 源码与说明 | 本地独立Git目录、锁文件/SQL/CI/README/工作日志、阶段提交 | 文档链接/任务/原题副本一致性检查 | 本地目录交付，最终验收commit由最后提交记录确认；无外部发送 |
 | R-14 容器 | compose.yaml、Dockerfiles、.env.example、卷/健康检查 | 同CI容器入口；镜像构建不代替测试 | docker compose up --build -d；004SIGKILL恢复；回滚步骤见README |
 
 ## 已知边界
 
-- 单后端实例、内存有界队列；重启将未完成任务标中断，不续跑。007已实现提交幂等、用户主动失败重试及明信片真实合成；无自动重试、真实AI或断点续跑。
+- 单后端实例、持久排队与内存有界队列；008会从第一阶段恢复未完成任务并有限自动重试，最多三次执行。全部三模板真实合成；无真实AI或阶段断点续跑。
 - 跨标签身份通知依赖localStorage；存储禁用时其他标签页需手动刷新。通知不存token；切换本页仍立即清理。
 - 无账号/身份找回；切换或清除cookie后无法恢复旧访客；资源保留但归属隔离。
 - 孤儿文件不自动清理；需要演示重置数据卷时统一清理。没有真实TLS、公网部署或远端CI验证。
@@ -42,3 +42,19 @@
 | 小屏与工程交付 | Docker默认前端入口78项测试及lint/typecheck/生产构建；后端mvn verify44项/打包 | 1366×900桌面、375×812编辑/历史页无横向溢出、滑块Home/ArrowRight可操作 |
 
 截图：[真实结果与执行详情](007-result.jpg)、[桌面编辑器](007-editor-desktop.jpg)、[375px编辑器](007-editor-mobile.jpg)。运行脚本 `scripts/verify-007.mjs` 撤销自己的临时测试身份，不泄漏令牌；演示文件/记录保留。浏览器丢响应/故障注入未执行，分别由组件/接口测试覆盖；远端CI/TLS/公网部署仍未验证。
+
+## 008 七项拓展验收
+
+| 用户功能 | 测试证据 | 实际链路/浏览器证据 |
+| --- | --- | --- |
+| 编辑后再次制作 | WorkflowApiTest来源归属/模板/原配方不变；workflow-editor恢复和新提交参数 | 浏览器从原任务da542ff0进入编辑，生成新任务6a3172ef，原记录保留 |
+| 全模板真实合成 | WorkflowApiTest原图像素及拼贴顺序、CreationApiTest裁剪与文字像素 | verify-008下载三模板PNG并检查各自尺寸 |
+| 素材库 | AssetLibraryTest本人分页/非法游标/未登录；library.test选择不上传 | 浏览器选用既有618d2a92素材替换第1槽 |
+| 草稿 | workflow-editor跨remount恢复、清空失败不丢输入，draft-storage校验格式 | 修改标题/配色/裁剪后刷新仍保留，受理后提示草稿已清空 |
+| 历史管理 | WorkLibraryTest重命名/收藏/隐藏恢复/日期与搜索；work-library包含重命名后模板搜索；work-route直接验证Next PATCH导出 | 浏览器收藏/重命名“持续创作验收作品”、搜索、隐藏后消失、隐藏列表恢复、模板搜索可找到 |
+| 取消/排队 | CancellationTest归属、幂等、取消后complete/start拒绝；actions.test取消 | 实际脚本排队/运行取消、他人404；浏览器354fc102显示已取消且无下载 |
+| 恢复/自动重试 | RecoveryTest暂时IO恢复/三次耗尽/确定性失败不重试/领取前数据库错误上限；PersistedBacklog容量1排六任务均一次成功；Lifecycle启动/退出/队列边界 | 真实SIGKILL后66d5b18d同编号第2次成功、原等待项acd29021第1次成功并保留恢复事件 |
+
+最终：53项Java测试与mvn verify通过；87项前端测试、lint/typecheck/build通过（缓存依赖镜像、当前src只读挂载）；正常生产Docker镜像构建成功。全新npm ci下载长等待、Maven首次TLS故障单独记录，不算业务RED或检查通过。无远端CI/TLS/公网部署验证。
+
+桌面1366×900、375×812编辑/历史页验证，375px下scrollWidth=innerWidth=375。截图：[历史工作台](008-history-desktop.jpg)、[编辑草稿](008-editor-desktop.jpg)、[小屏历史](008-history-mobile.jpg)、[小屏编辑](008-editor-mobile.jpg)。

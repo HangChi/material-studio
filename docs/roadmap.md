@@ -13,7 +13,9 @@
 | [006-mvp-hardening](../specs/006-mvp-hardening/spec.md) | 刷新游标、图片错误与重试、十次受理测量 | R-04/07/09/11；001 SC-002/005复查收尾 | 005 | 已完成本地验收；9/9任务 |
 | [007-creation-workbench](../specs/007-creation-workbench/spec.md) | 提交幂等、安全重试、下载/再次制作、执行详情、参数化真实明信片 | 用户明确新增的全部两段建议 | 006 | 已完成本地验收；16/16任务 |
 
-007为原题MVP之后的用户授权拓展；不修改原题。真实合成先覆盖明信片，其他模板保留原模拟；仍为单实例匿名身份。新增V4配方与幂等表，旧记录兼容，具体验证见[验收对照](acceptance.md)。
+| [008-creative-workflow](../specs/008-creative-workflow/spec.md) | 编辑、全模板合成、素材库、草稿、历史管理、取消/排队、恢复/有限重试 | 用户授权七项拓展 | 007 | 已完成本地验收；15/15任务 |
+
+007为原题MVP之后的用户授权拓展；不修改原题。007时真实合成先覆盖明信片；008扩展至全部三模板。仍为单实例匿名身份。新增V4配方与幂等表，旧记录兼容，具体验证见[验收对照](acceptance.md)。
 
 006在005交付后修复复查发现的问题，并完成001 SC-002数值验收，见[逐次测量](admission-measurements.md)。
 
@@ -28,7 +30,7 @@ Spec Kit 0.16.4 的 `.specify/feature.json` 为忽略的机器本地指针，不
 克隆/切换 feature 后显式运行（将路径替换为目标 feature）：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/007-creation-workbench .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/008-creative-workflow .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 脚本将持久化本机 feature 指针。禁止把新功能继续加到 001 的执行清单。

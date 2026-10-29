@@ -13,9 +13,9 @@
 - [x] T009 [US5] History/WorkControls全历史筛选、管理/恢复与过期响应测试RED/GREEN
 - [x] T010 [US6] 取消/终态竞争测试RED、PipelineState/Controller取消/队列快照实现GREEN
 - [x] T011 [US6] JobActions/JobCards取消与排队文案测试RED/GREEN
-- [ ] T012 [US7] 恢复/有限重试/耗尽测试RED、ExecutionMapper/Worker/Dispatcher实现GREEN
-- [ ] T013 [US7] JobCards执行次数/下次重试提示及跟踪测试RED/GREEN
-- [ ] T014 完整容器回归与scripts/verify-008.mjs实际链路/重启验证
-- [ ] T015 更新README.md、docs/roadmap.md、acceptance.md、work-log.md与浏览器证据
+- [x] T012 [US7] 恢复/有限重试/耗尽测试RED、ExecutionMapper/Worker/Dispatcher实现GREEN
+- [x] T013 [US7] JobCards执行次数/下次重试提示及跟踪测试RED/GREEN
+- [x] T014 完整容器回归与scripts/verify-008.mjs实际链路/重启验证
+- [x] T015 更新README.md、docs/roadmap.md、acceptance.md、work-log.md与浏览器证据
 
 依赖：T001→US1→US2→US3→US4→US5→US6→US7→全量验收。无并行任务。

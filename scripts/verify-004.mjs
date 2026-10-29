@@ -1,4 +1,6 @@
 // Run in frontend container; does not drive the worker through queries.
+// Historical restart-* branches assert the pre-008 interruption policy.
+// For current recovery acceptance use scripts/verify-008.mjs restart-prepare/restart-check.
 import assert from 'node:assert/strict';
 import { writeFile, readFile } from 'node:fs/promises';
 const base='http://127.0.0.1:3000';
