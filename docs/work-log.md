@@ -262,3 +262,11 @@ TDD：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-
 运行：`docker compose up -d --build --no-deps frontend` 成功重建并启动本地3000。浏览器实际查看1280×900和375×812模板库、明信片制作台、制作记录；三页documentElement.scrollWidth均等于对应innerWidth。实际素材库选择两张已有图片、禁用重复素材、标题即时预览、草稿提示、任务执行详情展开/收起可操作。未提交新的制作任务。已有匿名演示数据仍可见。视口临时覆盖已恢复。
 
 证据：docs/009-catalog-desktop.png、009-catalog-mobile.png、009-editor-desktop.png、009-editor-mobile.png、009-history-desktop.png、009-history-mobile.png。后端代码无变化，本轮未重跑Java检查；远端CI未执行。投入为本轮实际修改、容器回归和浏览器验收，不虚构人工小时。
+
+### 009 截图反馈 · 上传制作区精修
+
+用户继续指出上传区排版疏松。本轮保持009视觉方向，先补规格/计划/T008～010，再重排纯视觉结构：单图左侧220px选择/预览、右侧说明和操作；多图统一卡片；本地file input视觉隐藏但仍可键盘聚焦，关联label显示入口/更换图片；保留图片N可访问标签、校验、替换、素材库及原有禁用语义。底部状态/草稿与清空、任务核对、提交收束为一条操作带；375px纵向排列。
+
+无新增业务行为，不强造RED。容器命令 `docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'` 全部通过：19个文件90项测试，覆盖文件校验、替换迟到响应、素材复用、草稿、提交核对和轮询隔离。`docker compose up -d --build --no-deps frontend` 生产重建启动成功。
+
+浏览器1280px验证单图空态/已选预览、素材库选取及提交可用，三图统一卡片；375px查看单图、双图和三图，三页scrollWidth均为375，无横向溢出。桌面单图上传panel高约465px，草稿与提交已合并；没有新建制作任务。证据：009-upload-refined-desktop.png（单图空态局部）、009-upload-refined-mobile.png（已有素材手机全页）、009-upload-multiple-desktop.png（三图桌面全页）。临时视口覆盖已恢复。纯前端变更，未重跑Java与远端CI。

@@ -7,3 +7,8 @@
 - [x] T005 历史筛选、身份、任务、结果、管理、事件及状态统一。
 - [x] T006 容器lint/typecheck/test/build、生产运行、桌面和375px验收。
 - [x] T007 README/roadmap/work-log与提交。
+
+### 截图反馈精修
+- [x] T008 重排UploadSlots单图/多图、空态/预览/素材库。
+- [x] T009 收束SubmissionForm草稿与提交操作，优化窄屏。
+- [x] T010 容器全量前端检查、桌面单/多图与375px视觉验收、记录与提交。

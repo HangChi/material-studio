@@ -302,3 +302,5 @@ UI参考frontend-design/ui-ux-pro-max技能并按图片样张用途调整；业�
 容器内 lint/typecheck、90项前端测试和生产构建通过，生产前端已在本地3000重建运行。浏览器检查1280px与375px的三个主要页面，均无页面横向溢出；素材复用、实时构图、草稿提示及事件详情操作通过。本轮没有后端变更，未重跑Java或远端CI。
 
 截图：[模板库](docs/009-catalog-desktop.png)、[制作台](docs/009-editor-desktop.png)、[制作记录](docs/009-history-desktop.png)、[手机模板库](docs/009-catalog-mobile.png)、[手机制作台](docs/009-editor-mobile.png)、[手机记录](docs/009-history-mobile.png)。规格与证据见[009](specs/009-studio-identity/spec.md)和[工作日志](docs/work-log.md)。
+
+009截图反馈已进一步精修上传区：单图改为选图预览与说明双栏，多图统一卡片；本地选择/更换图片入口收进预览区，草稿、任务核对、提交收束到同一操作带。容器90项测试、lint、typecheck与生产构建再次通过，本地已更新；375px单/双/三图模板均无横向溢出。[优化后的上传区](docs/009-upload-refined-desktop.png)、[手机](docs/009-upload-refined-mobile.png)、[多图](docs/009-upload-multiple-desktop.png)。

@@ -12,3 +12,6 @@ Logo：两张交错照片与裁切边角，不使用闪光、机器人或渐变�
 frontend/src/components/{BrandMark,StudioIcon,SiteNav}.tsx；app/globals.css、layout.tsx、icon.svg；现有features与history页面。
 ## Complexity Tracking
 无新增业务、存储、依赖或外部资源。仅导航选中语义是新增UI行为。
+
+## 上传区精修方案
+复用原生file input，采用视觉隐藏但可键盘聚焦的实现，关联可见label作为本地选择/预览区域；保留图片N的可访问名称。单图横向素材行，多图纵向卡片，共享空态/已有素材结构。素材库放在卡片下方的独立整行区域。底部统一状态、清空、任务核对、提交，各自语义与禁用条件不变。以既有上传/草稿/提交回归验证，无新业务行为，不强造RED。

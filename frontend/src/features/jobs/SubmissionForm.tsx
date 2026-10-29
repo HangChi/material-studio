@@ -102,20 +102,20 @@ function SubmissionBody({template,owner,sourceJobId}:{template:Template;owner:st
  if(sourceState==="loading")return <p role="status">正在恢复原作品…</p>;
  if(sourceState==="error")return <div><p role="alert">无法恢复原作品，请检查访问权限后重试。</p><button onClick={()=>{setSourceState("loading");setSourceAttempt(value=>value+1);}}>重新读取原作品</button></div>;
  return <section className="submission-panel" aria-labelledby={heading}>
-  <div className="module-heading"><span className="module-icon"><StudioIcon name="upload" /></span><div><p className="eyebrow">开始制作</p><h2 id={heading}>上传素材</h2></div><span className="module-note">原片，是作品的起点</span></div><p className="form-help">准备 {template.requiredImageCount} 张图片，支持JPEG、PNG，每张最多5 MiB、2000万像素。</p>
+  <div className="module-heading"><span className="module-icon"><StudioIcon name="upload" /></span><div><p className="eyebrow">开始制作</p><h2 id={heading}>上传素材</h2></div><span className="module-note">{template.requiredImageCount} 张照片 · {template.title}</span></div><p className="form-help upload-requirements">准备 {template.requiredImageCount} 张图片<span>JPEG / PNG</span><span>每张 ≤ 5 MiB</span><span>≤ 2000 万像素</span></p>
   <form onSubmit={event=>{event.preventDefault();void submit();}}>
    {sourceJobId&&<p className="form-help">正在编辑原作品；提交会创建新版本并保留原记录。</p>}
    <UploadSlots initialIds={assets} key={resetKey} template={template} onChange={ids=>{setDraftEnabled(true);setAssets(ids);}} disabled={mode==="submitting"||mode==="unknown"}/>
    {template.id==="demo-postcard"&&<PostcardEditor value={parameters} onChange={value=>{setDraftEnabled(true);setParameters(value);}} assets={assets} disabled={mode==="submitting"||mode==="unknown"}/>}
-   <div className="draft-bar">{draftMessage&&<p role="status">{draftMessage}</p>}<button type="button" disabled={mode==="submitting"||mode==="unknown"} onClick={discardDraft}>清空草稿</button></div>
    {storageWarning&&<p role="status">{storageWarning}</p>}
    {mode==="unknown"&&pending&&<button type="button" onClick={()=>void submit(true)}>安全重试本次提交</button>}
    {error&&<p role="alert">{error}</p>}
-   <button className="primary submit-button" type="submit" disabled={!ready||mode==="submitting"||mode==="unknown"}>{mode==="submitting"?"提交中…":"提交制作"}</button>
+   <div className="submission-footer">
+    <div className="submission-state"><p className={`readiness ${ready ? "is-ready" : ""}`}><span aria-hidden="true" />{ready ? "素材已准备好，可以开始制作" : `已准备 ${assets.filter(Boolean).length} / ${template.requiredImageCount} 张图片`}</p>{draftMessage&&<p className="draft-message" role="status">{draftMessage}</p>}</div>
+    <div className="submission-actions"><button className="quiet-button" type="button" disabled={mode==="submitting"||mode==="unknown"} onClick={discardDraft}>清空草稿</button><button className="quiet-button" type="button" disabled={mode==="submitting"||checking} onClick={()=>void reconcile()}>{checking?"正在核对…":"查看已受理任务"}</button><button className="primary submit-button" type="submit" disabled={!ready||mode==="submitting"||mode==="unknown"}>{mode==="submitting"?"提交中…":"提交制作"}<StudioIcon name="arrow" /></button></div>
+   </div>
+   {mode==="unknown"&&reviewed&&<div className="reconcile-actions"><button type="button" onClick={confirmReview}>已核对，继续准备</button></div>}
   </form>
-  <div className="reconcile-actions"><button type="button" disabled={mode==="submitting"||checking} onClick={()=>void reconcile()}>{checking?"正在核对…":"查看已受理任务"}</button>
-   {mode==="unknown"&&reviewed&&<button type="button" onClick={confirmReview}>已核对，继续准备</button>}
-  </div>
   {queryError&&<p role="alert">{queryError}</p>}
   {loaded&&jobs.length===0&&<p>当前访客暂时没有已受理任务。</p>}
   {jobs.length>0&&<section aria-label="已受理任务" className="job-receipts"><h3>已受理任务</h3><JobCards onAccepted={job=>tracker.seed([job])} onExpire={()=>tracker.expire()} jobs={jobs} errors={snapshot.errors} onRetry={id=>tracker.retry(id)} headingLevel={4}/></section>}

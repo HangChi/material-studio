@@ -66,21 +66,29 @@ export function UploadSlots({ template, onChange, disabled = false,initialIds=[]
       if (current()) update(index, { status: "error", file, preview, message: `上传失败：${error instanceof Error ? error.message : "请重试"}` });
     }
   }
-  return <div className="upload-grid">
+  return <div className={`upload-grid ${slots.length === 1 ? "upload-single" : "upload-multiple"}`}>
     {slots.map((slot, index) => <fieldset className={`upload-slot slot-${slot.status}`} key={index} disabled={disabled}>
-      <label htmlFor={`${name}-${index}`}><span className="slot-index" aria-hidden="true" data-index={String(index + 1).padStart(2, "0")} />图片 {index + 1}<StudioIcon name="upload" /></label>
-      <input id={`${name}-${index}`} type="file" accept={template.acceptedMimeTypes.join(",")} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void start(index, file); }} />
-      <button type="button" aria-label={`从素材库选择图片 ${index+1}`} onClick={()=>setPicking(index)}>从素材库选择</button>
-      {picking===index&&<AssetPicker excluded={slots.filter((_,i)=>i!==index).flatMap(item=>item.assetId?[item.assetId]:[])} onClose={()=>setPicking(null)} onSelect={id=>{clear(index);update(index,{status:"ready",assetId:id,preview:`/api/assets/${encodeURIComponent(id)}/content`});setPicking(null);}}/>}
-      {slot.preview && <Image className="upload-preview" src={slot.preview} alt={`图片 ${index + 1} 预览`} width={240} height={160} unoptimized />}
-      {slot.status === "validating" && <p role="status">图片 {index + 1} 校验中</p>}
-      {slot.status === "uploading" && <p role="status">图片 {index + 1} 上传中</p>}
-      {slot.status === "ready" && <p className="upload-success">图片 {index + 1} 已上传</p>}
-      {slot.status === "error" && <p role="alert">{slot.message}</p>}
-      <div className="slot-actions">
-        {slot.status === "error" && slot.file && <button type="button" onClick={() => void start(index, slot.file!)}>重试图片 {index + 1}</button>}
-        {slot.status !== "empty" && <button type="button" onClick={() => clear(index)}>移除图片 {index + 1}</button>}
+      <div className="slot-body">
+        <div className="slot-media">
+          <input className="file-input" aria-label={`图片 ${index + 1}`} id={`${name}-${index}`} type="file" accept={template.acceptedMimeTypes.join(",")} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void start(index, file); }} />
+          <label className={`file-target ${slot.preview ? "has-photo" : ""}`} htmlFor={`${name}-${index}`}>
+            {slot.preview ? <><Image className="upload-preview" src={slot.preview} alt={`图片 ${index + 1} 预览`} width={360} height={240} unoptimized /><span className="replace-photo"><StudioIcon name="upload" />更换图片</span></> : <><span className="file-target-icon"><StudioIcon name="upload" /></span><strong>选择本地图片</strong><span>JPEG / PNG</span></>}
+          </label>
+        </div>
+        <div className="slot-content">
+          <div className="slot-heading"><span className="slot-index" aria-hidden="true" data-index={String(index + 1).padStart(2, "0")} /><strong>图片 {index + 1}</strong><span className={`slot-badge ${slot.status === "ready" ? "is-ready" : ""}`}>{slot.status === "ready" ? "已就绪" : slot.status === "error" ? "需重新选择" : slot.status === "uploading" || slot.status === "validating" ? "处理中" : "待添加"}</span></div>
+          <p className="slot-description">{slot.file ? slot.file.name : slot.assetId ? "已从素材库选取，可更换为其他照片。" : "选一张喜欢的照片，也可以复用素材库中的图片。"}</p>
+          <div className="slot-actions"><button type="button" className="library-select" aria-label={`从素材库选择图片 ${index+1}`} onClick={()=>setPicking(index)}><StudioIcon name="library" />从素材库选择</button>
+            {slot.status === "error" && slot.file && <button type="button" onClick={() => void start(index, slot.file!)}>重试图片 {index + 1}</button>}
+            {slot.status !== "empty" && <button type="button" className="remove-photo" onClick={() => clear(index)}>移除图片 {index + 1}</button>}
+          </div>
+          {slot.status === "validating" && <p className="slot-feedback" role="status">图片 {index + 1} 校验中</p>}
+          {slot.status === "uploading" && <p className="slot-feedback" role="status">图片 {index + 1} 上传中</p>}
+          {slot.status === "ready" && <p className="upload-success">图片 {index + 1} 已上传</p>}
+          {slot.status === "error" && <p className="slot-feedback" role="alert">{slot.message}</p>}
+        </div>
       </div>
+      {picking===index&&<AssetPicker excluded={slots.filter((_,i)=>i!==index).flatMap(item=>item.assetId?[item.assetId]:[])} onClose={()=>setPicking(null)} onSelect={id=>{clear(index);update(index,{status:"ready",assetId:id,preview:`/api/assets/${encodeURIComponent(id)}/content`});setPicking(null);}}/>}
     </fieldset>)}
   </div>;
 }
