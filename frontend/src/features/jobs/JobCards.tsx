@@ -6,11 +6,12 @@ import { JobActions } from "./JobActions";
 import { ResultPreview } from "./ResultPreview";
 import type { Job } from "./types";
 import { unfinished } from "./JobTracker";
-export function JobCards({jobs,errors,onRetry,headingLevel=3,onAccepted=()=>{},onExpire=()=>{}}:{jobs:Job[];errors:Record<string,string>;onRetry:(id:string)=>void;headingLevel?:3|4;onAccepted?:(job:Job)=>void;onExpire?:()=>void}){
+export function JobCards({jobs,errors,onRetry,headingLevel=3,onAccepted=()=>{},onExpire=()=>{},selected,onSelect}:{jobs:Job[];errors:Record<string,string>;onRetry:(id:string)=>void;headingLevel?:3|4;onAccepted?:(job:Job)=>void;onExpire?:()=>void;selected?:string[];onSelect?:(id:string)=>void}){
  const Heading=headingLevel===4?"h4":"h3";
  return <div className="history-cards">{jobs.map(job=><article className={`job-receipt record-${job.status.toLowerCase()} ${job.status==="SUCCEEDED"?"has-result":""}`} key={job.id}>
   <div className="job-visual">{job.status==="SUCCEEDED"&&job.resultUrl===`/api/jobs/${job.id}/result`?<ResultPreview key={job.resultUrl} url={job.resultUrl} title={job.templateTitle}/>:<div className="job-placeholder" aria-hidden="true"><StudioIcon name="history" /></div>}</div>
   <div className="job-copy">
+   {onSelect&&<label className="work-selection"><input type="checkbox" aria-label={`选择作品 ${job.id}`} checked={selected?.includes(job.id)??false} onChange={()=>onSelect(job.id)}/>选择作品</label>}
    <div className="job-heading"><Heading>{job.displayName??job.templateTitle}{job.favorite?<span className="favorite-label"> · 已收藏</span>:null}</Heading><p className={`job-status status-${job.status.toLowerCase()}`} aria-live="polite">{job.errorCode==="JOB_CANCELLED"?"已取消":({QUEUED:"等待处理",RUNNING:"处理中",SUCCEEDED:"制作成功",FAILED:"制作失败"})[job.status]}</p></div>
    <div className="job-meta"><p className="receipt-time"><time dateTime={job.createdAt}>{new Date(job.createdAt).toLocaleString("zh-CN")}</time></p>
     {job.stage&&<p>当前阶段：{({ASSET_CHECK:"素材检查",GENERATE:"图片合成",FINALIZE:"结果整理"})[job.stage as "ASSET_CHECK"|"GENERATE"|"FINALIZE"]??job.stage}</p>}

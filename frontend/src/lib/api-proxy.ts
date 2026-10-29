@@ -8,6 +8,8 @@ function methodsFor(path: string[]): string[] | null {
   if (joined === "batches") return ["GET", "POST"];
   if (/^batches\/[a-zA-Z0-9_-]+$/.test(joined)) return ["GET"];
   if (/^batches\/[a-zA-Z0-9_-]+\/cancel$/.test(joined)) return ["POST"];
+  if (/^works\/(bulk|archive)$/.test(joined)) return ["POST"];
+  if (/^jobs\/[a-zA-Z0-9_-]+\/tags$/.test(joined)) return ["GET"];
   if (joined === "jobs") return ["GET", "POST"];
   if (/^jobs\/[a-zA-Z0-9_-]+\/library$/.test(joined)) return ["PATCH"];
   if (/^jobs\/[a-zA-Z0-9_-]+\/(recreate|cancel)$/.test(joined)) return ["POST"];

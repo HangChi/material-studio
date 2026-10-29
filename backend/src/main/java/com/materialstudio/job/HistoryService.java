@@ -9,7 +9,7 @@ public class HistoryService {
  private final JobMapper jobs;private final LibraryMapper library;private final EventMapper events;private final org.springframework.transaction.support.TransactionTemplate transaction;
  public HistoryService(JobMapper jobs,LibraryMapper library,EventMapper events,org.springframework.transaction.PlatformTransactionManager manager){this.jobs=jobs;this.library=library;this.events=events;this.transaction=new org.springframework.transaction.support.TransactionTemplate(manager);}
  public record Page(List<JobView> items,String nextCursor){}
- public record Filter(String q,String templateId,String status,java.time.Instant from,java.time.Instant to,Boolean favorite,boolean hidden){}
+ public record Filter(String q,String templateId,String status,java.time.Instant from,java.time.Instant to,Boolean favorite,boolean hidden,String tag){public Filter(String q,String templateId,String status,java.time.Instant from,java.time.Instant to,Boolean favorite,boolean hidden){this(q,templateId,status,from,to,favorite,hidden,null);}}
  public record Update(String displayName,Boolean favorite,Boolean hidden){}
  public JobView update(String owner,String id,Update value){
   if(value.displayName()==null&&value.favorite()==null&&value.hidden()==null)throw new ApiException(422,"VALIDATION_FAILED","请选择需要修改的作品属性");

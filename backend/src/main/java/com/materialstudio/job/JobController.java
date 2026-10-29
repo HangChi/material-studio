@@ -26,8 +26,8 @@ public class JobController {
     }
     @GetMapping
     public ResponseEntity<?> recent(@CookieValue(name="material_session",required=false) String token,
-            @RequestParam(defaultValue="20") int limit,@RequestParam(required=false) String cursor,@RequestParam(required=false) String q,@RequestParam(required=false) String templateId,@RequestParam(required=false) String status,@RequestParam(required=false) String from,@RequestParam(required=false) String to,@RequestParam(required=false) Boolean favorite,@RequestParam(defaultValue="false") boolean hidden) {
-        return ResponseEntity.ok().header("Cache-Control","no-store").body(history.page(sessions.require(token).id(),limit,cursor,new HistoryService.Filter(q,templateId,status,instant(from),instant(to),favorite,hidden)));
+            @RequestParam(defaultValue="20") int limit,@RequestParam(required=false) String cursor,@RequestParam(required=false) String q,@RequestParam(required=false) String templateId,@RequestParam(required=false) String status,@RequestParam(required=false) String from,@RequestParam(required=false) String to,@RequestParam(required=false) Boolean favorite,@RequestParam(defaultValue="false") boolean hidden,@RequestParam(required=false) String tag) {
+        return ResponseEntity.ok().header("Cache-Control","no-store").body(history.page(sessions.require(token).id(),limit,cursor,new HistoryService.Filter(q,templateId,status,instant(from),instant(to),favorite,hidden,tag==null?null:OrganizationService.tag(tag))));
     }
     private java.time.Instant instant(String value){try{return value==null?null:java.time.Instant.parse(value);}catch(java.time.format.DateTimeParseException e){throw new com.materialstudio.common.ApiException(400,"INVALID_REQUEST","筛选时间格式不正确");}}
     @PatchMapping("/{id}/library")

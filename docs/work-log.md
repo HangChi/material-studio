@@ -346,3 +346,5 @@ US5监控初始RED为/actuator/studio404，两项均失败；实现OperationsMap
 用户授权四项扩展，约章1.1.0明确本地账号与安全文件维护范围，规格质量6/6。US1 RED：StorageLifecycleTest4项均因/actuator/storage404失败；GREEN：新增V8审计、只识别24h前孤儿、登记/活动/近期/符号链接保护、快照确认、隔离事务补偿、7天后DELETING→PURGED审计。容器命令backend-test mvn -B -Dtest=StorageLifecycleTest test四项通过，含审计插入故障注入恢复原文件。所有文件在ApiTestSupport临时目录，未清理原卷。日志/tmp/material-011-storage-{red,green}.log。
 
 US2 RED：BatchApiTest请求404/无列表，batch UI两个行为因空组件失败。GREEN：V9批次与关联、owner/key回执、1～10子项统一事务；嵌套单项受理只在外层afterCommit调度，直接单项保留事务外调度。后端批次/受理/配额13项通过，补第二子项配额失败整批回滚/同key重用后BatchApiTest4/4。前端批次/导航5项及lint/typecheck通过；每项模板/素材独立，未确认提交持sessionStorage同key/body重试，JobTracker恢复与按项跟踪。V9首次因MySQL默认排序规则与旧外键不兼容失败，修正utf8mb4_unicode_ci，并只移除一次性test-mysql失败迁移记录；这属于迁移整合故障，不算行为RED。日志/tmp/material-011-batch-*。
+
+US3 RED：OrganizationTest三项接口404，bulk UI两项缺少选择/标签筛选而失败。GREEN：V10标签、全归属锁定后原子更新、规范化精确筛选、20项/64MiB ZIP；前端选择已加载作品最多50、批量收藏/隐藏/恢复/标签覆盖/ZIP、单作品按需标签。标签筛选用服务端匹配ID集合避免active未筛选集合混入，筛选重挂载清空选择；请求卸载取消。TagEditor使用稳定过期回调引用，防止轮询重渲染重读覆盖输入。后端全量70项及打包通过，前端99项、lint/typecheck/build通过，日志/tmp/material-011-backend-organization-all.log和front-organization-all.log。未运行原卷清理或真实账号凭据操作。

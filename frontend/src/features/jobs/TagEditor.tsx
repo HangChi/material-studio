@@ -1,0 +1,11 @@
+"use client";
+import {useEffect,useRef,useState} from "react";
+import {isJob} from "./JobTracker";
+import type {Job} from "./types";
+export function TagEditor({id,onUpdate,onExpire}:{id:string;onUpdate:(job:Job)=>void;onExpire:()=>void}){
+ const expire=useRef(onExpire);useEffect(()=>{expire.current=onExpire;},[onExpire]);
+ const [value,setValue]=useState(""),[loading,setLoading]=useState(true),[error,setError]=useState(""),[attempt,setAttempt]=useState(0);const life=useRef({active:true,controller:null as AbortController|null});
+ useEffect(()=>{let active=true;const c=new AbortController();life.current.active=true;fetch(`/api/jobs/${id}/tags`,{signal:c.signal,cache:"no-store"}).then(async r=>{const p=await r.json();if(!active)return;if(r.status===401){expire.current();return;}if(!r.ok||!Array.isArray(p.items)||!p.items.every((x:unknown)=>typeof x==="string"))throw new Error();setValue(p.items.join(", "));setLoading(false);}).catch(()=>{if(active){setLoading(false);setError("标签读取失败，可重试。");}});const state=life.current;return()=>{active=false;state.active=false;c.abort();state.controller?.abort();};},[id,attempt]);
+ async function save(){const state=life.current;if(state.controller)return;const c=new AbortController();state.controller=c;setLoading(true);setError("");try{const r=await fetch("/api/works/bulk",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ids:[id],tags:value.split(/[,，]/).map(t=>t.trim()).filter(Boolean)}),signal:c.signal});const p=await r.json();if(!state.active)return;if(r.status===401){onExpire();return;}if(!r.ok||!Array.isArray(p.items)||!isJob(p.items[0]))throw new Error(p.error?.message??"标签保存失败");onUpdate(p.items[0]);}catch(e){if(state.active)setError(e instanceof Error?e.message:"标签保存失败");}finally{state.controller=null;if(state.active)setLoading(false);}}
+ return <div className="tag-editor"><label>标签（逗号分隔）<input aria-label={`作品标签 ${id}`} value={value} disabled={loading} onChange={e=>setValue(e.target.value)}/></label><button disabled={loading} onClick={()=>void save()}>保存标签 {id}</button>{error&&<><p role="alert">{error}</p><button onClick={()=>{setLoading(true);setError("");setAttempt(n=>n+1);}}>重新读取标签 {id}</button></>}</div>;
+}

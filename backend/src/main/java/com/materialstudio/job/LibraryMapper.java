@@ -10,6 +10,7 @@ public interface LibraryMapper {
  @Update("UPDATE job SET version=version+1,updated_at=CURRENT_TIMESTAMP(6) WHERE id=#{id}") void touch(String id);
  @Select({"<script>SELECT "+JobMapper.XML_COLUMNS+" FROM job WHERE owner_id=#{owner}",
   "AND COALESCE((SELECT hidden FROM job_library WHERE job_id=job.id),FALSE)=#{filter.hidden}",
+  "<if test='filter.tag != null'> AND EXISTS(SELECT 1 FROM job_tag jt WHERE jt.job_id=job.id AND jt.tag=#{filter.tag})</if>",
   "<if test='filter.q != null'> AND (LOCATE(#{filter.q},template_title) &gt; 0 OR LOCATE(#{filter.q},COALESCE((SELECT display_name FROM job_library WHERE job_id=job.id),'')) &gt; 0)</if>",
   "<if test='filter.templateId != null'> AND template_id=#{filter.templateId}</if>",
   "<if test='filter.status != null and filter.status != &quot;CANCELLED&quot;'> AND status=#{filter.status}<if test='filter.status == &quot;FAILED&quot;'> AND error_code != 'JOB_CANCELLED'</if></if>",
