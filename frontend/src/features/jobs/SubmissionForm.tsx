@@ -1,5 +1,6 @@
 "use client";
 
+import { StudioIcon } from "../../components/StudioIcon";
 import { draftKey,readDraft,saveDraft } from "./draft-storage";
 import { PostcardEditor, defaultParameters } from "./PostcardEditor";
 import { SessionGate } from "../identity/SessionGate";
@@ -101,7 +102,7 @@ function SubmissionBody({template,owner,sourceJobId}:{template:Template;owner:st
  if(sourceState==="loading")return <p role="status">正在恢复原作品…</p>;
  if(sourceState==="error")return <div><p role="alert">无法恢复原作品，请检查访问权限后重试。</p><button onClick={()=>{setSourceState("loading");setSourceAttempt(value=>value+1);}}>重新读取原作品</button></div>;
  return <section className="submission-panel" aria-labelledby={heading}>
-  <h2 id={heading}>上传素材</h2><p className="form-help">准备 {template.requiredImageCount} 张图片，支持JPEG、PNG，每张最多5 MiB、2000万像素。</p>
+  <div className="module-heading"><span className="module-icon"><StudioIcon name="upload" /></span><div><p className="eyebrow">开始制作</p><h2 id={heading}>上传素材</h2></div><span className="module-note">原片，是作品的起点</span></div><p className="form-help">准备 {template.requiredImageCount} 张图片，支持JPEG、PNG，每张最多5 MiB、2000万像素。</p>
   <form onSubmit={event=>{event.preventDefault();void submit();}}>
    {sourceJobId&&<p className="form-help">正在编辑原作品；提交会创建新版本并保留原记录。</p>}
    <UploadSlots initialIds={assets} key={resetKey} template={template} onChange={ids=>{setDraftEnabled(true);setAssets(ids);}} disabled={mode==="submitting"||mode==="unknown"}/>

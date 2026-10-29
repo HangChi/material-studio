@@ -248,3 +248,17 @@
 - 浏览器：原da542ff0作品编辑恢复原素材/参数，从素材库换第1槽为618d2a92，标题“持续创作·第二封来信”、奶油配色、x=0.01，刷新仍恢复；提交产生6a3172ef-a428-4a9d-aa60-fd2e9d50dad5并清草稿，旧作品不变。重命名“持续创作验收作品”、收藏、按名称与模板名搜索均可找到；隐藏→隐藏列表→恢复成功。再次制作后从浏览器取消354fc102-a2c7-462d-812d-3624910f3004，显示已取消，无结果下载。
 - 浏览器桌面1366×900与375×812：历史/编辑的375px scrollWidth均375；临时viewport覆盖已恢复。docs/008-editor-desktop.jpg、008-history-desktop.jpg及两张mobile图为证据。没有声称浏览器数据库故障注入；有限重试故障由真实MySQL/HTTP与Spy IO测试验证。
 - 实际工具时段为约18:42～19:01及用户继续后的约20:51～21:15（上海），包含审批/网络/构建等待与暂停，不作为精确人工工时。全部单智能体串行，不使用子智能体。
+
+## 009 · 工坊视觉与排版（2026-10-29）
+
+用户要求重点优化全部模块、设计Logo、贴合主题并减少AI味。按specify→plan→tasks→implement记录为独立009；读取约章和现行008规格/计划/契约/任务，全程单智能体，无业务API或后端修改。
+
+视觉：照片装帧工作室，石板墨/工坊青/纸白/雾灰/黄铜，小面积中文衬线标题、系统无衬线控件、等宽数据。原创SVG叠片/裁切框Logo及favicon，原创CSS叠片插图；无新依赖或外部字体/图片请求。模板库、详情、上传、素材库、构图编辑、草稿提交、身份、筛选、任务卡、结果、管理与事件统一视觉。
+
+TDD：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check npm test -- src/components/SiteNav.test.tsx`。先保留旧静态导航，3项断言因缺少aria-current=page失败（RED）；实现usePathname与当前分区语义后3项通过（GREEN）。第一次挂载误用/workspace导致找不到测试文件、随后缺少新组件导致import失败均属准备错误，不算行为RED。
+
+完整检查：`docker run --rm -v "$PWD/frontend/src:/app/src" material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test && npm run build'`。首次6项上传回归失败：标签中装饰编号污染字段文字；将编号改为aria-hidden空元素的data-index伪元素后，lint/typecheck、19个测试文件90项测试和生产构建全部通过。复用既有锁文件依赖检查镜像；生产镜像由当前完整frontend上下文构建，再次成功编译。
+
+运行：`docker compose up -d --build --no-deps frontend` 成功重建并启动本地3000。浏览器实际查看1280×900和375×812模板库、明信片制作台、制作记录；三页documentElement.scrollWidth均等于对应innerWidth。实际素材库选择两张已有图片、禁用重复素材、标题即时预览、草稿提示、任务执行详情展开/收起可操作。未提交新的制作任务。已有匿名演示数据仍可见。视口临时覆盖已恢复。
+
+证据：docs/009-catalog-desktop.png、009-catalog-mobile.png、009-editor-desktop.png、009-editor-mobile.png、009-history-desktop.png、009-history-mobile.png。后端代码无变化，本轮未重跑Java检查；远端CI未执行。投入为本轮实际修改、容器回归和浏览器验收，不虚构人工小时。

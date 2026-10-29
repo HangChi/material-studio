@@ -1,4 +1,5 @@
 "use client";
+import { StudioIcon } from "../../components/StudioIcon";
 import Image from "next/image";
 import { useEffect,useRef,useState } from "react";
 type Asset={id:string;mimeType:string;sizeBytes:number;createdAt:string};
@@ -17,7 +18,7 @@ export function AssetPicker({onSelect,onClose,excluded=[]}:{onSelect:(id:string)
  }
  useEffect(()=>{const state=life.current;state.active=true;void Promise.resolve().then(()=>{if(state.active)void load(null);});return()=>{state.active=false;state.controller?.abort();};},[attempt]);
  return <section className="asset-library" aria-label="选择已有素材" onKeyDown={event=>{if(event.key==="Escape")onClose();}}>
-  <div className="library-heading"><h3>我的素材库</h3><button type="button" onClick={onClose}>关闭素材库</button></div><p className="field-help">选择已上传图片，无需再次上传。</p>
+  <div className="library-heading"><h3><StudioIcon name="library" />我的素材库</h3><button type="button" onClick={onClose}>关闭素材库</button></div><p className="field-help">选择已上传图片，无需再次上传。</p>
   {busy&&<p role="status">正在读取素材…</p>}{error&&<div><p role="alert">{error}</p><button type="button" onClick={()=>cursor?void load(cursor):setAttempt(value=>value+1)}>重新读取素材库</button></div>}
   {!busy&&!error&&items.length===0&&<p>还没有上传素材，请先选择本地图片。</p>}
   <div className="asset-library-grid">{items.map(item=><button type="button" key={item.id} aria-label={`使用素材 ${item.id}`} disabled={excluded.includes(item.id)} onClick={()=>onSelect(item.id)}><Image src={`/api/assets/${item.id}/content`} alt={`素材 ${item.id.slice(0,8)}`} width={160} height={120} unoptimized/><span>{item.id.slice(0,8)} · {Math.ceil(item.sizeBytes/1024)} KB</span>{excluded.includes(item.id)&&<span>其他位置已使用</span>}</button>)}</div>

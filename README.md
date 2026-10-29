@@ -294,3 +294,11 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 
 Spec Kit模板、脚本、skills来自[github/spec-kit](https://github.com/github/spec-kit)，本地CLI0.16.4生成。
 UI参考frontend-design/ui-ux-pro-max技能并按图片样张用途调整；业务实现与几何PNG为本项目生成，未复用第三方业务代码或远程图片。
+
+## 009 · 工坊 UI 与品牌
+
+已完成全部既有模块的视觉优化：模板库/详情、素材上传/复用、明信片编辑、草稿提交、身份、历史筛选、任务/结果、作品管理及执行详情。使用工坊青与纸白、中文衬线标题和统一线性图标；原创叠片裁切框 Logo（`frontend/public/studio-logo.svg`）及站点图标，无新增依赖。导航只强调当前栏目。
+
+容器内 lint/typecheck、90项前端测试和生产构建通过，生产前端已在本地3000重建运行。浏览器检查1280px与375px的三个主要页面，均无页面横向溢出；素材复用、实时构图、草稿提示及事件详情操作通过。本轮没有后端变更，未重跑Java或远端CI。
+
+截图：[模板库](docs/009-catalog-desktop.png)、[制作台](docs/009-editor-desktop.png)、[制作记录](docs/009-history-desktop.png)、[手机模板库](docs/009-catalog-mobile.png)、[手机制作台](docs/009-editor-mobile.png)、[手机记录](docs/009-history-mobile.png)。规格与证据见[009](specs/009-studio-identity/spec.md)和[工作日志](docs/work-log.md)。

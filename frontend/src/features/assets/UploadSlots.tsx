@@ -1,5 +1,6 @@
 "use client";
 
+import { StudioIcon } from "../../components/StudioIcon";
 import { AssetPicker } from "./AssetPicker";
 import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
@@ -66,8 +67,8 @@ export function UploadSlots({ template, onChange, disabled = false,initialIds=[]
     }
   }
   return <div className="upload-grid">
-    {slots.map((slot, index) => <fieldset className="upload-slot" key={index} disabled={disabled}>
-      <label htmlFor={`${name}-${index}`}>图片 {index + 1}</label>
+    {slots.map((slot, index) => <fieldset className={`upload-slot slot-${slot.status}`} key={index} disabled={disabled}>
+      <label htmlFor={`${name}-${index}`}><span className="slot-index" aria-hidden="true" data-index={String(index + 1).padStart(2, "0")} />图片 {index + 1}<StudioIcon name="upload" /></label>
       <input id={`${name}-${index}`} type="file" accept={template.acceptedMimeTypes.join(",")} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void start(index, file); }} />
       <button type="button" aria-label={`从素材库选择图片 ${index+1}`} onClick={()=>setPicking(index)}>从素材库选择</button>
       {picking===index&&<AssetPicker excluded={slots.filter((_,i)=>i!==index).flatMap(item=>item.assetId?[item.assetId]:[])} onClose={()=>setPicking(null)} onSelect={id=>{clear(index);update(index,{status:"ready",assetId:id,preview:`/api/assets/${encodeURIComponent(id)}/content`});setPicking(null);}}/>}

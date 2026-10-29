@@ -1,4 +1,5 @@
 "use client";
+import { StudioIcon } from "../../components/StudioIcon";
 import Image from "next/image";
 import { useId } from "react";
 export type PostcardParameters={title:string;palette:"CREAM"|"OCEAN";format:"LANDSCAPE"|"SQUARE";crops:{x:number;y:number;zoom:number}[]};
@@ -7,7 +8,7 @@ export function PostcardEditor({value,onChange,assets,disabled}:{value:PostcardP
  const prefix=useId();
  function changeCrop(index:number,key:"x"|"y"|"zoom",next:number){onChange({...value,crops:value.crops.map((crop,i)=>i===index?{...crop,[key]:next}:crop)});}
  return <section className="postcard-editor" aria-label="明信片制作设置">
-  <div className="editor-heading"><h3>把此刻，寄成一封信</h3><p>两张照片，一段想说的话。先调整构图，再制作完整作品。</p></div>
+  <div className="editor-heading"><h3><StudioIcon name="sliders" />明信片排版</h3><p>调整标题、纸张配色和照片位置，在右侧查看构图。</p></div>
   <div className="editor-layout">
    <fieldset className="editor-fields" disabled={disabled}><legend>作品设置</legend>
     <label htmlFor={`${prefix}-title`}>明信片标题</label><input id={`${prefix}-title`} value={value.title} onChange={event=>onChange({...value,title:Array.from(event.target.value.replace(/[\r\n\t]/g," ")).slice(0,40).join("")})} aria-describedby={`${prefix}-title-help`}/><p id={`${prefix}-title-help`} className="field-help">最多40字 · {Array.from(value.title).length}/40</p>
