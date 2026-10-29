@@ -20,8 +20,8 @@
 
 - [x] T005 [US2] 在 frontend/src/features/jobs/tracker.test.ts 编写fake timer与延迟响应测试，观察RED。
 - [x] T006 [US2] 在 frontend/src/features/jobs/JobTracker.ts、useJobTracker.ts 实现每任务一个timer/controller，1秒非重叠查询，“version非负安全整数”，“status限QUEUED/RUNNING/SUCCEEDED/FAILED”；终态不回退、旧请求无效。
-- [ ] T007 [US2] 在 frontend/src/features/identity/session.test.tsx 编写切换中立即隐藏/请求清理/失败恢复用例，观察RED。
-- [ ] T008 [US2] 在 frontend/src/features/identity/SessionGate.tsx 实现身份生命周期，切换先卸载旧视图，失败不回显旧数据。
+- [x] T007 [US2] 在 frontend/src/features/identity/session.test.tsx 编写切换中立即隐藏/请求清理/失败恢复用例，观察RED。
+- [x] T008 [US2] 在 frontend/src/features/identity/SessionGate.tsx 实现身份生命周期，切换先卸载旧视图，失败不回显旧数据。
 
 ## Phase 4 · US1/US2 页面整合
 
