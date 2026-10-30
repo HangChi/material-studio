@@ -4,12 +4,13 @@ import {StudioIcon} from "../../components/StudioIcon";
 import {BulkControls} from "./BulkControls";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { SessionGate } from "../identity/SessionGate";
+import {SessionExpired} from "../identity/SessionExpired";
 import { isJob } from "./JobTracker";
 import { JobCards } from "./JobCards";
 import { useJobTracker } from "./useJobTracker";
 import type { Job } from "./types";
 class IdentityExpired extends Error {}
-export function History(){return <SessionGate allowSwitch>{owner=><HistoryBody key={owner} owner={owner}/>}</SessionGate>;}
+export function History(){return <SessionGate showIdentity>{owner=><HistoryBody key={owner} owner={owner}/>}</SessionGate>;}
 type Filters={tag:string;q:string;templateId:string;status:string;from:string;to:string;favorite:boolean;hidden:boolean};
 const emptyFilters:Filters={tag:"",q:"",templateId:"",status:"",from:"",to:"",favorite:false,hidden:false};
 function matches(job:Job,filter:Filters){
@@ -95,7 +96,7 @@ function HistoryResults({owner,filter}:{owner:string;filter:Filters}){
   return()=>{state.active=false;state.serial++;state.locked=false;state.controller?.abort();};
  },[load]);
  const visibleJobs=snapshot.jobs.filter(job=>matches(job,filter)&&(!filter.tag||tagMatches.has(job.id)));
- if(snapshot.authExpired)return <p role="alert">访客身份已失效，请刷新页面重新建立。</p>;
+ if(snapshot.authExpired)return <SessionExpired/>;
  return <section aria-label="个人制作记录">
   <div className="history-toolbar history-results-heading"><div><h2>我的作品<span>已加载 {visibleJobs.length} 项</span></h2><p><span className="history-live-dot" aria-hidden="true"/>未完成的任务会自动更新</p></div><button type="button" disabled={page.loading} onClick={()=>void load(false)}><StudioIcon name="repeat"/>刷新记录</button></div>
   {page.loading&&!page.loaded&&<p role="status">正在读取制作记录…</p>}

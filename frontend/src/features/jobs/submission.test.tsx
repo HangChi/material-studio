@@ -25,8 +25,8 @@ describe("submission admission form",()=>{
  });
  it("recovers failed identity initialization",async()=>{
   const mock=vi.fn().mockRejectedValue(new Error("offline"));vi.stubGlobal("fetch",mock);render(<SubmissionForm template={template}/>);
-  expect(await screen.findByRole("button",{name:"重新建立访客身份"})).toBeEnabled();
-  mock.mockImplementation(api());fireEvent.click(screen.getByRole("button",{name:"重新建立访客身份"}));await ready();
+  expect(await screen.findByRole("button",{name:"重新连接"})).toBeEnabled();
+  mock.mockImplementation(api());fireEvent.click(screen.getByRole("button",{name:"重新连接"}));await ready();
  });
  it("prevents duplicate clicks, displays accepted tasks and permits another independent task",async()=>{
   let resolve!:(r:Response)=>void;let sequence=0;const mock=api();

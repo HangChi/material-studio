@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
 import {SessionGate} from "../identity/SessionGate";
+import {SessionExpired} from "../identity/SessionExpired";
 import {UploadSlots} from "../assets/UploadSlots";
 import {JobCards} from "../jobs/JobCards";
 import {isJob,unfinished} from "../jobs/JobTracker";
@@ -79,7 +80,7 @@ function BatchBody({owner}:{owner:string}){
   try{const r=await fetch(`/api/batches/${id}/cancel`,{method:"POST",signal:c.signal});const p=await r.json();if(!life.current.active)return;if(r.status===401){tracker.expire();return;}if(!r.ok||!validBatch(p.batch))throw new Error();accept(p.batch);}catch{if(life.current.active)setError("取消请求失败，请刷新核对批次。");}finally{life.current.controllers.delete(c);if(life.current.active)setCancelling(null);}
  }
  const ready=rows.length>0&&rows.every(row=>{const t=templates.find(t=>t.id===row.templateId);return t&&row.assetIds.length===t.requiredImageCount&&row.assetIds.every(Boolean);});
- if(snapshot.authExpired)return <p role="alert">身份已失效，请刷新后重新建立。</p>;
+ if(snapshot.authExpired)return <SessionExpired/>;
  return <><form className="batch-form" onSubmit={e=>{e.preventDefault();void submit();}}><fieldset disabled={mode!=="idle"}><label>批次名称<input value={name} maxLength={60} onChange={e=>setName(e.target.value)}/></label>
  {rows.map((row,index)=>{const template=templates.find(t=>t.id===row.templateId);return <section className="batch-item" key={row.id}><div className="batch-item-heading"><h2>制作项 {index+1}</h2><label>模板<select aria-label={`制作项 ${index+1} 模板`} value={row.templateId} onChange={e=>setRows(previous=>previous.map(item=>item.id===row.id?{...item,templateId:e.target.value,assetIds:[]}:item))}>{templates.map(t=><option key={t.id} value={t.id}>{t.title}</option>)}</select></label><button type="button" disabled={rows.length===1} onClick={()=>setRows(rows.filter(item=>item.id!==row.id))}>移除制作项 {index+1}</button></div>{template&&<UploadSlots key={template.id} template={template} onChange={assetIds=>setRows(previous=>previous.map(item=>item.id===row.id?{...item,assetIds}:item))}/>}</section>;})}
  <button type="button" disabled={rows.length>=10||!templates.length} onClick={()=>setRows([...rows,{id:crypto.randomUUID(),templateId:templates[0]?.id??"",assetIds:[]}])}>增加制作项</button><button className="primary" type="submit" disabled={!ready}>提交批次</button></fieldset></form>

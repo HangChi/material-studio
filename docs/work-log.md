@@ -401,3 +401,9 @@ T006：本轮修改路径展开锁内取消与草稿保存条件、提取批次�
 T002 RED：history-interface与bulk-interface共4项因缺少更多筛选、未选仍显示动作、空集合显示工具及缺少ZIP说明失败（/tmp/xiaoying-017-red.log）。实现主筛选行、保值的更多筛选、收藏/隐藏选项、已应用数量；批量区按空/未选/已选展示、标签details、下载资格说明与操作完成后焦点恢复。相关17项GREEN（/tmp/xiaoying-017-green.log）。纯视觉不造CSS快照，样式独立history.css并作用于记录页；复用并补充StudioIcon线性图标。
 完整容器命令docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：27文件130项及全部检查通过（/tmp/xiaoying-017-all.log）。Java无变更，沿用016的97项全量通过基线。正在重建用户已启动的frontend并实际浏览器验证，不关停整个项目。
 017浏览器验收：最初500px视口发现旧label:first-child样式覆盖搜索跨列；修正后又在375px发现同规则将开始日期跨满一行，均以局部高优先级选择器修正，不用全局!important。最终生产重建成功（/tmp/xiaoying-017-final-build.log），真实1280/375px的document.scrollWidth均等于视口。独立演示游客上传项目自带portrait.png生成一项成功作品，验证空态/未选/已选/更多条件/标签展开，清空选择后焦点返回选择入口；没有改其他身份数据。最终四份017截图已目视核对，临时视口恢复，保留新版记录页。前端/后端/MySQL均healthy，项目继续运行。README、roadmap、017验收和任务更新；本轮未推送远端。
+
+### 018 · 游客产品体验
+用户认可“网站游客不应显示可切换身份”的设计判断并要求实施。先建立018规格/计划/契约、质量6/6与4项任务，继承011/016身份边界与017风格；无Java/数据库/依赖变化，单智能体串行。
+四项guest-experience先RED：缺少无编号的登录提示、账号退出/失败路径和401重新登录入口（/tmp/xiaoying-018-red.log）。SessionGate移除switchVisitor/allowSwitch及确认弹窗，替换showIdentity，游客注册保留说明、账号用户名/管理/退出；退出中卸载私有视图，成功撤销后读取游客，失败显式重试。跨标签通知键保留兼容，旧代次/卸载请求仍失效。原“切换游客”相关三项测试按新需求替换为四项新行为；保留初始化abort、跨标签及迟到分页隔离，历史迟到分页改用另一标签账号变化事件触发，未放宽数据隔离断言。
+共用SessionExpired替换历史/制作/批次的“刷新建立游客”指引，提供登录入口并说明游客恢复限制。并未改Java兼容POST /session语义；用户手动清Cookie/刷新仍可能建立新游客，不承诺恢复丢失游客或自动迁移到账号。
+相关31项GREEN（/tmp/xiaoying-018-green.log），完整docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：28文件131项及全部检查通过（/tmp/xiaoying-018-all.log）。重建当前frontend，接下来核对原演示游客作品仍可见、CTA及375px，保留服务运行。

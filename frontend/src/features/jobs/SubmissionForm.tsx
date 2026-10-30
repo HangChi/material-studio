@@ -4,6 +4,7 @@ import { StudioIcon } from "../../components/StudioIcon";
 import { draftKey,readDraft,saveDraft } from "./draft-storage";
 import { PostcardEditor, defaultParameters } from "./PostcardEditor";
 import { SessionGate } from "../identity/SessionGate";
+import {SessionExpired} from "../identity/SessionExpired";
 import { JobCards } from "./JobCards";
 import { isJob } from "./JobTracker";
 import { useJobTracker } from "./useJobTracker";
@@ -111,7 +112,7 @@ function SubmissionBody({template,owner,sourceJobId}:{template:Template;owner:st
   if(!reviewed||mode!=="unknown")return;
   remember(null);locked.current=false;setMode("idle");setError("");setAssets([]);setResetKey(key=>key+1);setReviewed(false);
  }
- if(snapshot.authExpired)return <p role="alert">访客身份已失效，请刷新页面重新建立。</p>;
+ if(snapshot.authExpired)return <SessionExpired/>;
  if(sourceState==="loading")return <p role="status">正在恢复原作品…</p>;
  if(sourceState==="error")return <div><p role="alert">无法恢复原作品，请检查访问权限后重试。</p><button onClick={()=>{setSourceState("loading");setSourceAttempt(value=>value+1);}}>重新读取原作品</button></div>;
  return <section className="submission-panel" aria-labelledby={heading}>
