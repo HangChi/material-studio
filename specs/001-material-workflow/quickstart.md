@@ -1,21 +1,21 @@
-> 001作为总体需求归档；本页仅汇总后续已交付项目的当前操作入口。现行约束见[README](../../README.md)，接口以011、010和008及其引用的002～007契约为准，009不改接口；复查收尾与未验证边界见[归档说明](README.md)。
+> 001作为总体需求归档；本页仅汇总后续已交付项目的当前操作入口。现行约束见[README](../../README.md)，接口以014、013、012、011、010和008及其引用的002～007契约为准，009不改接口；复查收尾与未验证边界见[归档说明](README.md)。
 
 # 启动与验证指南（当前项目入口）
 
-前后端源码、Compose、Dockerfile、依赖锁文件与V1～V12 SQL已由002～011交付，009完成全模块界面优化。
-本页命令从仓库根目录执行；当前交付包含002～011，实际执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
+前后端源码、Compose、Dockerfile、依赖锁文件与V1～V14 SQL已由002～014交付，009完成全模块界面优化。
+本页命令从仓库根目录执行；当前交付包含002～014，实际执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
 
 ## 规格与仓库检查
 
 从仓库根目录运行：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/011-creative-library .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/014-status-stream .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 git status --short
 git log --oneline -5
 ```
 
-feature.json是忽略的本机指针，不依赖Git分支解析。当前交付入口为011，不将001设为implement目标。
+feature.json是忽略的本机指针，不依赖Git分支解析。当前交付入口为014，不将001设为implement目标。
 
 ## 一键运行
 
@@ -53,7 +53,7 @@ frontend-test 的 node_modules 使用命名卷以保留 npm ci 结果；backend-
 3. 不带 simulation 提交，默认三阶段各 2000ms；受理显示任务 ID，关闭页面，稍后进入历史仍能见成功图片。
 4. 保留cookie调用POST /api/session，再上传所需文件取得assetIds；按[004现行契约](../004-async-pipeline/contracts/http-api.md)指定simulation.failStage和stageDurationsMs，验证三个失败阶段与中断。
    每阶段0～10000ms、默认2000；可设5000延长观察窗口，不提供全局随机失败开关。
-5. 连续创建三任务，确认分别显示状态；刷新恢复未完成任务，结束后 Network 不再轮询它们。
+5. 连续创建三任务，确认分别显示状态；刷新恢复未完成任务，结束后关闭订阅且不再轮询它们。
 6. 临时阻止 GET /api/jobs/{id} 请求，确认显示查询异常且保留后台状态，解除后点击恢复查询。
 7. UI 切换演示身份，验证个人历史隔离；打开无痕窗口应为另一身份。
 8. 375px 下完成选择与提交，使用键盘遍历控件，检查焦点、标签和结果预览。
@@ -80,8 +80,10 @@ docker compose exec -T frontend node --input-type=module < scripts/measure-admis
 不可假定新 schema 对旧应用兼容，不对持久卷执行常规删除。
 
 本地需要彻底重置演示数据时才可使用 `docker compose down -v`；这会删除数据库、身份、上传和结果。
-普通停止用 `docker compose down` 保留卷。008起，服务启动把遗留RUNNING任务恢复为QUEUED并记录中断，原QUEUED任务继续排队，从第一阶段重新执行；最多三次执行，终态不重做。仅支持单后端实例，不支持阶段断点续跑。
+普通停止用 `docker compose down` 保留卷。013仅接管租约过期的未完成任务，012复用校验有效的阶段断点，否则安全重做；最多三次执行，终态不重做。多后台必须共享MySQL和同一文件卷。014优先SSE，故障后补查并回退轮询；浏览器模拟查询中断需同时阻断stream与单任务GET。
 
 010追加访客确认、动态模板筛选、持久排队/事务配额及内部监控；独立压力验收与配置见[010 quickstart](../010-reliable-operations/quickstart.md)。
 
 011增加文件维护、批次、标签/ZIP和可选账号恢复；新接口及隔离验收见[011 quickstart](../011-creative-library/quickstart.md)和[011验收](../../docs/011-validation.md)。
+
+第10项断点、租约和SSE的最新入口见[014 quickstart](../014-status-stream/quickstart.md)及[014验收](../../docs/014-validation.md)。

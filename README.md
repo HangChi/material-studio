@@ -1,9 +1,9 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～011已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑新版本、草稿恢复、历史管理、取消与排队提示、重启恢复和有限重试，全模块界面与品牌优化，以及可靠受理/内部监控、文件生命周期、批量制作、标签/ZIP、本地账号与恢复。**
-原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；公开仓库首次远端CI前后端已通过；最新提交结果见[011验收记录](docs/011-validation.md)。真实TLS与公网部署未执行。
-当前检查基线为112项前端测试、78项Java测试及各自构建通过；检查方法与未验证边界见验收对照。异步实现与后续扩展见[异步流程与扩展分析](docs/async-workflow.md)。
+**002～014已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑与草稿、作品管理、可靠受理/监控、批次/标签/ZIP和本地账号恢复；第10项另完成阶段断点、多实例租约/执行代次、SSE及轮询回退。**
+原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012/013远端CI已通过；最新提交状态见[014验收记录](docs/014-validation.md)。真实TLS与公网部署未执行。
+当前检查基线为120项前端测试、95项Java测试及各自构建通过；方法与边界见验收对照。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
 
 ## 迭代与开发入口
 
@@ -24,16 +24,17 @@
 | [011](specs/011-creative-library/spec.md) | 文件生命周期、批次、标签/批量管理/ZIP、本地账号/恢复与迁移 | 本地及远端CI通过；13/13任务，见[记录](docs/011-validation.md) |
 | [012](specs/012-stage-checkpoints/spec.md) | 第10项第一增量：阶段断点续跑与安全回退/清理 | 本地及远端CI通过，7/7任务，见[记录](docs/012-validation.md) |
 | [013](specs/013-worker-leases/spec.md) | 第10项第二增量：数据库租约、执行代次与过期接管 | 本地及远端CI通过，7/7任务，见[记录](docs/013-validation.md) |
+| [014](specs/014-status-stream/spec.md) | 第10项第三增量：SSE快照、鉴权/连接回收、可靠查询回退 | 本地及真实代理/浏览器通过，交付CI见[记录](docs/014-validation.md) |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/011-creative-library .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/014-status-stream .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[011任务](specs/011-creative-library/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准，009不改变HTTP接口。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[014任务](specs/014-status-stream/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[014契约](specs/014-status-stream/contracts/http-api.md)、[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -75,7 +76,7 @@ Java素材默认STORAGE_ROOT=/data，Compose的asset-data命名卷持久保存�
 反向代理提供HTTPS时设置APP_ORIGIN为公开源（如https://studio.example.com），同时设置COOKIE_SECURE=true。
 修改数据库用户名/密码不会重设已初始化的MySQL卷，须同步数据库配置或仅在本地演示时重置卷。
 
-Flyway自动执行V1模板种子、V2身份/素材/任务、V3执行配置/事件、V4配方/幂等、V5作品属性、V6执行恢复、V7受理锁、V8隔离审计、V9批次、V10标签、V11账号/多会话及V12标签精确排序规则；兼容既有数据和旧匿名Cookie，无需清空数据库。
+Flyway自动执行V1模板种子、V2身份/素材/任务、V3执行配置/事件、V4配方/幂等、V5作品属性、V6执行恢复、V7受理锁、V8隔离审计、V9批次、V10标签、V11账号/多会话、V12标签精确排序规则、V13阶段断点及V14执行租约；兼容既有数据和旧Cookie，无需清空数据库。
 封面是项目自制PNG，位于 `backend/src/main/resources/demo/`，Java白名单接口提供；无需外部图片网络。
 可在容器中重新生成：
 
@@ -93,11 +94,11 @@ docker compose --profile test run --rm frontend-test
 docker compose --profile test run --rm backend-test
 ```
 
-前端入口从锁文件npm ci，再执行eslint、tsc、112个Vitest测试、next build。
-后端入口mvn verify，执行78个Java测试（HTTP/MySQL集成及可控故障用例）并打包；数据库使用独立test-mysql，避免污染演示数据。
+前端入口从锁文件npm ci，再执行eslint、tsc、120个Vitest测试、next build。
+后端入口mvn verify，执行95个Java测试（HTTP/MySQL集成及可控故障用例）并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
-GitHub Actions在push/PR执行上述两条容器入口；公开仓库[首次远端流水线](https://github.com/HangChi/material-studio/actions/runs/40901483518)已通过，最新结果与本地验证见[011验收记录](docs/011-validation.md)。
+GitHub Actions在push/PR执行上述两条容器入口；公开仓库[首次远端流水线](https://github.com/HangChi/material-studio/actions/runs/40901483518)已通过，最新结果与本地验证见[014验收记录](docs/014-validation.md)。
 镜像构建使用-DskipTests，独立检查入口必须先通过；不能把镜像构建等同于测试通过。
 
 ## 当前接口与演示
@@ -127,6 +128,7 @@ Template含id、title、categoryId、coverUrl、description、requiredImageCount
 | GET /api/jobs/{id} | 本人单条任务快照，查询不驱动执行 |
 | GET /api/jobs?limit=20&cursor={id} | 本人历史分页，items/nextCursor；limit为1～50，默认20 |
 | GET /api/jobs/active | 本人全部QUEUED/RUNNING，恢复首屏之外活动任务 |
+| GET /api/jobs/stream?ids=UUID,UUID | 本人1～50项SSE最新快照/心跳/失效通知；初次全归属校验，终态/期限关闭，故障回退GET |
 
 Cookie为HttpOnly/SameSite=Lax，数据库仅保存SHA-256哈希，客户端不得提交ownerId；删除身份撤销token但保留资源。
 同一浏览器刷新保留身份，另一个浏览器/无痕窗口为新身份；清除cookie或撤销后无账号找回入口。
@@ -179,7 +181,7 @@ Java使用单工作线程与容量16的有界FIFO队列；提交先事务提交�
 省略simulation或failStage为null演示成功；failStage分别设ASSET_CHECK/GENERATE/FINALIZE可重复演示三种失败。耗时允许部分覆盖，每值必须是0～10000整数；省略阶段默认2000，null值/越界422，未知字段/阶段/字符串/小数/数字枚举400，无任务写入。
 连续提交不同配置验证隔离：一项指定失败、一项成功，单线程依次执行，阶段记录与结果各自保存。快速验证将三个耗时均设0，慢速观察可设10000。
 
-008起启动会恢复上次遗留任务：RUNNING回到QUEUED并写INTERRUPTED事件，原QUEUED保留，从第一阶段重新执行；已到三次上限则结束失败。成功/失败/取消终态与成功文件保留，关停不把等待任务改成失败。
+008最初从第一阶段重做；012起优先从摘要一致的已完成阶段恢复，缺失/损坏回退。013只接管已过期租约或旧版无租约RUNNING，不重置其他实例的有效执行；原QUEUED保留，最多三次执行，终态不重做，关停不把等待任务改失败。
 真实强杀恢复验证入口如下，仅用于本项目本地演示，保留卷；脚本把临时核对身份存在前端容器/tmp，不打印token：
 
 ```sh
@@ -190,7 +192,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 ```
 
 仅支持单后端进程，不允许多副本共用队列/启动对账逻辑。进程被强杀可能留下未登记结果/临时文件；孤儿文件自动清理不在范围，演示重置卷时统一清理。
-数据库完全不可写时可能无法保存重试状态，恢复服务后重启对账；008新增持久恢复与有限自动重试。仍不支持阶段断点续跑、真实AI、支付或复杂模板后台。
+数据库完全不可写时无法持久保存新状态；恢复后由扫描/租约到期接管。012/013已补阶段断点和多实例安全提交，仍无真实AI、支付或复杂模板后台。第10项真实故障验收使用独立项目，见文末；不要在原数据卷直接运行写fixture/强杀脚本。
 原题业务闭环已按002～005完成，具体实现与运行证据见验收对照；后续用户授权扩展以007/008规格为准。
 后端运行镜像暂复用固定Maven/Java镜像以简化演示，体积可在后续优化。
 
@@ -199,7 +201,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 打开 [制作记录](http://localhost:3000/history)，自动建立或复用当前身份（访客或账号），恢复创建时间、状态、当前阶段、失败原因及成功图片。空记录提供模板入口，“加载更多”读取下一页；分页失败保留已加载记录和游标。
 历史按created_at/id倒序，游标为末条本人任务UUID；同时间排序稳定，新插入不移动旧页。非法/他人游标400，不泄漏他人记录；无效limit400。接口详情见[005契约](specs/005-history-tracking/contracts/http-api.md)。
 
-详情页和历史页分别维护当前身份/任务的跟踪器，每个未终结任务在前一次查询完成后1秒再查，绝不重叠；收到终态停止，无活动任务不继续请求。离开页面abort请求并清理计时器。
+详情、历史和批次页各自维护身份/任务跟踪器。014有EventSource能力时，一个源合并最多50项活动任务；变化快照按version合并，终态关闭。断线/无效帧/20秒静默立即GET补查，随后每项在上次查询完成1秒后再查，不重叠；无推送能力时直接原轮询。离开或换身份清理源、watchdog、请求及计时器。
 查询失败只暂停对应任务，保留最后快照并显示“恢复查询”；点击后继续读取服务端状态，不自动重发制作。旧请求、旧身份、低版本和相同版本不覆盖较新快照，终态不会回退。
 历史首页同时读取active集合，即使某未完成任务在后续页也继续跟踪；记录按ID去重。浏览器时间比较保留服务端微秒精度。
 
@@ -265,9 +267,9 @@ docker compose exec -T frontend node --input-type=module < scripts/verify-007.mj
 | 自动草稿 | 当前浏览器localStorage按本人/模板/编辑来源保存素材ID和参数；刷新恢复，可清空；上传中的本地File不保存，存储错误明确提示 |
 | 历史管理 | 按名称或模板名、模板、状态、起止日期、收藏、隐藏筛选；展开“管理作品”重命名、收藏、隐藏，隐藏列表可恢复 |
 | 取消/排队 | 等待任务显示前方任务约数；等待/运行任务可取消，重复取消安全，阶段边界停止；数据库FAILED/JOB_CANCELLED在界面显示“已取消” |
-| 恢复/有限重试 | 同一任务编号从第一阶段重做，最多三次执行；暂时IO/可恢复数据库错误按1秒/2秒间隔重试，记录次数、计划时间与恢复事件 |
+| 恢复/有限重试 | 008当时同一编号从第一阶段重做；012已增加有效断点续跑，013增加租约接管，仍最多三次执行及默认1秒/2秒退避 |
 
-指定模拟失败、素材失效、用户取消不会自动重试。执行次数包含初次执行与重启后的执行，不是额外重试三次。未完成任务持久保存在MySQL，后台每250ms补入单工作线程的有界队列；重启积压超过内存队列容量也会继续补入。只支持单后端实例。绘图/文件操作可能在取消后完成当前不可分割步骤，但取消先提交时不会再发布成功状态。
+指定模拟失败、素材失效、用户取消不会自动重试。执行次数包含初次与恢复，不是额外重试三次。未完成任务持久保存在MySQL，每250ms补入每实例单工作线程的有界队列；超过内存容量也继续补入。013支持共享数据库/文件卷的多个后台，代次校验拒绝旧线程提交。绘图/文件操作可能继续当前不可分割步骤，但取消先提交时不能再提交成功。
 
 GET /api/assets新增本人分页；POST /api/jobs新增可选sourceJobId；GET /api/jobs新增全历史筛选；PATCH /api/jobs/{id}/library管理显示名/收藏/隐藏；POST /api/jobs/{id}/cancel取消。任务快照补充displayName/favorite/hidden/queueAhead/attempt/nextAttemptAt。完整字段边界见契约。
 
@@ -291,7 +293,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 
 部署固定源码commit并运行Compose，等待健康检查后验证列表/详情、一次成功任务及私有结果。发布前备份数据库和素材卷。
 回滚到上一验收commit重建；V3等schema变更须同时恢复匹配备份，不能假定旧应用兼容新表。
-当前无需公网部署。完整源码在本地独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、SQL种子、CI及全部Spec Kit产物；009基线为 `af006c8`，010监控实现提交为 `36641f4`；最新交付及远端CI见[011验收](docs/011-validation.md)。交付时用 `git rev-parse HEAD` 确认包含本文档的完整提交号。源码已按用户授权推送至公开仓库 [HangChi/material-studio](https://github.com/HangChi/material-studio)。
+当前无需公网部署。完整源码在本地独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、SQL种子、CI及全部Spec Kit产物；009基线为 `af006c8`，010监控实现提交为 `36641f4`；最新交付及远端CI见[014验收](docs/014-validation.md)。交付时用 `git rev-parse HEAD` 确认包含本文档的完整提交号。源码已按用户授权推送至公开仓库 [HangChi/material-studio](https://github.com/HangChi/material-studio)。
 实际投入按工具可核对时段记录在[docs/work-log.md](docs/work-log.md)，不虚构精确人工工时。
 
 使用Codex辅助：原题→总体基线→独立feature规格→计划/契约/任务→测试先失败→最小实现→重构/完整检查→提交。
@@ -343,6 +345,22 @@ docker compose exec -T backend curl -fsS http://localhost:8080/actuator/studio
 8. **作品组织**：标签最多10个，每个20码点；选择已加载作品最多50项，批量收藏、取消收藏、隐藏、恢复或覆盖标签。ZIP最多20项成功PNG、原图合计64MiB。任一越权整批拒绝，隐藏可恢复。
 9. **账号与恢复**：[账号](http://localhost:3000/account)绑定3～32位用户名与12～128字符密码，保留当前访客数据；跨设备登录、退出仅撤销本会话。恢复码只显示当次，需自行保存，可凭密码重新生成。用恢复码重置密码会轮换码并撤销全部旧会话。迁移访客资料需勾选并确认，活动任务/提交标识冲突会拒绝；两个账号不可合并。
 
-接口与状态码见[011契约](specs/011-creative-library/contracts/http-api.md)。本机未提交草稿不自动跨设备同步；未绑定访客丢失Cookie不可恢复；密码和恢复码均丢失时不提供绕过找回。仍为单实例、全任务重启重试，无SSE、阶段断点续跑、邮件或外部身份服务。
+接口与状态码见[011契约](specs/011-creative-library/contracts/http-api.md)。本机未提交草稿不自动跨设备同步；未绑定访客丢失Cookie不可恢复；密码和恢复码均丢失时不提供绕过找回。011当时为单实例全任务重试；012～014已扩展断点、租约和SSE，邮件或外部身份服务仍不提供。
 
 本地112项前端/78项Java及构建通过；真实V7→V12升级保留旧Cookie、成功作品与幂等回执。混合批次、ZIP、迁移、恢复、文件隔离和到期审计在独立卷验证；到期仅回拨测试审计时间模拟7天。桌面和375px三个页面无横向溢出。截图、命令和CI见[011验收](docs/011-validation.md)。
+
+## 第10项 · 执行架构升级
+
+三项分别立项、TDD和验收：[012阶段断点](docs/012-validation.md)在真实SIGKILL后同编号成功、合成仅一次；[013租约](docs/013-validation.md)在双后台强杀一个后由另一个接管，DB时钟防节点快钟抢跑，代次fence和独立文件名防旧线程覆盖；[014推送](docs/014-validation.md)验证真实Next代理首帧、分块、终态EOF、断开不取消与撤销失效，前端自动回退原查询。
+
+默认仍单后台，每实例一个worker/16等待槽；需要扩为两个且已共享MySQL/素材卷时：
+
+```sh
+STUDIO_LEASE_MS=15000 docker compose up --build -d --wait --scale backend=2
+```
+
+租约最小3000ms，每lease/3续期，过期不能复活；恢复/重试仍共享三次预算。阶段内部不做百分比断点，失效线程可能继续计算但无提交权，不承诺恰好一次计算或线性提速。
+
+SSE每跟踪器一个源、最多50项；每后台64连接/每owner2、10秒心跳、55秒寿命，20秒静默触发补查/轮询。服务器仍周期读MySQL，无MQ/Redis或生产广播总线；不提供跨地域文件复制、生产负载均衡或吞吐SLA。终态已登记结果在提交确认丢失时仍受保护，异常不能删除成功PNG。
+
+当前120项前端/95项Java与各自构建通过，桌面1280px/小屏375px制作与执行事件验收通过。原3000在本地私有备份后保留卷升级，未在原卷故障注入或写fixture；最新CI、具体日志和边界见[014验收](docs/014-validation.md)。历史各节的数字是当时阶段记录。

@@ -18,8 +18,9 @@
 | [011-creative-library](../specs/011-creative-library/spec.md) | 文件生命周期、批次、作品组织、本地账号/恢复与迁移 | 用户授权执行顺序6～9 | 010 | 本地及远端CI通过；13/13任务，见[011验收](011-validation.md) |
 | [012-stage-checkpoints](../specs/012-stage-checkpoints/spec.md) | 第10项第一增量：阶段断点、失效回退与清理 | 用户授权第10项 | 011 | 本地及远端CI通过，7/7任务，见[012验收](012-validation.md) |
 | [013-worker-leases](../specs/013-worker-leases/spec.md) | 第10项第二增量：租约、执行代次与接管 | 用户授权第10项 | 012 | 本地及远端CI通过，7/7任务，见[013验收](013-validation.md) |
+| [014-status-stream](../specs/014-status-stream/spec.md) | 第10项第三增量：SSE快照、身份重验和轮询回退 | 用户授权第10项 | 013 | 本地通过；最终CI待确认，见[014验收](014-validation.md) |
 
-007为原题MVP之后的用户授权拓展；不修改原题。007时真实合成先覆盖明信片；008扩展至全部三模板。仍为单实例；011增加可选本地账号/多会话。新增V4配方与幂等表，旧记录兼容，具体验证见[验收对照](acceptance.md)。
+007为原题MVP之后的用户授权拓展，不修改原题。008扩展真实合成至三模板，011增加可选账号。012提供断点，013支持共享数据库/文件卷的多后台租约接管，014优先SSE并保留轮询回退；默认一个后台。
 
 006在005交付后修复复查发现的问题，并完成001 SC-002数值验收，见[逐次测量](admission-measurements.md)。
 
@@ -34,9 +35,9 @@ Spec Kit 0.16.4 的 `.specify/feature.json` 为忽略的机器本地指针，不
 克隆/切换 feature 后显式运行（将路径替换为目标 feature）：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/011-creative-library .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/014-status-stream .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 脚本将持久化本机 feature 指针。禁止把新功能继续加到 001 的执行清单。
 
-当前交付包含002～011；现行业务契约以011、010及其引用的前序契约为准，009仅调整界面。当前本地检查基线为前端112项、Java78项及构建通过，具体方法和未验证范围见[验收对照](acceptance.md)。执行顺序1～5由010实现，6～9由011实现；阶段断点、多实例与SSE仍是可选方向，见[异步流程与扩展分析](async-workflow.md)。
+当前交付包含002～014；现行契约以014及其前序契约为准。当前检查基线为前端120项、Java95项及构建通过，具体方法和边界见[014验收](014-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。

@@ -10,7 +10,7 @@
 - [x] T004 [US2] frontend/src/features/jobs/stream.test.ts与lib/api-proxy.test.ts先RED覆盖聚合/隔离/清理/回退和透传头/Abort。
 - [x] T005 [US2] frontend/src/features/jobs/JobTracker.ts及lib/api-proxy.ts实现EventSource生命周期/看门狗/独立轮询回退，前端GREEN并完整检查。
 ## Delivery
-- [ ] T006 scripts/verify-014.mjs与docs/014-validation.md完成真实代理/断开/撤销/终态、浏览器桌面375px及全量检查；原3000保留卷更新，临时项目down保留卷。
+- [x] T006 scripts/verify-014.mjs与docs/014-validation.md完成真实代理/断开/撤销/终态、浏览器桌面375px及全量检查；原3000保留卷更新，临时项目down保留卷。
 - [ ] T007 README.md、docs/roadmap.md、docs/async-workflow.md、docs/acceptance.md、docs/work-log.md与001当前入口同步第10项实际状态/限制，推送并确认最终远端CI。
 
 共7任务，US1/US2各2项；T001→US1→US2→交付。全程串行，无并行代理；TDD先真实业务RED再最小GREEN，当前规格hooks文件不存在。
