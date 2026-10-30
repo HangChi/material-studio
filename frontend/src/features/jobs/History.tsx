@@ -45,7 +45,7 @@ function HistoryBody({owner}:{owner:string}){
    <button className="primary history-apply" type="submit">应用筛选<StudioIcon name="arrow"/></button>
   </div>
   <div className="history-filter-advanced" id={advancedId} hidden={!expanded}>
-   <label>标签筛选<input value={form.tag} maxLength={40} placeholder="例如：旅行、日常" onChange={event=>setForm({...form,tag:event.target.value})}/></label>
+   <label>标签筛选<input value={form.tag} maxLength={40} placeholder="输入一个标签，如：旅行" onChange={event=>setForm({...form,tag:event.target.value})}/></label>
    <fieldset className="history-date-range"><legend>创建时间</legend><div>
     <label>开始日期<input type="date" value={form.from} onChange={event=>setForm({...form,from:event.target.value})}/></label><span className="date-range-separator" aria-hidden="true">—</span><label>结束日期<input type="date" value={form.to} min={form.from} onChange={event=>setForm({...form,to:event.target.value})}/></label>
    </div></fieldset>
