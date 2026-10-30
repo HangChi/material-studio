@@ -1,5 +1,6 @@
 "use client";
 
+import { SampleGallery } from "../samples/SampleGallery";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -58,5 +59,6 @@ export function TemplateCatalog() {
         </Link>)}
       </div>}
     </section>
+    <SampleGallery/>
   </main>;
 }
