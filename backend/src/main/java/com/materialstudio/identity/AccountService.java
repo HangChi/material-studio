@@ -13,11 +13,12 @@ public class AccountService {
  private final AccountMapper mapper;private final UserMapper users;private final SessionService sessions;private final CreationMapper creation;private final AdmissionMapper admission;private final TransactionTemplate tx;
  public AccountService(AccountMapper mapper,UserMapper users,SessionService sessions,CreationMapper creation,AdmissionMapper admission,PlatformTransactionManager manager){this.mapper=mapper;this.users=users;this.sessions=sessions;this.creation=creation;this.admission=admission;tx=new TransactionTemplate(manager);tx.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);}
  private String username(String value){String name=value==null?"":value.strip().toLowerCase(Locale.ROOT);if(!name.matches("[a-z0-9_]{3,32}"))throw new ApiException(422,"VALIDATION_FAILED","用户名需3～32位字母、数字或下划线");return name;}
- private void password(String value){if(value==null||value.length()<12||value.length()>128)throw new ApiException(422,"VALIDATION_FAILED","密码需12～128个字符");}
+ private void password(String value){if(value==null||value.length()<8||value.length()>128)throw new ApiException(422,"VALIDATION_FAILED","请输入有效密码");}
+ private void newPassword(String value){if(value==null||value.length()<8||value.length()>18)throw new ApiException(422,"VALIDATION_FAILED","密码需8～18个字符");}
  private ApiException failed(){return new ApiException(401,"AUTH_FAILED","用户名或验证信息不正确");}
  private Result attach(AccountMapper.Account account,String oldToken,String recovery){String token=sessions.newToken();sessions.revoke(oldToken);return new Result(sessions.attach(token,account.userId(),30),account.username(),recovery,token);}
  public Result register(String token,String inputName,String password){
-  var visitor=sessions.require(token);String name=username(inputName);password(password);var derived=PasswordHash.derive(password);String code=sessions.newToken();
+  var visitor=sessions.require(token);String name=username(inputName);newPassword(password);var derived=PasswordHash.derive(password);String code=sessions.newToken();
   try{return tx.execute(status->{
    if(creation.lockOwner(visitor.id())==null)throw failed();if(mapper.byUser(visitor.id())!=null)throw new ApiException(409,"ACCOUNT_EXISTS","当前身份已绑定账号，请先退出");
    var account=new AccountMapper.Account(visitor.id(),name,derived.hash(),derived.salt(),PasswordHash.digest(code),Instant.now());mapper.insert(account);return attach(account,token,code);
@@ -52,7 +53,7 @@ public class AccountService {
   return tx.execute(status->{if(creation.lockOwner(current.id())==null)throw failed();var latest=mapper.lock(current.id());if(latest==null||!PasswordHash.equal(latest.passwordHash(),checked.passwordHash()))throw failed();var updated=new AccountMapper.Account(latest.userId(),latest.username(),latest.passwordHash(),latest.salt(),PasswordHash.digest(code),latest.createdAt());mapper.reset(updated);return attach(updated,token,code);});
  }
  public Result recover(String token,String inputName,String code,String password){
-  String name=username(inputName);password(password);if(code==null||code.length()>128)throw new ApiException(422,"VALIDATION_FAILED","请提供有效恢复码");var checked=authenticate(name,code,true);var derived=PasswordHash.derive(password);String nextCode=sessions.newToken();
+  String name=username(inputName);newPassword(password);if(code==null||code.length()>128)throw new ApiException(422,"VALIDATION_FAILED","请提供有效恢复码");var checked=authenticate(name,code,true);var derived=PasswordHash.derive(password);String nextCode=sessions.newToken();
   return tx.execute(status->{
    if(creation.lockOwner(checked.userId())==null)throw failed();var account=mapper.lock(checked.userId());if(account==null||!PasswordHash.equal(account.recoveryHash(),checked.recoveryHash()))throw failed();
    var next=new AccountMapper.Account(account.userId(),account.username(),derived.hash(),derived.salt(),PasswordHash.digest(nextCode),account.createdAt());mapper.reset(next);users.revokeAll(account.userId());return attach(next,token,nextCode);

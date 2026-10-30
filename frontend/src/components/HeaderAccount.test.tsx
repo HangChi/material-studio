@@ -31,6 +31,6 @@ it("updates the header after registration without losing the once-only recovery 
   if(url==="/api/session")return Response.json({user:registered?{id:"guest",username:"studio_chen"}:{id:"guest"}});
   expect(options?.method).toBe("POST");registered=true;return Response.json({user:{id:"guest",username:"studio_chen"},recoveryCode:"temporary-only-recovery"},{status:201});
  }));
- render(<><HeaderAccount/><Account/></>);fireEvent.click(await screen.findByRole("button",{name:"注册"}));fireEvent.change(screen.getByLabelText("用户名"),{target:{value:"studio_chen"}});fireEvent.change(screen.getByLabelText("密码"),{target:{value:"test-password-2026!"}});fireEvent.click(screen.getByRole("button",{name:"注册账号"}));
+ render(<><HeaderAccount/><Account/></>);fireEvent.click(await screen.findByRole("button",{name:"注册"}));fireEvent.change(screen.getByLabelText("用户名"),{target:{value:"studio_chen"}});fireEvent.change(screen.getByLabelText("密码"),{target:{value:"test-password26!"}});fireEvent.click(screen.getByRole("button",{name:"注册账号"}));
  expect(await screen.findByLabelText("一次性恢复码")).toHaveTextContent("temporary-only-recovery");expect(await screen.findByRole("link",{name:"管理账号：studio_chen"})).toBeVisible();expect(screen.getByLabelText("一次性恢复码")).toBeVisible();expect(screen.getByRole("button",{name:"继续使用"})).toBeDisabled();
 });

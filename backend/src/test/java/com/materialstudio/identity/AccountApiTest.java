@@ -8,7 +8,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 class AccountApiTest extends ApiTestSupport {
  @MockitoBean JobDispatcher dispatcher;
- static final String PASSWORD="Only-test-password-2026!";
+ static final String PASSWORD="Test-password26!";
  String username(){return "user_"+UUID.randomUUID().toString().replace("-","").substring(0,15);}
  String cookie(ResponseEntity<?> response){return response.getHeaders().getFirst("Set-Cookie").split(";",2)[0];}
  ResponseEntity<com.fasterxml.jackson.databind.JsonNode> register(String owner,String name){return call("/api/account/register",HttpMethod.POST,owner,Map.of("username",name,"password",PASSWORD));}
@@ -24,7 +24,7 @@ class AccountApiTest extends ApiTestSupport {
   assertThat(jdbc.queryForObject("SELECT password_hash FROM local_account WHERE user_id=?",String.class,owner)).isNotEqualTo(PASSWORD);
  }
  @Test void recoveryRotatesCodePasswordAndRevokesEveryOldSession(){
-  String name=username();var registered=register(session(),name);assertThat(registered.getStatusCode().value()).isEqualTo(201);String a=cookie(registered),b=cookie(login(null,name,PASSWORD,false)),code=registered.getBody().path("recoveryCode").asText(),nextPassword="Next-only-test-password-2026!";
+  String name=username();var registered=register(session(),name);assertThat(registered.getStatusCode().value()).isEqualTo(201);String a=cookie(registered),b=cookie(login(null,name,PASSWORD,false)),code=registered.getBody().path("recoveryCode").asText(),nextPassword="Next-password26!";
   var recovered=call("/api/account/recover",HttpMethod.POST,null,Map.of("username",name,"recoveryCode",code,"password",nextPassword));assertThat(recovered.getStatusCode().value()).isEqualTo(200);assertThat(recovered.getBody().path("recoveryCode").asText()).isNotEqualTo(code);
   for(String old:List.of(a,b))assertThat(call("/api/session",HttpMethod.GET,old,null).getStatusCode().value()).isEqualTo(401);
   assertThat(login(null,name,PASSWORD,false).getStatusCode().value()).isEqualTo(401);assertThat(login(null,name,nextPassword,false).getStatusCode().value()).isEqualTo(200);
@@ -54,5 +54,42 @@ class AccountApiTest extends ApiTestSupport {
   for(int n=0;n<5;n++)assertThat(login(null,name,"Wrong-only-test-password!",false).getStatusCode().value()).isEqualTo(401);
   var blocked=login(null,name,PASSWORD,false);assertThat(blocked.getStatusCode().value()).isEqualTo(429);assertThat(blocked.getHeaders().getFirst("Retry-After")).isEqualTo("900");
   jdbc.update("UPDATE auth_attempt SET window_started=DATE_SUB(CURRENT_TIMESTAMP(6),INTERVAL 16 MINUTE) WHERE username=?",name);assertThat(login(null,name,PASSWORD,false).getStatusCode().value()).isEqualTo(200);
+ }
+ @Test void acceptsBothNewPasswordBoundariesAcrossRegistrationRecoveryAndLogin(){
+  for(int length:List.of(8,18)){
+   String name=username(),password="p".repeat(length);
+   var registered=call("/api/account/register",HttpMethod.POST,session(),Map.of("username",name,"password",password));
+   assertThat(registered.getStatusCode().value()).isEqualTo(201);
+   assertThat(login(null,name,password,false).getStatusCode().value()).isEqualTo(200);
+   var rotated=call("/api/account/recovery-code",HttpMethod.POST,cookie(registered),Map.of("password",password));
+   assertThat(rotated.getStatusCode().value()).isEqualTo(200);
+   String code=rotated.getBody().path("recoveryCode").asText();
+   String next="n".repeat(length);
+   assertThat(call("/api/account/recover",HttpMethod.POST,null,Map.of("username",name,"recoveryCode",code,"password",next)).getStatusCode().value()).isEqualTo(200);
+   assertThat(login(null,name,next,false).getStatusCode().value()).isEqualTo(200);
+  }
+ }
+ @Test void rejectsOutOfRangeNewPasswordsWithoutChangingAccountOrConsumingRecovery(){
+  for(int length:List.of(7,19)){
+   String name=username();var rejected=call("/api/account/register",HttpMethod.POST,session(),Map.of("username",name,"password","p".repeat(length)));
+   assertThat(rejected.getStatusCode().value()).isEqualTo(422);
+   assertThat(rejected.getBody().path("error").path("message").asText()).isEqualTo("密码需8～18个字符");
+   assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM local_account WHERE username=?",Long.class,name)).isZero();
+  }
+  String name=username();var registered=register(session(),name);String code=registered.getBody().path("recoveryCode").asText(),current=cookie(registered);
+  for(int length:List.of(7,19))assertThat(call("/api/account/recover",HttpMethod.POST,null,Map.of("username",name,"recoveryCode",code,"password","n".repeat(length))).getStatusCode().value()).isEqualTo(422);
+  assertThat(call("/api/session",HttpMethod.GET,current,null).getStatusCode().value()).isEqualTo(200);
+  assertThat(login(null,name,PASSWORD,false).getStatusCode().value()).isEqualTo(200);
+  assertThat(call("/api/account/recover",HttpMethod.POST,null,Map.of("username",name,"recoveryCode",code,"password","newpass8")).getStatusCode().value()).isEqualTo(200);
+ }
+ @Test void keepsLegacyLongPasswordsUsableUntilRecoverySetsANewPassword(){
+  String name=username(),legacy="Old-password-over-18-characters";var registered=register(session(),name);
+  String owner=registered.getBody().path("user").path("id").asText();var hash=PasswordHash.derive(legacy);
+  jdbc.update("UPDATE local_account SET password_hash=?,salt=? WHERE user_id=?",hash.hash(),hash.salt(),owner);
+  var signedIn=login(null,name,legacy,false);assertThat(signedIn.getStatusCode().value()).isEqualTo(200);
+  var rotated=call("/api/account/recovery-code",HttpMethod.POST,cookie(signedIn),Map.of("password",legacy));assertThat(rotated.getStatusCode().value()).isEqualTo(200);
+  assertThat(call("/api/account/recover",HttpMethod.POST,null,Map.of("username",name,"recoveryCode",rotated.getBody().path("recoveryCode").asText(),"password","newpass8")).getStatusCode().value()).isEqualTo(200);
+  assertThat(login(null,name,legacy,false).getStatusCode().value()).isEqualTo(401);
+  assertThat(login(null,name,"newpass8",false).getStatusCode().value()).isEqualTo(200);
  }
 }
