@@ -1,6 +1,6 @@
 # Feature Specification: 可回退的实时状态推送
 **Created**: 2026-10-30
-**Status**: Ready
+**Status**: Complete
 **Input**: 第10项第三独立增量；多任务状态通过一个持续连接更新，异常回退既有查询。
 ## User Scenarios & Testing
 ### US1 合并状态推送（P1）

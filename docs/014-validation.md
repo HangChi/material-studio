@@ -1,6 +1,6 @@
 # 014 · 第10项执行架构最终验收
 
-2026-10-30，本地完整检查通过；最终远端CI待确认。第10项拆成独立规格：[012断点](012-validation.md)、[013租约](013-validation.md)、[014状态流](../specs/014-status-stream/spec.md)，串行实现。
+2026-10-30，本地完整检查通过；交付提交 `eeab22452c100dd64485319ccf694aaaa47289af` 的[远端CI](https://github.com/HangChi/material-studio/actions/runs/40997557752)前端、后端均success，014共7/7任务完成。第10项拆成独立规格：[012断点](012-validation.md)、[013租约](013-validation.md)、[014状态流](../specs/014-status-stream/spec.md)，串行实现。收尾文档提交的CI另外确认。
 
 ## 自动检查与TDD
 

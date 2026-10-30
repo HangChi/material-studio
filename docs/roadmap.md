@@ -18,7 +18,7 @@
 | [011-creative-library](../specs/011-creative-library/spec.md) | 文件生命周期、批次、作品组织、本地账号/恢复与迁移 | 用户授权执行顺序6～9 | 010 | 本地及远端CI通过；13/13任务，见[011验收](011-validation.md) |
 | [012-stage-checkpoints](../specs/012-stage-checkpoints/spec.md) | 第10项第一增量：阶段断点、失效回退与清理 | 用户授权第10项 | 011 | 本地及远端CI通过，7/7任务，见[012验收](012-validation.md) |
 | [013-worker-leases](../specs/013-worker-leases/spec.md) | 第10项第二增量：租约、执行代次与接管 | 用户授权第10项 | 012 | 本地及远端CI通过，7/7任务，见[013验收](013-validation.md) |
-| [014-status-stream](../specs/014-status-stream/spec.md) | 第10项第三增量：SSE快照、身份重验和轮询回退 | 用户授权第10项 | 013 | 本地通过；最终CI待确认，见[014验收](014-validation.md) |
+| [014-status-stream](../specs/014-status-stream/spec.md) | 第10项第三增量：SSE快照、身份重验和轮询回退 | 用户授权第10项 | 013 | 本地及远端CI通过，7/7任务，见[014验收](014-validation.md) |
 
 007为原题MVP之后的用户授权拓展，不修改原题。008扩展真实合成至三模板，011增加可选账号。012提供断点，013支持共享数据库/文件卷的多后台租约接管，014优先SSE并保留轮询回退；默认一个后台。
 
