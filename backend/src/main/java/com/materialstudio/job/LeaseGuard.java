@@ -16,7 +16,7 @@ public class LeaseGuard implements ApplicationRunner {
  public LeaseGuard(ExecutionMapper execution,EventMapper events,PlatformTransactionManager manager,@Value("${studio.lease-ms:15000}") long millis){if(millis<3000)throw new IllegalArgumentException("studio.lease-ms must be at least 3000");this.execution=execution;this.events=events;this.millis=millis;tx=new TransactionTemplate(manager);tx.setIsolationLevel(org.springframework.transaction.TransactionDefinition.ISOLATION_READ_COMMITTED);}
  public Claim claim(String id){return tx.execute(status->{var job=events.lock(id);if(job==null||!job.status().equals("QUEUED"))return null;execution.ensure(id);var lease=execution.lease(id);if(lease.alive())return null;var runtime=execution.runtime(id);if(runtime.availableAt()!=null&&runtime.availableAt().isAfter(java.time.Instant.now()))return null;execution.claim(id,owner,millis);return new Claim(id,owner,lease.leaseGeneration()+1);});}
  public boolean allowed(String id){var lease=execution.lease(id);var claim=context.get();if(claim==null)return lease==null||lease.leaseGeneration()==0;return claim.id().equals(id)&&lease!=null&&lease.alive()&&claim.owner().equals(lease.leaseOwner())&&claim.generation()==lease.leaseGeneration();}
- public boolean renew(Claim claim){return execution.renew(claim,millis)>0;}
+ public boolean renew(Claim claim){return Boolean.TRUE.equals(tx.execute(status->{var job=events.lock(claim.id());return job!=null&&Set.of("QUEUED","RUNNING").contains(job.status())&&execution.renew(claim,millis)>0;}));}
  public void release(Claim claim){execution.release(claim);}
  public Scope enter(Claim claim){return new Scope(claim);}
  public final class Scope implements AutoCloseable {

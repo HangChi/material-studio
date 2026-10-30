@@ -28,6 +28,7 @@ services:
       STUDIO_MAX_PENDING: ${STUDIO_MAX_PENDING:-100}
       STUDIO_MAX_PENDING_PER_USER: ${STUDIO_MAX_PENDING_PER_USER:-20}
       STUDIO_SUBMISSIONS_PER_MINUTE: ${STUDIO_SUBMISSIONS_PER_MINUTE:-10}
+      STUDIO_LEASE_MS: ${STUDIO_LEASE_MS:-15000}
     volumes: ["asset-data:/data"]
     depends_on:
       mysql: { condition: service_healthy }

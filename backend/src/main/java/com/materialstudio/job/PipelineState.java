@@ -11,10 +11,11 @@ import static com.materialstudio.job.Simulation.Stage;
 public class PipelineState {
     private final EventMapper events;private final ExecutionMapper execution;private final long backoff;private final CheckpointMapper checkpoints;private final CheckpointStore checkpointFiles;
     private final TransactionTemplate transaction;
-    public PipelineState(EventMapper events,PlatformTransactionManager manager,ExecutionMapper execution,@org.springframework.beans.factory.annotation.Value("${studio.retry-backoff-ms:1000}") long backoff,CheckpointMapper checkpoints,CheckpointStore checkpointFiles) { this.checkpointFiles=checkpointFiles;this.checkpoints=checkpoints;this.events=events;this.execution=execution;this.backoff=Math.max(0,backoff);transaction=new TransactionTemplate(manager); }
+    private final LeaseGuard leases;
+    public PipelineState(EventMapper events,PlatformTransactionManager manager,ExecutionMapper execution,@org.springframework.beans.factory.annotation.Value("${studio.retry-backoff-ms:1000}") long backoff,CheckpointMapper checkpoints,CheckpointStore checkpointFiles,LeaseGuard leases) { this.leases=leases;this.checkpointFiles=checkpointFiles;this.checkpoints=checkpoints;this.events=events;this.execution=execution;this.backoff=Math.max(0,backoff);transaction=new TransactionTemplate(manager); }
     public boolean resume(String id,Stage after) {
         return Boolean.TRUE.equals(transaction.execute(tx->{
-            var job=events.lock(id);if(job==null||!job.status().equals("QUEUED"))return false;execution.ensure(id);var run=execution.runtime(id);
+            var job=events.lock(id);if(job==null||!job.status().equals("QUEUED")||!leases.allowed(id))return false;execution.ensure(id);var run=execution.runtime(id);
             if(run.availableAt()!=null&&run.availableAt().isAfter(Instant.now()))return false;
             if(execution.begin(id)==0){write(job,"FAILED",null,"FAILED",null,"RETRY_EXHAUSTED","已达到三次执行上限","执行次数已耗尽");return false;}
             write(job,"RUNNING",after.name(),"RESUMED",null,null,null,"从"+label(after,job.templateId())+"断点恢复");return true;
@@ -22,7 +23,7 @@ public class PipelineState {
     }
     public boolean start(String id,Stage stage) {
         return Boolean.TRUE.equals(transaction.execute(tx->{
-            var job=events.lock(id);if(job==null)return false;
+            var job=events.lock(id);if(job==null||!leases.allowed(id))return false;
             if(stage==Stage.ASSET_CHECK) {
                 if(!job.status().equals("QUEUED"))return false;execution.ensure(id);var run=execution.runtime(id);
                 if(run.availableAt()!=null&&run.availableAt().isAfter(Instant.now()))return false;
@@ -41,7 +42,7 @@ public class PipelineState {
     }
     public boolean complete(String id,Stage stage,String result,CheckpointMapper.Checkpoint checkpoint) {
         return Boolean.TRUE.equals(transaction.execute(tx->{
-            var job=events.lock(id);if(job==null||!job.status().equals("RUNNING")||!stage.name().equals(job.stage()))return false;
+            var job=events.lock(id);if(job==null||!leases.allowed(id)||!job.status().equals("RUNNING")||!stage.name().equals(job.stage()))return false;
             var history=events.events(id);if(history.isEmpty()||!history.getLast().kind().equals("STARTED"))return false;
             boolean done=stage==Stage.FINALIZE;
             if(done && result==null)throw new IllegalArgumentException("Result required");
@@ -60,18 +61,20 @@ public class PipelineState {
             if(!isUnfinished(job))throw new com.materialstudio.common.ApiException(409,"JOB_NOT_CANCELLABLE","已结束的任务无法取消");
             write(job,"FAILED",job.stage(),"FAILED",null,"JOB_CANCELLED","制作已取消","用户已取消制作，后续阶段停止");return JobView.from(events.find(id));
         });
-        checkpointFiles.cleanupTerminal(id);return cancelled;
+        if(org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive())org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(new org.springframework.transaction.support.TransactionSynchronization(){@Override public void afterCommit(){checkpointFiles.cleanupTerminal(id);}});
+        else checkpointFiles.cleanupTerminal(id);
+        return cancelled;
     }
     public void fail(String id,String code,String message) {
         transaction.executeWithoutResult(tx->{
-            var job=events.lock(id);if(job==null||!isUnfinished(job))return;
+            var job=events.lock(id);if(job==null||!isUnfinished(job)||!leases.allowed(id))return;
             write(job,"FAILED",job.stage(),code.equals("PROCESS_INTERRUPTED")?"INTERRUPTED":"FAILED",null,code,message,message);
         });
     }
     public void retry(String id,String code,String message) {
         transaction.executeWithoutResult(tx->{
-            var job=events.lock(id);if(job==null||!isUnfinished(job))return;execution.ensure(id);
-            // A transaction that failed before claiming still consumes one execution attempt.
+            var job=events.lock(id);if(job==null||!isUnfinished(job)||!leases.allowed(id))return;execution.ensure(id);
+            // A claimed execution that failed before its first stage still consumes the budget.
             if(job.status().equals("QUEUED"))execution.begin(id);
             var run=execution.runtime(id);
             if(run.attemptCount()>=3){write(job,"FAILED",job.stage(),"FAILED",null,code,message+"，已达到三次执行上限",message+"，不再自动重试");return;}
@@ -80,7 +83,17 @@ public class PipelineState {
         });
     }
     public void recoverUnfinished(){
-        for(String id:events.unfinished()){var job=events.find(id);if(job!=null&&job.status().equals("RUNNING"))retry(id,"PROCESS_INTERRUPTED","服务中断后恢复任务");}
+        for(String id:events.unfinished())recoverExpired(id);
+    }
+    public void recoverExpired(String id){
+        transaction.executeWithoutResult(tx->{
+            var job=events.lock(id);if(job==null||!job.status().equals("RUNNING"))return;execution.ensure(id);if(execution.lease(id).alive())return;
+            execution.clearExpired(id);var run=execution.runtime(id);
+            if(run.attemptCount()>=3){write(job,"FAILED",job.stage(),"FAILED",null,"PROCESS_INTERRUPTED","执行租约到期，已达到三次执行上限","执行租约到期，不再自动重试");return;}
+            execution.defer(id,Instant.now().plusMillis(backoff*run.attemptCount()));
+            write(job,"QUEUED",null,"INTERRUPTED",null,null,null,"执行租约到期或旧服务中断，等待接管恢复");
+        });
+        checkpointFiles.cleanupTerminal(id);
     }
     public void interruptUnfinished() {
         for(String id:events.unfinished())fail(id,"PROCESS_INTERRUPTED","服务已中断，任务未完成，请重新提交");

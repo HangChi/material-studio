@@ -9,6 +9,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PipelineApiTest extends ApiTestSupport {
+    @org.springframework.test.context.bean.override.mockito.MockitoSpyBean ResultStore results;
     private JsonNode submit(String owner, Object simulation) throws Exception {
         var body=new LinkedHashMap<String,Object>();body.put("templateId","demo-portrait");body.put("assetIds",List.of(asset(owner)));
         if(simulation!=null) body.put("simulation",simulation);
@@ -48,18 +49,21 @@ class PipelineApiTest extends ApiTestSupport {
         for(int i=0;i<10;i++) assertThat(call("/api/jobs/"+id,HttpMethod.GET,owner,null).getBody().path("job")).isEqualTo(job);
         assertThat(jdbc.queryForMap("SELECT check_ms,generate_ms,finalize_ms FROM job_execution WHERE job_id=?",id).values()).containsOnly(2000);
     }
-    @Test void filePublicationFailureIsTerminalAndDoesNotExposeResult() throws Exception {
+    @Test void filePublicationFailureExhaustsRetriesAndDoesNotExposeResult() throws Exception {
         String owner=session();
         var config=Map.of("stageDurationsMs",Map.of("ASSET_CHECK",0,"GENERATE",0,"FINALIZE",800));
         String id=submit(owner,config).path("id").asText();
-        Path collision=STORAGE.resolve("results").resolve(id+".png");Files.createDirectories(collision);
+        Path isolated=Files.createTempDirectory(STORAGE,"blocked-publication-");Path collision=isolated.resolve("results");Files.write(collision,new byte[]{1});
+        var blocked=new ResultStore(isolated.toString());
+        org.mockito.Mockito.doAnswer(invocation->blocked.publish(invocation.getArgument(0,String.class),invocation.getArgument(1,java.awt.image.BufferedImage.class))).when(results).publish(org.mockito.ArgumentMatchers.eq(id),org.mockito.ArgumentMatchers.any(java.awt.image.BufferedImage.class));
         try {
             waitDatabase(id);
             var job=call("/api/jobs/"+id,HttpMethod.GET,owner,null).getBody().path("job");
             assertThat(job.path("status").asText()).isEqualTo("FAILED");assertThat(job.path("stage").asText()).isEqualTo("FINALIZE");
             assertThat(job.path("resultUrl").isNull()).isTrue();assertThat(job.path("errorMessage").asText()).doesNotContain(STORAGE.toString());
+            assertThat(job.path("attempt").asInt()).isEqualTo(3);
             assertThat(call("/api/jobs/"+id+"/result",HttpMethod.GET,owner,null).getStatusCode().value()).isEqualTo(404);
-        } finally { Files.deleteIfExists(collision); }
+        } finally { Files.deleteIfExists(collision);Files.deleteIfExists(isolated); }
     }
 
     @org.junit.jupiter.params.ParameterizedTest

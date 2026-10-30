@@ -18,15 +18,20 @@ public class PipelineWorker {
     private final TemplateRenderer templateRenderer;
     private final CreationMapper creation;
     private final CheckpointStore checkpoints;
+    private final LeaseGuard leases;
     private final com.fasterxml.jackson.databind.ObjectMapper json;
-    public PipelineWorker(PipelineState state,EventMapper events,AssetService assets,TemplateMapper templates,ResultStore results,PostcardRenderer renderer,CreationMapper creation,com.fasterxml.jackson.databind.ObjectMapper json,TemplateRenderer templateRenderer,CheckpointStore checkpoints) {
-        this.checkpoints=checkpoints;this.state=state;this.events=events;this.assets=assets;this.templates=templates;this.results=results;this.renderer=renderer;this.creation=creation;this.json=json;this.templateRenderer=templateRenderer;
+    public PipelineWorker(PipelineState state,EventMapper events,AssetService assets,TemplateMapper templates,ResultStore results,PostcardRenderer renderer,CreationMapper creation,com.fasterxml.jackson.databind.ObjectMapper json,TemplateRenderer templateRenderer,CheckpointStore checkpoints,LeaseGuard leases) {
+        this.leases=leases;this.checkpoints=checkpoints;this.state=state;this.events=events;this.assets=assets;this.templates=templates;this.results=results;this.renderer=renderer;this.creation=creation;this.json=json;this.templateRenderer=templateRenderer;
     }
     private PostcardParameters parameters(String id) throws java.io.IOException {
         var recipe=creation.recipe(id);
         return recipe==null||recipe.parametersJson()==null?PostcardParameters.defaults():json.readValue(recipe.parametersJson(),PostcardParameters.class);
     }
     public void execute(String id) {
+        state.recoverExpired(id);var claim=leases.claim(id);if(claim==null)return;
+        try(var scope=leases.enter(claim)){executeClaimed(id);}
+    }
+    private void executeClaimed(String id) {
         String published=null;java.awt.image.BufferedImage generated=null;CheckpointMapper.Checkpoint pending=null;
         try {
             var config=events.configuration(id);

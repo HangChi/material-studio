@@ -41,6 +41,7 @@ public class CheckpointStore {
  }
  private Path path(String name){if(name==null||!name.matches("[a-f0-9-]{36}\\.png"))throw new IllegalArgumentException("Invalid checkpoint path");return root.resolve(name);}
  public void discard(CheckpointMapper.Checkpoint row){if(row==null||row.artifactPath()==null)return;var saved=mapper.find(row.jobId(),row.stage());if(saved!=null&&Objects.equals(saved.artifactPath(),row.artifactPath()))return;try{Files.deleteIfExists(path(row.artifactPath()));}catch(IOException ignored){/* An unregistered orphan is never reused. */}}
+ @org.springframework.transaction.annotation.Transactional(propagation=org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
  public void cleanupTerminal(String id){
   var job=events.find(id);if(job==null||Set.of("QUEUED","RUNNING").contains(job.status()))return;
   var row=mapper.find(id,"GENERATE");
