@@ -2,8 +2,12 @@
 import {useEffect,useRef,useState} from "react";
 import type {Job} from "./types";
 import {isJob} from "./JobTracker";
+import {StudioIcon} from "../../components/StudioIcon";
 export function BulkControls({jobs,selected,onSelect,onUpdated,onExpire}:{jobs:Job[];selected:string[];onSelect:(ids:string[])=>void;onUpdated:(jobs:Job[])=>void;onExpire:()=>void}){
  const [tags,setTags]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");const life=useRef({active:true,controller:null as AbortController|null});
+ const selectionButton=useRef<HTMLButtonElement>(null);
+ const restoreFocus=useRef(false);
+ useEffect(()=>{if(!busy&&restoreFocus.current){restoreFocus.current=false;selectionButton.current?.focus();}},[busy]);
  useEffect(()=>{const state=life.current;state.active=true;return()=>{state.active=false;state.controller?.abort();};},[]);
  async function perform(changes?:Record<string,unknown>){
   const state=life.current;if(state.controller||!selected.length)return;const c=new AbortController();state.controller=c;setBusy(true);setError("");const ids=[...selected];
@@ -11,8 +15,25 @@ export function BulkControls({jobs,selected,onSelect,onUpdated,onExpire}:{jobs:J
    if(!r.ok){const p=await r.json();throw new Error(p.error?.message??"批量操作失败，请重试");}
    if(changes){const p=await r.json();if(!state.active)return;if(!Array.isArray(p.items)||!p.items.every(isJob))throw new Error("批量操作响应无效");onUpdated(p.items);onSelect([]);}
    else{const blob=await r.blob();if(!state.active)return;if(!r.headers.get("content-type")?.includes("application/zip"))throw new Error("下载响应无效");const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="works.zip";a.click();URL.revokeObjectURL(url);}
-  }catch(e){if(state.active)setError(e instanceof Error?e.message:"批量操作失败");}finally{state.controller=null;if(state.active)setBusy(false);}
+  }catch(e){if(state.active)setError(e instanceof Error?e.message:"批量操作失败");}finally{state.controller=null;if(state.active){restoreFocus.current=true;setBusy(false);}}
  }
  const canDownload=selected.length>0&&selected.length<=20&&selected.every(id=>jobs.find(job=>job.id===id)?.status==="SUCCEEDED");
- return <section className="bulk-panel" aria-label="批量管理"><div className="job-actions"><button disabled={busy} onClick={()=>onSelect(jobs.slice(0,50).map(job=>job.id))}>选择已加载作品（最多50项）</button><button disabled={busy||!selected.length} onClick={()=>onSelect([])}>清空选择</button><span role="status">已选择 {selected.length} 项</span></div><div className="job-actions"><button disabled={busy||!selected.length} onClick={()=>void perform({favorite:true})}>批量收藏</button><button disabled={busy||!selected.length} onClick={()=>void perform({favorite:false})}>批量取消收藏</button><button disabled={busy||!selected.length} onClick={()=>void perform({hidden:true})}>批量隐藏</button><button disabled={busy||!selected.length} onClick={()=>void perform({hidden:false})}>批量恢复</button><button disabled={busy||!canDownload} onClick={()=>void perform()}>下载所选 ZIP</button></div><label>批量标签（逗号分隔，覆盖原标签）<input value={tags} disabled={busy} onChange={e=>setTags(e.target.value)} /></label><button disabled={busy||!selected.length} onClick={()=>void perform({tags:tags.split(/[,，]/).map(tag=>tag.trim()).filter(Boolean)})}>设置所选标签</button>{busy&&<p role="status">正在处理所选作品…</p>}{error&&<p role="alert">{error}</p>}</section>;
+ if(!jobs.length)return null;
+ return <section className={`bulk-panel${selected.length?" has-selection":""}`} aria-label="批量管理" aria-busy={busy}>
+  <div className="bulk-selection-bar">
+   <span className="bulk-symbol"><StudioIcon name="select"/></span>
+   <div className="bulk-selection-copy"><strong role="status" aria-live="polite">{selected.length?`已选择 ${selected.length} 项`:"批量管理"}</strong><p>{selected.length?"统一整理所选作品，最多可选择 50 项":"选择作品后，可收藏、整理标签或打包下载"}</p></div>
+   <div className="bulk-select-actions"><button ref={selectionButton} type="button" disabled={busy} aria-label="选择已加载作品（最多50项）" onClick={()=>onSelect(jobs.slice(0,50).map(job=>job.id))}>选择已加载作品</button>{selected.length>0&&<button type="button" className="bulk-clear" disabled={busy} onClick={()=>{onSelect([]);selectionButton.current?.focus();}}>清空选择</button>}</div>
+  </div>
+  {selected.length>0&&<div className="bulk-action-area">
+   <div className="bulk-action-row">
+    <div className="bulk-action-group"><button type="button" aria-label="批量收藏" disabled={busy} onClick={()=>void perform({favorite:true})}><StudioIcon name="star"/>收藏</button><button type="button" aria-label="批量取消收藏" disabled={busy} onClick={()=>void perform({favorite:false})}>取消收藏</button></div>
+    <div className="bulk-action-group"><button type="button" aria-label="批量隐藏" disabled={busy} onClick={()=>void perform({hidden:true})}><StudioIcon name="hide"/>隐藏</button><button type="button" aria-label="批量恢复" disabled={busy} onClick={()=>void perform({hidden:false})}>恢复</button></div>
+    <button type="button" className="bulk-download" aria-label="下载所选 ZIP" disabled={busy||!canDownload} onClick={()=>void perform()}><StudioIcon name="download"/>下载 ZIP</button>
+   </div>
+   {!canDownload&&<p className="bulk-download-help">仅支持打包最多 20 项已成功的作品</p>}
+   <details className="bulk-tags"><summary><StudioIcon name="tag"/>设置标签<StudioIcon name="chevron"/></summary><div className="bulk-tag-fields"><label>批量标签<input value={tags} disabled={busy} placeholder="例如：旅行，周末" onChange={e=>setTags(e.target.value)}/></label><button type="button" disabled={busy} aria-label="设置所选标签" onClick={()=>void perform({tags:tags.split(/[,，]/).map(tag=>tag.trim()).filter(Boolean)})}>应用标签</button><p>用逗号分隔，将覆盖所选作品的原有标签；留空可清除标签。</p></div></details>
+  </div>}
+  {busy&&<p className="bulk-feedback" role="status">正在处理所选作品…</p>}{error&&<p className="bulk-feedback" role="alert">{error}</p>}
+ </section>;
 }

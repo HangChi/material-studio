@@ -395,3 +395,8 @@ T005：BatchReadTest在真实HTTP/MySQL链路建立本人两批次五项和他�
 新增V15索引ix_job_status_time(status,created_at,id)，不改历史迁移。测试库EXPLAIN：索引前30行数据调度与COUNT均ALL，调度Using temporary/Using filesort；索引后143行数据均range使用ix_job_status_time，关联runtime为eq_ref，COUNT覆盖索引；调度仍Using filesort。日志/tmp/xiaoying-016-explain-before.log与-after.log。样本规模与分布不同，这仅验证索引可用，不作为延迟/吞吐倍数结论。
 GREEN相关7类20项通过（/tmp/xiaoying-016-read-green.log），加强查询次数断言后全量docker compose --profile test run --rm backend-test mvn -B verify：97项通过、Java打包成功（/tmp/xiaoying-016-backend-all.log）。
 T006：本轮修改路径展开锁内取消与草稿保存条件、提取批次列表合并函数，批次读取拆分加载/分组/计数，未对全仓做格式改写。完整前端命令docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：25文件126项测试及全部检查通过（/tmp/xiaoying-016-frontend-all.log）；复用本次审查按锁文件npm ci已安装的容器卷，无依赖变化。全量Java97项/打包通过。更新README当前基线、016验收和roadmap，历史阶段记录保留。未推送/部署，未宣称新一轮远端CI或浏览器视觉验收；仅本地容器行为验证。完成后停止并移除本轮tmpfs测试数据库，演示库/素材卷和其他项目不动。
+
+### 017 · 制作记录筛选与批量管理界面
+用户提供两个截图，要求优化筛选区与批量管理的视觉。使用frontend-design/ui-ux-pro-max，领域检索验证批量多选/操作带建议，沿用工坊绿与系统中文字体，先建立017规格、计划、契约/6项质量检查及5项串行任务。原011/016 HTTP、额度/身份/轮询逻辑不变，无新依赖。
+T002 RED：history-interface与bulk-interface共4项因缺少更多筛选、未选仍显示动作、空集合显示工具及缺少ZIP说明失败（/tmp/xiaoying-017-red.log）。实现主筛选行、保值的更多筛选、收藏/隐藏选项、已应用数量；批量区按空/未选/已选展示、标签details、下载资格说明与操作完成后焦点恢复。相关17项GREEN（/tmp/xiaoying-017-green.log）。纯视觉不造CSS快照，样式独立history.css并作用于记录页；复用并补充StudioIcon线性图标。
+完整容器命令docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：27文件130项及全部检查通过（/tmp/xiaoying-017-all.log）。Java无变更，沿用016的97项全量通过基线。正在重建用户已启动的frontend并实际浏览器验证，不关停整个项目。

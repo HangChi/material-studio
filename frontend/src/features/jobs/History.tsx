@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
+import {StudioIcon} from "../../components/StudioIcon";
 import {BulkControls} from "./BulkControls";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { SessionGate } from "../identity/SessionGate";
 import { isJob } from "./JobTracker";
 import { JobCards } from "./JobCards";
@@ -30,16 +31,32 @@ function TemplateFilter({value,onChange}:{value:string;onChange:(value:string)=>
 }
 function HistoryBody({owner}:{owner:string}){
  const [form,setForm]=useState(emptyFilters),[filter,setFilter]=useState(emptyFilters);
- return <><form className="history-filters" onSubmit={event=>{event.preventDefault();setFilter({...form});}}>
-  <label>搜索作品<input aria-label="搜索作品" value={form.q} maxLength={60} placeholder="名称或模板" onChange={event=>setForm({...form,q:event.target.value})}/></label>
-  <TemplateFilter value={form.templateId} onChange={templateId=>setForm({...form,templateId})}/>
-  <label>标签筛选<input value={form.tag} maxLength={40} onChange={event=>setForm({...form,tag:event.target.value})}/></label>
-  <label>任务状态<select value={form.status} onChange={event=>setForm({...form,status:event.target.value})}><option value="">全部状态</option>{[["QUEUED","待处理任务"],["RUNNING","正在制作"],["SUCCEEDED","成功任务"],["FAILED","失败任务"],["CANCELLED","取消任务"]].map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
-  <label>开始日期<input type="date" value={form.from} onChange={event=>setForm({...form,from:event.target.value})}/></label><label>结束日期<input type="date" value={form.to} min={form.from} onChange={event=>setForm({...form,to:event.target.value})}/></label>
-  <label><input type="checkbox" checked={form.favorite} onChange={event=>setForm({...form,favorite:event.target.checked})}/>只看收藏</label><label><input type="checkbox" checked={form.hidden} onChange={event=>setForm({...form,hidden:event.target.checked})}/>查看已隐藏作品</label>
-  <button type="submit">应用筛选</button><button type="button" onClick={()=>{setForm(emptyFilters);setFilter(emptyFilters);}}>重置筛选</button>
+ const [expanded,setExpanded]=useState(false);
+ const advancedId=useId();
+ const appliedCount=Object.values(filter).filter(Boolean).length;
+ const advancedCount=[form.tag,form.from,form.to].filter(Boolean).length;
+ function reset(){setForm(emptyFilters);setFilter(emptyFilters);setExpanded(false);}
+ return <><form className="history-filters" aria-label="筛选作品" onSubmit={event=>{event.preventDefault();setFilter({...form});}}>
+  <div className="history-filter-main">
+   <label className="history-search">搜索作品<span className="history-search-field"><StudioIcon name="search"/><input type="search" aria-label="搜索作品" value={form.q} maxLength={60} placeholder="搜索作品名称或模板" onChange={event=>setForm({...form,q:event.target.value})}/></span></label>
+   <TemplateFilter value={form.templateId} onChange={templateId=>setForm({...form,templateId})}/>
+   <label>任务状态<select value={form.status} onChange={event=>setForm({...form,status:event.target.value})}><option value="">全部状态</option>{[["QUEUED","待处理任务"],["RUNNING","正在制作"],["SUCCEEDED","成功任务"],["FAILED","失败任务"],["CANCELLED","取消任务"]].map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
+   <button className="history-more-filters" type="button" aria-label="更多筛选" aria-expanded={expanded} aria-controls={advancedId} onClick={()=>setExpanded(value=>!value)}><StudioIcon name="sliders"/>更多筛选{advancedCount>0&&<span className="filter-extra-count" aria-hidden="true">{advancedCount}</span>}</button>
+   <button className="primary history-apply" type="submit">应用筛选<StudioIcon name="arrow"/></button>
+  </div>
+  <div className="history-filter-advanced" id={advancedId} hidden={!expanded}>
+   <label>标签筛选<input value={form.tag} maxLength={40} placeholder="例如：旅行、日常" onChange={event=>setForm({...form,tag:event.target.value})}/></label>
+   <fieldset className="history-date-range"><legend>创建时间</legend><div>
+    <label>开始日期<input type="date" value={form.from} onChange={event=>setForm({...form,from:event.target.value})}/></label><span className="date-range-separator" aria-hidden="true">—</span><label>结束日期<input type="date" value={form.to} min={form.from} onChange={event=>setForm({...form,to:event.target.value})}/></label>
+   </div></fieldset>
+  </div>
+  <div className="history-filter-footer">
+   <div className="history-filter-toggles"><label><input type="checkbox" checked={form.favorite} onChange={event=>setForm({...form,favorite:event.target.checked})}/><StudioIcon name="star"/>只看收藏</label><label><input type="checkbox" checked={form.hidden} onChange={event=>setForm({...form,hidden:event.target.checked})}/><StudioIcon name="hide"/>查看已隐藏作品</label></div>
+   <div className="history-filter-meta">{appliedCount>0&&<span role="status">已应用 {appliedCount} 项筛选</span>}<button className="history-reset" type="button" onClick={reset}><StudioIcon name="repeat"/>重置筛选</button></div>
+  </div>
  </form><HistoryResults key={JSON.stringify(filter)} owner={owner} filter={filter}/></>;
 }
+
 function HistoryResults({owner,filter}:{owner:string;filter:Filters}){
  const filtered=Object.values(filter).some(Boolean);
  const params=new URLSearchParams();for(const key of ["q","templateId","status","tag"] as const)if(filter[key])params.set(key,filter[key]);
@@ -80,7 +97,7 @@ function HistoryResults({owner,filter}:{owner:string;filter:Filters}){
  const visibleJobs=snapshot.jobs.filter(job=>matches(job,filter)&&(!filter.tag||tagMatches.has(job.id)));
  if(snapshot.authExpired)return <p role="alert">访客身份已失效，请刷新页面重新建立。</p>;
  return <section aria-label="个人制作记录">
-  <div className="history-toolbar"><p>记录保存在当前身份名下，未完成任务会自动更新。</p><button type="button" disabled={page.loading} onClick={()=>void load(false)}>刷新记录</button></div>
+  <div className="history-toolbar history-results-heading"><div><h2>我的作品<span>已加载 {visibleJobs.length} 项</span></h2><p><span className="history-live-dot" aria-hidden="true"/>未完成的任务会自动更新</p></div><button type="button" disabled={page.loading} onClick={()=>void load(false)}><StudioIcon name="repeat"/>刷新记录</button></div>
   {page.loading&&!page.loaded&&<p role="status">正在读取制作记录…</p>}
   {page.error&&<p className="query-error" role="alert">{page.error}</p>}
   {page.loaded&&visibleJobs.length===0&&<div className="state-panel"><h2>{filtered?"没有匹配的作品":"还没有制作记录"}</h2><p>{filtered?"调整筛选条件后重新查询。":"挑选一张模板，开始你的第一份作品。"}</p>{!filtered&&<Link className="text-action" href="/">去挑选模板</Link>}</div>}

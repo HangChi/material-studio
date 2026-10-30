@@ -1,5 +1,11 @@
-type Kind = "templates" | "history" | "upload" | "sliders" | "library" | "arrow" | "edit" | "download" | "repeat";
+type Kind = "search" | "star" | "hide" | "select" | "tag" | "chevron" | "templates" | "history" | "upload" | "sliders" | "library" | "arrow" | "edit" | "download" | "repeat";
 const paths: Record<Kind, string> = {
+  search: "M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0",
+  star: "m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z",
+  hide: "m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9 5.5c1-.3 2-.5 3-.5 6 0 10 7 10 7s-1.5 2.6-4 4.6M6 6.5C3.5 8.4 2 12 2 12s4 7 10 7c1.3 0 2.6-.3 3.7-.8",
+  select: "M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6M8 12l3 3 5-6",
+  tag: "M3 3h8l10 10-8 8L3 11zM7 7h.01",
+  chevron: "m6 9 6 6 6-6",
   templates: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
   history: "M5 3h14v18H5zM9 7h6M9 11h6M9 15h3",
   upload: "M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6",
