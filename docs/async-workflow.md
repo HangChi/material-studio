@@ -79,7 +79,7 @@ sequenceDiagram
 
 未确认提交的key/完整载荷按owner/模板保存在sessionStorage；存储不可用时当前页仍可重试，刷新不能恢复，页面明确提示。本机编辑草稿在localStorage，不代替后台记录，也不自动跨设备同步。
 
-[SessionGate](../frontend/src/features/identity/SessionGate.tsx)先读取会话，无会话再建匿名身份；切换先确认，确认后卸载私有视图并撤销Cookie。账号绑定保持owner；显式访客迁移拒绝活动源/标识冲突。跨标签通知只存变更标记，不存token；存储禁用时其他页需刷新。
+[SessionGate](../frontend/src/features/identity/SessionGate.tsx)通过兼容POST读取或初始化会话；018移除游客重置入口，保留稳定游客及账号管理/退出。退出中立即卸载私有视图，成功撤销会话后建立游客，不删除作品。账号绑定保持owner；显式访客迁移拒绝活动源/标识冲突。跨标签通知只存变更标记，不存token；存储禁用时其他页需刷新。
 
 ### 2. 一个源观察多个任务
 

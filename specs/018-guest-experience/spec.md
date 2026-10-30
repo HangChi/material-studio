@@ -1,6 +1,6 @@
 # Specification: 面向用户的游客体验
 **Created**: 2026-10-30
-**Status**: In progress
+**Status**: Complete (container and guest browser validation)
 **Input**: 用户确认游客不应以多个可切换身份呈现，要求开始优化。
 ## Requirements
 - FR-001 移除普通页面的切换访客按钮、游客编号及切换相关警告；保留当前Cookie对应的游客及其作品，不因界面更新轮换身份。

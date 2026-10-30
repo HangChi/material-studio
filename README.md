@@ -1,9 +1,9 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～017已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑与草稿、作品管理、可靠受理/监控、批次/标签/ZIP和本地账号恢复；第10项另完成阶段断点、多实例租约/执行代次、SSE及轮询回退。账号页已统一优化，审查发现的取消并发、列表乱序、空草稿及查询问题已修复。**
-原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012～015远端CI均已通过；本轮本地结果见[017验收记录](docs/017-validation.md)，尚未推送远端。真实TLS与公网部署未执行。
-当前检查基线为130项前端测试及构建通过，Java沿用016的97项全量基线；界面与验证边界见[017验收记录](docs/017-validation.md)。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
+**002～018已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑与草稿、作品管理、可靠受理/监控、批次/标签/ZIP和本地账号恢复；第10项另完成阶段断点、多实例租约/执行代次、SSE及轮询回退。账号页已统一优化，审查发现的取消并发、列表乱序、空草稿及查询问题已修复。**
+原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012～015远端CI均已通过；本轮本地结果见[018验收记录](docs/018-validation.md)，尚未推送远端。真实TLS与公网部署未执行。
+当前检查基线为131项前端测试及构建通过，Java沿用016的97项全量基线；身份体验与验证边界见[018验收记录](docs/018-validation.md)。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
 
 ## 迭代与开发入口
 
@@ -28,16 +28,17 @@
 | [015](specs/015-account-interface/spec.md) | 账号页视觉、表单交互与安全操作分区 | 本地、浏览器及远端CI通过，6/6任务；交付状态见[记录](docs/015-validation.md) |
 | [016](specs/016-review-hardening/spec.md) | 并发取消、批次乱序、空草稿、批量读取与索引 | 本地容器检查通过，6/6任务，见[记录](docs/016-validation.md) |
 | [017](specs/017-history-interface/spec.md) | 紧凑筛选与按选择展开批量管理 | 完整前端/浏览器1280与375px通过，5/5任务，见[记录](docs/017-validation.md) |
+| [018](specs/018-guest-experience/spec.md) | 移除游客切换、账号入口/退出与过期提示 | 完整前端/真实游客界面通过，4/4任务，见[记录](docs/018-validation.md) |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/017-history-interface .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/018-guest-experience .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[017任务](specs/017-history-interface/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[016兼容说明](specs/016-review-hardening/contracts/http-api.md)、[014契约](specs/014-status-stream/contracts/http-api.md)、[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[018任务](specs/018-guest-experience/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[016兼容说明](specs/016-review-hardening/contracts/http-api.md)、[014契约](specs/014-status-stream/contracts/http-api.md)、[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -209,8 +210,8 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 历史首页同时读取active集合，即使某未完成任务在后续页也继续跟踪；记录按ID去重。浏览器时间比较保留服务端微秒精度。
 
 演示：连续提交不同配置的任务，进入记录页查看各自结果；刷新可恢复未完成任务。浏览器临时离线只会出现查询暂停，恢复在线后点击“恢复查询”读取真实结果；后台服务无需停止。
-010起记录页“切换为新访客”先弹出原生确认，取消保留身份及视图；确认后卸载旧视图、撤销cookie，再建立新身份，旧任务后台继续；未绑定访客无法找回，011已绑定账号可重新登录。其他浏览器/无痕窗口天然隔离。
-同源标签页共享cookie，成功切换后用不含token/身份的localStorage标记通知其他页清理并重新建立身份；禁用本地存储时其他标签需手动刷新。401也会清掉当前私有快照并停止查询。
+018起正常页面移除“切换访客”与游客编号，自动维持当前Cookie对应的身份。游客可直接制作，注册绑定当前身份保留作品；登录既有账号的迁移仍需在账号页显式选择。登录用户可管理账号或退出登录，退出只撤销当前会话，不删除作品。其他浏览器/无痕窗口天然隔离。
+同源标签页共享cookie，账号登录/退出成功后用不含token/身份的localStorage标记通知其他页清理并重新读取身份；禁用本地存储时其他标签需手动刷新。401清掉当前私有快照、停止查询并提供重新登录入口。游客Cookie丢失后不能保证找回原记录，重建游客不会恢复旧身份。
 
 本地验收已覆盖真实24条记录跨四页、三任务成功/失败隔离、旧身份撤销、新身份空记录；浏览器验证自动更新、离线暂停后恢复、历史刷新和375px布局。乱序/旧版本/跨标签清理及精确两周期无多余请求由可控组件/跟踪器测试证明，不混称浏览器故障注入。
 
@@ -373,3 +374,7 @@ SSE每跟踪器一个源、最多50项；每后台64连接/每owner2、10秒心�
 ## 017 · 制作记录工具区
 
 筛选区重排为常用条件与按需展开的日期/标签，批量管理根据选择展开，避免禁用按钮堆叠。现有本地前端已重建，可访问[制作记录](http://localhost:3000/history)。130项前端测试、lint/typecheck/构建通过；桌面和375px真实界面、已知验证边界及截图见[017验收](docs/017-validation.md)。当前服务保持运行。
+
+## 018 · 游客与账号体验
+
+游客维持当前浏览器身份，不再提供切换入口或显示游客编号。登录用户可管理账号及退出登录，会话过期有明确登录指引。131项前端测试及完整检查通过，原游客作品和登录入口已在真实浏览器核对，项目保留运行。详见[018验收](docs/018-validation.md)。

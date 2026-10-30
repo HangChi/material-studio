@@ -407,3 +407,4 @@ T002 RED：history-interface与bulk-interface共4项因缺少更多筛选、未�
 四项guest-experience先RED：缺少无编号的登录提示、账号退出/失败路径和401重新登录入口（/tmp/xiaoying-018-red.log）。SessionGate移除switchVisitor/allowSwitch及确认弹窗，替换showIdentity，游客注册保留说明、账号用户名/管理/退出；退出中卸载私有视图，成功撤销后读取游客，失败显式重试。跨标签通知键保留兼容，旧代次/卸载请求仍失效。原“切换游客”相关三项测试按新需求替换为四项新行为；保留初始化abort、跨标签及迟到分页隔离，历史迟到分页改用另一标签账号变化事件触发，未放宽数据隔离断言。
 共用SessionExpired替换历史/制作/批次的“刷新建立游客”指引，提供登录入口并说明游客恢复限制。并未改Java兼容POST /session语义；用户手动清Cookie/刷新仍可能建立新游客，不承诺恢复丢失游客或自动迁移到账号。
 相关31项GREEN（/tmp/xiaoying-018-green.log），完整docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：28文件131项及全部检查通过（/tmp/xiaoying-018-all.log）。重建当前frontend，接下来核对原演示游客作品仍可见、CTA及375px，保留服务运行。
+018真实浏览器：旧运行时绑定异常按文档恢复连接后，刷新当前/history确认旧演示成功任务仍在，游客编号/切换入口消失；登录/注册进入/account原表单，未提交凭据，返回记录仍是原任务。1280与375px宽度均无溢出，桌面/手机018截图已留存，临时视口恢复，保留记录页。账号退出/失败/401以组件测试覆盖，未操作真实账号或宣称真实退出验收。更新现行README/架构/验收中的旧游客切换说明，历史阶段文档保持溯源。前端已重建，用户项目继续运行。

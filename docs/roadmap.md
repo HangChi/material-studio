@@ -35,12 +35,12 @@ Spec Kit 0.16.4 的 `.specify/feature.json` 为忽略的机器本地指针，不
 克隆/切换 feature 后显式运行（将路径替换为目标 feature）：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/017-history-interface .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/018-guest-experience .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 脚本将持久化本机 feature 指针。禁止把新功能继续加到 001 的执行清单。
 
-当前交付包含002～017；现行契约以016兼容说明及014和前序契约为准。当前前端130项及构建通过，Java沿用016的97项全量基线；方法和边界见[017验收](017-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。
+当前交付包含002～018；现行契约以016兼容说明及014和前序契约为准。当前前端131项及构建通过，Java沿用016的97项全量基线；方法和边界见[018验收](018-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。
 
 ## 015 账号界面
 
@@ -53,3 +53,7 @@ SPECIFY_FEATURE_DIRECTORY=specs/017-history-interface .specify/scripts/bash/chec
 ## 017 制作记录界面
 
 [017规格](../specs/017-history-interface/spec.md)重排用户截图中的筛选与批量管理区域，5/5任务，130项前端检查和真实1280/375px界面通过。当前入口为017，保留用户已启动的项目运行。见[017验收](017-validation.md)。
+
+## 018 游客与账号体验
+
+[018规格](../specs/018-guest-experience/spec.md)移除演示性质游客切换和编号，维持原游客作品，提供账号入口/退出及会话过期指引。4/4任务，131项前端及构建通过，真实游客1280/375px通过；当前入口为018，项目保留运行。见[018验收](018-validation.md)。

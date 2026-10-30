@@ -13,9 +13,9 @@
 | R-05 阶段/状态 | PipelineState/Worker、V3 job_event/version、结果原子写盘 | PipelineApiTest六事件与10次终态不变；Consistency事务回滚 | 004真接口六事件/PNG，所有GET只读 |
 | R-06 可控模拟 | 每任务Simulation快照，0～10000ms、三个指定失败阶段 | PipelineApiTest参数化失败/参数边界/隔离 | verify-004三个失败阶段与成功；README请求示例 |
 | R-07 状态/查询异常 | JobCards/JobTracker、上传/受理状态、独立queryError、ResultPreview资源错误/重试 | tracker.test.ts三任务503与恢复、无虚假FAILED；submission门禁 | Chrome临时离线保持RUNNING快照，恢复查询后SUCCEEDED；正常自动更新；006真实图片404提示后恢复文件，点击重试成功且任务保持成功 |
-| R-08 多任务/清理 | 每ID非重叠1秒timer/controller、epoch、version、终态保护 | tracker.test.ts迟到/低版本/两周期/abort；session及history切换测试 | 005浏览器及运行脚本验证多任务；假时钟清理不冒充浏览器计数 |
+| R-08 多任务/清理 | 每ID非重叠1秒timer/controller、epoch、version、终态保护 | tracker.test.ts迟到/低版本/两周期/abort；session及history跨标签账号变化测试 | 005浏览器及运行脚本验证多任务；假时钟清理不冒充浏览器计数 |
 | R-09 刷新/结果历史 | /history、HistoryService keyset分页、/jobs/active补老页任务 | HistoryApiTest55条同时间/插入稳定性；history.test.ts空态/分页失败/恢复 | verify-005覆盖24条真实记录/分页；浏览器刷新恢复与私有PNG；006原末页新增25条及旧游标替换回归通过、失败保留游标 |
-| R-10 身份 | HttpOnly cookie/hash、owner校验、SessionGate切换、storage事件 | SessionApiTest、Asset/Job归属、session.test.ts跨标签清理 | 无痕/新身份隔离；撤销旧token401，新cookie空记录 |
+| R-10 身份 | HttpOnly cookie/hash、owner校验、SessionGate账号退出/跨标签storage事件 | SessionApiTest、Asset/Job归属、session.test.ts跨标签清理 | 无痕/新身份隔离；撤销旧token401，新cookie空记录 |
 | R-11 可用性 | 009统一品牌与克制的照片工作台布局、语义控件、创建时间/阶段/原因/预览、移动适配 | 组件Testing Library语义断言、lint/typecheck | 既有009桌面/375px与键盘操作证据见工作日志；010已在Chrome模拟forced-colors并完成键盘筛选；无原题附件截图 |
 | R-12 CI与测试 | .github/workflows/ci.yml push/PR容器任务 | 当前本地95个Java测试、120个前端测试及构建通过 | 本地容器检查及首次公开仓库远端CI已通过；最新结果见014验收 |
 | R-13 源码与说明 | 本地独立Git目录、锁文件/SQL/CI/README/工作日志、阶段提交 | 文档链接/任务/原题副本一致性检查 | 公开仓库HangChi/material-studio；交付提交及最新CI见014验收 |
@@ -24,7 +24,7 @@
 ## 已知边界
 
 - 默认一个后台；013支持共享MySQL和文件卷的多个后台，数据库时间租约和执行代次保护写入。012复用校验有效的阶段断点，最多三次执行；不保证物理计算恰好一次。全部三模板真实合成，无真实AI。
-- 跨标签身份通知依赖localStorage；存储禁用时其他标签页需手动刷新。通知不存token；确认切换后本页立即清理，取消不清理。
+- 跨标签身份通知依赖localStorage；存储禁用时其他标签页需手动刷新。通知不存token；账号退出中或另一标签身份变化时立即清理旧私有视图，普通游客没有重置入口。
 - 011提供可选本地账号、跨设备登录和恢复码；未绑定访客丢失Cookie仍不可恢复。本机草稿不跨设备同步，两个账号不能合并。
 - 011提供内部盘点/隔离/7天后确认清理及审计，无自动清理；所有登记素材均保护。没有真实TLS或公网部署验证；公开仓库首次远端CI已通过。
 - 014优先聚合SSE，断线、无效帧或20秒静默后立即GET补查并回退轮询。GET查询异常暂停对应任务，由用户恢复。分页历史按创建时间+ID，未完成旧页由active集合恢复。
