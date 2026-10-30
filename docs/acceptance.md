@@ -18,7 +18,7 @@
 | R-10 身份 | HttpOnly cookie/hash、owner校验、SessionGate账号退出/跨标签storage事件 | SessionApiTest、Asset/Job归属、session.test.ts跨标签清理 | 无痕/新身份隔离；撤销旧token401，新cookie空记录 |
 | R-11 可用性 | 009统一品牌与克制的照片工作台布局、语义控件、创建时间/阶段/原因/预览、移动适配 | 组件Testing Library语义断言、lint/typecheck | 既有009桌面/375px与键盘操作证据见工作日志；010已在Chrome模拟forced-colors并完成键盘筛选；无原题附件截图 |
 | R-12 CI与测试 | .github/workflows/ci.yml push/PR容器任务 | 已有100项Java、144项前端及构建通过，版本和执行方式见提交说明 | 012～015历史远端CI通过；本轮不重复测试，不宣称最终提交已有新CI |
-| R-13 源码与说明 | 本地独立Git目录、锁文件/V1～V16 SQL/素材/CI/README/工作日志、阶段提交 | 文档链接/任务/原题副本一致性检查 | 公开仓库HangChi/material-studio，分支006-mvp-hardening；版本见[提交说明](submission.md) |
+| R-13 源码与说明 | 本地独立Git目录、锁文件/V1～V16 SQL/素材/CI/README/工作日志、阶段提交 | 文档链接/任务/原题副本一致性检查 | 公开仓库HangChi/material-studio，分支master；版本见[提交说明](submission.md) |
 | R-14 容器 | compose.yaml、Dockerfiles、.env.example、卷/健康检查 | 同CI容器入口；镜像构建不代替测试 | docker compose up --build -d；004SIGKILL恢复；回滚步骤见README |
 
 ## 已知边界

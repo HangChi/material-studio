@@ -2,7 +2,7 @@
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
 **当前交付包含002～027：模板浏览、图片上传、Java三阶段异步制作、多任务跟踪、个人历史与结果预览，以及素材复用、草稿、作品管理、批次、本地账号恢复、阶段断点、多实例租约和SSE回退。**
-交付功能版本为 `6986a10`，分支为 `006-mvp-hardening`；最终交付提交取 `git rev-parse HEAD`，提交时请附完整commit或其固定链接。见[提交说明与验证边界](docs/submission.md)、[原题验收对照](docs/acceptance.md)及[027验收记录](docs/027-validation.md)。
+交付功能版本为 `6986a10`，分支为 `master`；最终交付提交取 `git rev-parse HEAD`，提交时请附完整commit或其固定链接。见[提交说明与验证边界](docs/submission.md)、[原题验收对照](docs/acceptance.md)及[027验收记录](docs/027-validation.md)。
 最近已有记录为前端30文件144项测试、lint/typecheck及生产构建通过，Java100项测试与打包通过；各自对应版本与执行方式见提交说明。2026-10-31本轮仅整理交付文档，按用户要求不重复测试，以 `[skip ci]` 提交避免重复CI；保留push/PR流水线配置，不宣称最终交付提交已有新CI通过。真实TLS与公网部署未执行。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
 
 ## 迭代与开发入口
@@ -307,7 +307,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 
 部署固定源码commit并运行Compose，等待健康检查后验证列表/详情、一次成功任务及私有结果。发布前备份数据库和素材卷。
 回滚到上一验收commit重建；V3等schema变更须同时恢复匹配备份，不能假定旧应用兼容新表。
-当前无需公网部署。完整源码在独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、V1～V16 SQL、本地素材、CI及全部Spec Kit产物。仓库为 [HangChi/material-studio](https://github.com/HangChi/material-studio)，交付分支 `006-mvp-hardening`，功能版本 `6986a10`；最终源码及本文档以该分支交付后的完整HEAD为准。交付时用 `git rev-parse HEAD` 获取验收commit；验证与CI边界见[提交说明](docs/submission.md)。
+当前无需公网部署。完整源码在独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、V1～V16 SQL、本地素材、CI及全部Spec Kit产物。仓库为 [HangChi/material-studio](https://github.com/HangChi/material-studio)，交付分支 `master`，功能版本 `6986a10`；最终源码及本文档以该分支交付后的完整HEAD为准。交付时用 `git rev-parse HEAD` 获取验收commit；验证与CI边界见[提交说明](docs/submission.md)。
 实际投入按工具可核对时段记录在[docs/work-log.md](docs/work-log.md)，不虚构精确人工工时。
 
 使用Codex辅助：原题→总体基线→独立feature规格→计划/契约/任务→测试先失败→最小实现→重构/完整检查→提交。

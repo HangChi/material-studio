@@ -5,8 +5,9 @@
 ## 源码与验收版本
 
 - 仓库：https://github.com/HangChi/material-studio
-- 交付分支：`006-mvp-hardening`。
+- 交付分支：`master`。
 - 功能版本：`6986a1060e555625fbc20bf1cc6f3c279f1adc5e`（包含027作品管理表单整理）。其后的本轮提交仅整理文档。
+- 分支整理：全部旧本地分支与旧远端交付分支均为最新交付历史的祖先，合并采用快进方式保留完整历史；仅保留master作为交付分支。
 - 最终验收提交：在交付分支执行 `git rev-parse HEAD`；提交回复中附完整commit及固定链接，避免只提供可能继续变化的分支名。
 - 交付范围：002～027，原题逐项对应见[验收对照](acceptance.md)，结构、启动、配置、模拟控制、身份、部署回滚、AI工作流和素材来源见[README](../README.md)。
 
@@ -34,7 +35,7 @@
 ## 可直接使用的提交回复
 
 > 源码仓库：https://github.com/HangChi/material-studio  
-> 分支：006-mvp-hardening  
+> 分支：master
 > 验收commit：填写本次交付后的完整HEAD，并附对应commit链接。  
 > 启动方式：在仓库根目录执行 `cp .env.example .env`、`docker compose up --build -d`，访问 http://localhost:3000 。  
 > 已有验证：前端144项测试及lint/typecheck/构建通过，Java100项测试及打包通过；具体版本、执行方式与未验证边界见README和docs/submission.md。最终文档整理按要求未重复测试。AI使用流程、已知限制与素材来源均已记录。
