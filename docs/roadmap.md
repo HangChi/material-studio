@@ -85,3 +85,7 @@ SPECIFY_FEATURE_DIRECTORY=specs/019-batch-workbench .specify/scripts/bash/check-
 ## 025 执行详情与批量工具栏
 
 已完成原生详情弹窗与紧凑全选操作栏；145项前端和完整检查、生产重建、桌面/手机滚动及键盘验收通过。见[025验收](025-validation.md)。
+
+## 026 首页示例素材移除
+
+已移除展示和页脚入口，本地照片/验证包与模板封面保留。144项前端完整检查、生产重建及首页真实核对通过。见[026验收](026-validation.md)。

@@ -11,6 +11,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <a href="#main-content" className="skip-link">跳转到主要内容</a>
     <header className="site-header"><div className="header-inner"><Link className="brand" href="/" aria-label="素材工坊首页"><BrandMark /><span>素材工坊</span></Link><SiteNav /><HeaderAccount /></div></header>
     {children}
-    <footer className="site-footer"><span className="footer-name">素材工坊</span><Link href="/#sample-materials">示例素材</Link><span>肖像、明信片与照片拼贴</span></footer>
+    <footer className="site-footer"><span className="footer-name">素材工坊</span><span>肖像、明信片与照片拼贴</span></footer>
   </body></html>;
 }
