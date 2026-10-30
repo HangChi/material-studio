@@ -1,6 +1,6 @@
 # Feature: 账号界面优化
 **Created**: 2026-10-30
-**Status**: Ready
+**Status**: Complete
 **Input**: 优化全部账号模块UI，完成提交后关闭项目进程。
 ## User Scenarios & Testing
 ### US1 / 访客访问与找回（P1）

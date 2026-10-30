@@ -7,5 +7,5 @@
 ## US2 / 安全与结果
 - [x] T004 [US2] frontend/src/features/identity/account.test.tsx先RED验证安全表单返回清理；Account.tsx实现登录态概览/安全列表和恢复码结果，保留原回归。
 ## Delivery
-- [ ] T005 docs/015-validation.md记录前端完整容器、真实桌面375px和可见性操作；更新README、roadmap、work-log并提交推送确认CI。
-- [ ] T006 docs/015-validation.md记录项目容器/宿主进程关停、卷保留，最终文档推送与CI确认。
+- [x] T005 docs/015-validation.md记录前端完整容器、真实桌面375px和可见性操作；更新README、roadmap、work-log并提交推送确认CI。
+- [x] T006 docs/015-validation.md记录项目容器/宿主进程关停、卷保留，最终文档推送与CI确认。

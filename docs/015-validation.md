@@ -21,4 +21,6 @@
 
 ## 交付与关停
 
-远端CI及项目关停结果在完成后记录。关闭范围限本项目Compose容器和宿主运行进程，保留数据库与文件卷，不关闭Docker Desktop或其他项目。
+交付提交 `e754d5e7d646f3fde9c100d6055b2efe661fabbd` 的[远端CI](https://github.com/HangChi/material-studio/actions/runs/41009196174)前后端均success，015全6/6任务完成。关闭范围限本项目Compose容器和宿主运行进程，保留数据库与文件卷，不关闭Docker Desktop或其他项目。
+
+执行 `docker compose --profile test down --remove-orphans` 成功：前端、后端、MySQL及测试MySQL均停止并移除，项目网络移除；`docker ps --filter name=material-studio` 无运行项。数据库、文件、Maven与Node缓存卷仍保留。3000、3111～3115、8080、3306无宿主监听，未发现本仓库宿主应用运行进程；工具本身和其他项目不属于关停对象。关停日志 `/tmp/material-015-shutdown.log`。最后仅提交完成状态与关停证据，并检查该文档提交的远端CI，不再启动本地服务。

@@ -2,20 +2,20 @@
 
 # 启动与验证指南（当前项目入口）
 
-前后端源码、Compose、Dockerfile、依赖锁文件与V1～V14 SQL已由002～014交付，009完成全模块界面优化。
-本页命令从仓库根目录执行；当前交付包含002～014，实际执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
+前后端源码、Compose、Dockerfile、依赖锁文件与V1～V14 SQL已由002～015交付，009完成全模块界面优化。
+本页命令从仓库根目录执行；当前交付包含002～015，实际执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
 
 ## 规格与仓库检查
 
 从仓库根目录运行：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/014-status-stream .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/015-account-interface .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 git status --short
 git log --oneline -5
 ```
 
-feature.json是忽略的本机指针，不依赖Git分支解析。当前交付入口为014，不将001设为implement目标。
+feature.json是忽略的本机指针，不依赖Git分支解析。当前交付入口为015，不将001设为implement目标。
 
 ## 一键运行
 

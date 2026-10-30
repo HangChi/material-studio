@@ -2,7 +2,7 @@
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
 **002～015已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑与草稿、作品管理、可靠受理/监控、批次/标签/ZIP和本地账号恢复；第10项另完成阶段断点、多实例租约/执行代次、SSE及轮询回退。账号页已统一优化。**
-原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012～014远端CI均已通过；最新提交状态见[015验收记录](docs/015-validation.md)。真实TLS与公网部署未执行。
+原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012～015远端CI均已通过；最新提交状态见[015验收记录](docs/015-validation.md)。真实TLS与公网部署未执行。
 当前检查基线为122项前端测试、95项Java测试及各自构建通过；方法与边界见验收对照。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
 
 ## 迭代与开发入口
@@ -25,7 +25,7 @@
 | [012](specs/012-stage-checkpoints/spec.md) | 第10项第一增量：阶段断点续跑与安全回退/清理 | 本地及远端CI通过，7/7任务，见[记录](docs/012-validation.md) |
 | [013](specs/013-worker-leases/spec.md) | 第10项第二增量：数据库租约、执行代次与过期接管 | 本地及远端CI通过，7/7任务，见[记录](docs/013-validation.md) |
 | [014](specs/014-status-stream/spec.md) | 第10项第三增量：SSE快照、鉴权/连接回收、可靠查询回退 | 本地、真实代理/浏览器及远端CI通过，7/7任务，见[记录](docs/014-validation.md) |
-| [015](specs/015-account-interface/spec.md) | 账号页视觉、表单交互与安全操作分区 | 本地及浏览器通过；交付状态见[记录](docs/015-validation.md) |
+| [015](specs/015-account-interface/spec.md) | 账号页视觉、表单交互与安全操作分区 | 本地、浏览器及远端CI通过，6/6任务；交付状态见[记录](docs/015-validation.md) |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
@@ -365,3 +365,5 @@ STUDIO_LEASE_MS=15000 docker compose up --build -d --wait --scale backend=2
 SSE每跟踪器一个源、最多50项；每后台64连接/每owner2、10秒心跳、55秒寿命，20秒静默触发补查/轮询。服务器仍周期读MySQL，无MQ/Redis或生产广播总线；不提供跨地域文件复制、生产负载均衡或吞吐SLA。终态已登记结果在提交确认丢失时仍受保护，异常不能删除成功PNG。
 
 当前120项前端/95项Java与各自构建通过，桌面1280px/小屏375px制作与执行事件验收通过。原3000在本地私有备份后保留卷升级，未在原卷故障注入或写fixture；最新CI、具体日志和边界见[014验收](docs/014-validation.md)。历史各节的数字是当时阶段记录。
+
+015账号UI已完成桌面/375px和CI验收，详见[015验收](docs/015-validation.md)。按用户要求，交付后本项目所有服务与测试容器已关闭，数据卷保留；需要再次使用时，在本目录执行 `docker compose up --build -d`。

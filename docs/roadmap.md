@@ -35,12 +35,12 @@ Spec Kit 0.16.4 的 `.specify/feature.json` 为忽略的机器本地指针，不
 克隆/切换 feature 后显式运行（将路径替换为目标 feature）：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/014-status-stream .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/015-account-interface .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 脚本将持久化本机 feature 指针。禁止把新功能继续加到 001 的执行清单。
 
-当前交付包含002～014；现行契约以014及其前序契约为准。当前检查基线为前端120项、Java95项及构建通过，具体方法和边界见[014验收](014-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。
+当前交付包含002～015；现行契约以014及其前序契约为准。当前检查基线为前端122项、Java95项及构建通过，具体方法和边界见[014验收](014-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。
 
 ## 015 账号界面
 
