@@ -59,4 +59,6 @@ WEB_PORT=3111 docker compose -p material-studio-011 exec -T -e VERIFY_ISOLATED=t
 
 原3000服务已使用保留卷Compose生产重建，MySQL/Java/Next均healthy；未向原卷写入验收fixture或执行维护清理。仍为单后端实例、单worker、全任务重启重试；无阶段断点、多实例租约、SSE、外部身份服务或邮件。ZIP最多20项/原图64MiB，批量管理50项，批次10项；本机草稿不自动跨设备同步。未绑定访客丢失Cookie无法恢复，密码和恢复码都丢失时不提供绕过找回。公网/TLS未验证。
 
-首次远端[40920072716](https://github.com/HangChi/material-studio/actions/runs/40920072716)前端通过，Java78项中HistoryApiTest一项失败：真实后台扫描器把只读查询测试的裸QUEUED fixture改成PIPELINE_FAILED。为查询测试替换JobDispatcher，保留HTTP/MySQL及数据完全不变断言，并新增查询不触发调度断言；不修改业务或生产扫描器。该类3项回归及完整78项/打包通过（本机`/tmp/material-011-backend-delivery.log`），最终远端结果在修复提交后补充。
+首次远端[40920072716](https://github.com/HangChi/material-studio/actions/runs/40920072716)前端通过，Java78项中HistoryApiTest一项失败：真实后台扫描器把只读查询测试的裸QUEUED fixture改成PIPELINE_FAILED。为查询测试替换JobDispatcher，保留HTTP/MySQL及数据完全不变断言，并新增查询不触发调度断言；不修改业务或生产扫描器。该类3项回归及完整78项/打包通过（本机`/tmp/material-011-backend-delivery.log`）。修复提交`cd27cc00df2a144049d6559fddd797775fa5d84f`的[远端CI 40980287554](https://github.com/HangChi/material-studio/actions/runs/40980287554)前后端均completed/success，真实runner容器检查通过。
+
+011全部13/13任务完成；本轮临时Compose项目已down，保留其测试卷；本机随机测试凭据临时文件已删除。原3000保持运行。文档20文件190个相对链接/围栏、git diff --check与容器脚本语法检查通过，常见凭据模式扫描无命中。最后文档提交的完整SHA用`git rev-parse HEAD`确认，收尾不修改业务，也不重复本地无关测试。

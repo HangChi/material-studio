@@ -15,7 +15,7 @@
 | [008-creative-workflow](../specs/008-creative-workflow/spec.md) | 编辑、全模板合成、素材库、草稿、历史管理、取消/排队、恢复/有限重试 | 用户授权七项拓展 | 007 | 已完成本地验收；15/15任务 |
 | [009-studio-identity](../specs/009-studio-identity/spec.md) | 全模块UI、品牌Logo、当前导航及响应式排版 | 用户视觉优化要求 | 008 | 已完成容器检查及浏览器验收；20/20任务 |
 | [010-reliable-operations](../specs/010-reliable-operations/spec.md) | 交付验证、访客确认、动态模板、持久排队/配额与内部监控 | 用户授权执行顺序1～5 | 009 | 本地及远端CI验收通过；16/16任务，见[010验收](010-validation.md) |
-| [011-creative-library](../specs/011-creative-library/spec.md) | 文件生命周期、批次、作品组织、本地账号/恢复与迁移 | 用户授权执行顺序6～9 | 010 | 已完成本地验收，任务和CI见[011验收](011-validation.md) |
+| [011-creative-library](../specs/011-creative-library/spec.md) | 文件生命周期、批次、作品组织、本地账号/恢复与迁移 | 用户授权执行顺序6～9 | 010 | 本地及远端CI通过；13/13任务，见[011验收](011-validation.md) |
 
 007为原题MVP之后的用户授权拓展；不修改原题。007时真实合成先覆盖明信片；008扩展至全部三模板。仍为单实例；011增加可选本地账号/多会话。新增V4配方与幂等表，旧记录兼容，具体验证见[验收对照](acceptance.md)。
 

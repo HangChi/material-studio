@@ -1,7 +1,7 @@
 # Feature Specification: 持续创作与身份恢复
 **Created**: 2026-10-30
 **Input**: 继续执行顺序6～9：文件生命周期、批量制作、作品组织、本地账号与恢复。
-**Status**: Ready
+**Status**: Complete
 
 ## User Scenarios & Testing
 ### US1 · 安全资源清理（P1）
