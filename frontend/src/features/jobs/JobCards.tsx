@@ -24,6 +24,6 @@ export function JobCards({jobs,errors,onRetry,headingLevel=3,onAccepted=()=>{},o
    {errors[job.id]?<div className="query-error"><p role="alert">{errors[job.id]}</p><button type="button" aria-label={`恢复查询 ${job.id}`} onClick={()=>onRetry(job.id)}>恢复查询</button></div>:unfinished(job)&&<p className="tracking-note">正在自动更新</p>}
    <JobActions job={job} onAccepted={onAccepted} onExpire={onExpire}/>
   </div>
-  <div className="job-secondary"><WorkControls job={job} onUpdate={onAccepted} onExpire={onExpire}/><JobEvents id={job.id} version={job.version} onExpire={onExpire}/></div>
+  <div className="job-secondary"><WorkControls job={job} onUpdate={onAccepted} onExpire={onExpire}/><JobEvents id={job.id} version={job.version} title={job.displayName??job.templateTitle} onExpire={onExpire}/></div>
  </article>)}</div>;
 }

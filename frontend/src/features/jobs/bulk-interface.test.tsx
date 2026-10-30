@@ -35,3 +35,10 @@ it("explains why unfinished results cannot be included in a ZIP",()=>{
  expect(screen.getByRole("button",{name:"下载所选 ZIP"})).toBeDisabled();
  expect(screen.getByText("仅支持打包最多 20 项已成功的作品")).toBeVisible();
 });
+
+it("toggles all loaded work while keeping the selection capped at fifty",()=>{
+ render(<Controls jobs={Array.from({length:51},(_,index)=>({...job,id:`work-${index}`}))}/>);
+ const select=screen.getByRole("button",{name:"选择已加载作品（最多50项）"});fireEvent.click(select);
+ expect(screen.getByRole("status")).toHaveTextContent("已选择 50 项");const cancel=screen.getByRole("button",{name:"取消选择已加载作品"});expect(cancel).toHaveAttribute("aria-pressed","true");fireEvent.click(cancel);
+ expect(screen.getByRole("button",{name:"选择已加载作品（最多50项）"})).toHaveAttribute("aria-pressed","false");expect(screen.queryByRole("button",{name:"批量收藏"})).not.toBeInTheDocument();
+});

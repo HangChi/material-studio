@@ -7,7 +7,7 @@ export function BulkControls({jobs,selected,onSelect,onUpdated,onExpire}:{jobs:J
  const [tags,setTags]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");const life=useRef({active:true,controller:null as AbortController|null});
  const selectionButton=useRef<HTMLButtonElement>(null);
  const restoreFocus=useRef(false);
- useEffect(()=>{if(!busy&&restoreFocus.current){restoreFocus.current=false;selectionButton.current?.focus();}},[busy]);
+ useEffect(()=>{if(!busy&&restoreFocus.current){restoreFocus.current=false;selectionButton.current?.focus({preventScroll:true});}},[busy]);
  useEffect(()=>{const state=life.current;state.active=true;return()=>{state.active=false;state.controller?.abort();};},[]);
  async function perform(changes?:Record<string,unknown>){
   const state=life.current;if(state.controller||!selected.length)return;const c=new AbortController();state.controller=c;setBusy(true);setError("");const ids=[...selected];
@@ -17,12 +17,15 @@ export function BulkControls({jobs,selected,onSelect,onUpdated,onExpire}:{jobs:J
    else{const blob=await r.blob();if(!state.active)return;if(!r.headers.get("content-type")?.includes("application/zip"))throw new Error("下载响应无效");const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="works.zip";a.click();URL.revokeObjectURL(url);}
   }catch(e){if(state.active)setError(e instanceof Error?e.message:"批量操作失败");}finally{state.controller=null;if(state.active){restoreFocus.current=true;setBusy(false);}}
  }
+ const loadedIds=jobs.slice(0,50).map(job=>job.id);
+ const allSelected=loadedIds.length>0&&loadedIds.every(id=>selected.includes(id));
  const canDownload=selected.length>0&&selected.length<=20&&selected.every(id=>jobs.find(job=>job.id===id)?.status==="SUCCEEDED");
  if(!jobs.length)return null;
  return <section className={`bulk-panel${selected.length?" has-selection":""}`} aria-label="批量管理" aria-busy={busy}>
   <div className="bulk-selection-bar">
-   <div className="bulk-selection-copy"><strong role="status" aria-live="polite">{selected.length?`已选择 ${selected.length} 项`:"批量管理"}</strong><p>{selected.length?"最多可选择 50 项":"选择作品后，可收藏、整理标签或打包下载"}</p></div>
-   <div className="bulk-select-actions"><button ref={selectionButton} type="button" disabled={busy} aria-label="选择已加载作品（最多50项）" onClick={()=>onSelect(jobs.slice(0,50).map(job=>job.id))}>选择已加载作品</button>{selected.length>0&&<button type="button" className="bulk-clear" disabled={busy} onClick={()=>{onSelect([]);selectionButton.current?.focus();}}>清空选择</button>}</div>
+   <button ref={selectionButton} className="bulk-select-toggle" type="button" disabled={busy} aria-pressed={allSelected?true:selected.length?"mixed":false} aria-label={allSelected?"取消选择已加载作品":"选择已加载作品（最多50项）"} onClick={()=>onSelect(allSelected?[]:loadedIds)}><span className={`bulk-select-box${allSelected?" is-checked":""}`} aria-hidden="true">{allSelected?"✓":selected.length?"−":""}</span>{allSelected?"取消全选":"全选"}</button>
+   <div className="bulk-selection-copy"><strong role="status" aria-live="polite">已选择 {selected.length} 项</strong><span className="bulk-selection-limit">最多 50 项</span></div>
+   {selected.length>0&&<button type="button" className="bulk-clear" disabled={busy} onClick={()=>{onSelect([]);selectionButton.current?.focus({preventScroll:true});}}>清空选择</button>}
   </div>
   {selected.length>0&&<div className="bulk-action-area">
    <div className="bulk-action-row">
