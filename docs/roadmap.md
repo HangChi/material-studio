@@ -17,7 +17,7 @@
 | [010-reliable-operations](../specs/010-reliable-operations/spec.md) | 交付验证、访客确认、动态模板、持久排队/配额与内部监控 | 用户授权执行顺序1～5 | 009 | 本地及远端CI验收通过；16/16任务，见[010验收](010-validation.md) |
 | [011-creative-library](../specs/011-creative-library/spec.md) | 文件生命周期、批次、作品组织、本地账号/恢复与迁移 | 用户授权执行顺序6～9 | 010 | 本地及远端CI通过；13/13任务，见[011验收](011-validation.md) |
 | [012-stage-checkpoints](../specs/012-stage-checkpoints/spec.md) | 第10项第一增量：阶段断点、失效回退与清理 | 用户授权第10项 | 011 | 本地及远端CI通过，7/7任务，见[012验收](012-validation.md) |
-| [013-worker-leases](../specs/013-worker-leases/spec.md) | 第10项第二增量：租约、执行代次与接管 | 用户授权第10项 | 012 | 本地及双实例强杀通过，远端CI待核对，见[013验收](013-validation.md) |
+| [013-worker-leases](../specs/013-worker-leases/spec.md) | 第10项第二增量：租约、执行代次与接管 | 用户授权第10项 | 012 | 本地及远端CI通过，7/7任务，见[013验收](013-validation.md) |
 
 007为原题MVP之后的用户授权拓展；不修改原题。007时真实合成先覆盖明信片；008扩展至全部三模板。仍为单实例；011增加可选本地账号/多会话。新增V4配方与幂等表，旧记录兼容，具体验证见[验收对照](acceptance.md)。
 

@@ -48,3 +48,10 @@ it("preserves admission backoff and keeps internal monitoring inaccessible",asyn
 
 it.each([["batches"],["batches","id","cancel"],["works","bulk"],["works","archive"],["account","register"],["account","login"],["account","recover"],["account","recovery-code"]])("forwards extended POST routes %j",async(...path)=>{const mocked=vi.fn().mockResolvedValue(Response.json({ok:true}));vi.stubGlobal("fetch",mocked);const response=await proxyTemplates(new Request("http://studio/api/"+path.join("/"),{method:"POST",body:"{}"}),path);expect(response.status).toBe(200);expect(mocked).toHaveBeenCalledTimes(1);});
 it("keeps storage maintenance outside the browser allowlist",async()=>{const mocked=vi.fn();vi.stubGlobal("fetch",mocked);expect((await proxyTemplates(new Request("http://studio/api/actuator/storage"),["actuator","storage"])).status).toBe(404);expect(mocked).not.toHaveBeenCalled();});
+
+it("streams SSE chunks with buffering disabled and propagates abort and body cancellation",async()=>{
+ let producer!:ReadableStreamDefaultController<Uint8Array>;const cancelled=vi.fn(),abort=new AbortController();const body=new ReadableStream<Uint8Array>({start(controller){producer=controller;},cancel:cancelled});
+ const fetcher=vi.fn().mockResolvedValue(new Response(body,{headers:{"Content-Type":"text/event-stream","X-Accel-Buffering":"no"}}));vi.stubGlobal("fetch",fetcher);
+ const request=new Request("http://studio/api/jobs/stream?ids=a,b",{headers:{Cookie:"material_session=test",Accept:"text/event-stream"},signal:abort.signal});const response=await proxyTemplates(request,["jobs","stream"]);
+ try{expect(response.headers.get("x-accel-buffering")).toBe("no");const reader=response.body!.getReader();producer.enqueue(new TextEncoder().encode("event:jobs\ndata:{}\n\n"));expect(new TextDecoder().decode((await reader.read()).value)).toContain("event:jobs");abort.abort();expect(fetcher.mock.calls[0][1].signal.aborted).toBe(true);expect(fetcher.mock.calls[0][0].search).toBe("?ids=a,b");await reader.cancel();expect(cancelled).toHaveBeenCalledTimes(1);}finally{try{producer.close();}catch{}}
+});

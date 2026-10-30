@@ -1,6 +1,6 @@
 # Feature Specification: 多实例安全领取
 **Created**: 2026-10-30
-**Status**: Ready
+**Status**: Complete
 **Input**: 第10项第二独立增量；在012断点基础上支持多个执行实例共享任务。
 ## User Scenarios & Testing
 ### US1 唯一领取（P1）

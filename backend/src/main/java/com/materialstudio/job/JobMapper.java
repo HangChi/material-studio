@@ -22,4 +22,6 @@ public interface JobMapper {
     List<JobRow> page(@Param("ownerId") String ownerId,@Param("time") Instant time,@Param("cursor") String cursor,@Param("count") int count);
     @Select("SELECT "+COLUMNS+" FROM job WHERE owner_id=#{ownerId} AND status IN ('QUEUED','RUNNING') ORDER BY created_at DESC,id DESC")
     List<JobRow> active(String ownerId);
+    @Select({"<script>SELECT "+XML_COLUMNS+" FROM job WHERE owner_id=#{owner} AND id IN <foreach collection='ids' item='id' open='(' separator=',' close=')'>#{id}</foreach> ORDER BY id</script>"})
+    List<JobRow> ownedMany(@Param("owner") String owner,@Param("ids") List<String> ids);
 }

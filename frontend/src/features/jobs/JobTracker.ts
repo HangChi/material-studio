@@ -17,12 +17,17 @@ export class JobTracker {
  private epoch=0;
  private timers=new Map<string,ReturnType<typeof setTimeout>>();
  private requests=new Map<string,AbortController>();
+ private source:EventSource|null=null;
+ private streamKey="";
+ private streamFailed=false;
+ private watchdog:ReturnType<typeof setTimeout>|undefined;
  subscribe=(listener:()=>void)=>{this.listeners.add(listener);return()=>{this.listeners.delete(listener);};};
  getSnapshot=()=>this.snapshot;
  private publish(next:TrackerSnapshot){this.snapshot=next;this.listeners.forEach(listener=>listener());}
  start(owner:string){this.stop();this.owner=owner;}
  stop(){
   this.owner=null;this.epoch++;
+  this.closeStream();this.streamFailed=false;
   for(const timer of this.timers.values())clearTimeout(timer);this.timers.clear();
   for(const request of this.requests.values())request.abort();this.requests.clear();
   this.publish({jobs:[],errors:{},authExpired:false});
@@ -41,18 +46,56 @@ export class JobTracker {
    if(!unfinished(job)){this.cancel(job.id);delete errors[job.id];}
   }
   this.publish({...this.snapshot,jobs:[...jobs.values()].sort(newestFirst),errors});
-  for(const job of jobs.values())this.schedule(job);
+  this.reconcile();
+ }
+ private closeStream(){
+  const source=this.source;this.source=null;this.streamKey="";
+  if(this.watchdog!==undefined)clearTimeout(this.watchdog);this.watchdog=undefined;
+  source?.close();
+ }
+ private usePolling(){
+  this.closeStream();this.streamFailed=true;
+  if(!this.owner||this.snapshot.authExpired)return;
+  for(const job of this.snapshot.jobs)if(unfinished(job)&&!this.snapshot.errors[job.id]&&!this.requests.has(job.id)){this.cancel(job.id);void this.read(job.id);}
+ }
+ private reconcile(){
+  if(!this.owner||this.snapshot.authExpired)return;
+  const pending=this.snapshot.jobs.filter(job=>unfinished(job)&&!this.snapshot.errors[job.id]);
+  if(!pending.length){this.closeStream();return;}
+  if(this.streamFailed||typeof EventSource==="undefined"){for(const job of pending)this.schedule(job);return;}
+  if(pending.length>50){this.usePolling();return;}
+  const ids=pending.map(job=>job.id).sort(),key=ids.join(",");if(this.source&&this.streamKey===key)return;
+  this.closeStream();for(const job of pending)this.cancel(job.id);
+  let source:EventSource;
+  try{source=new EventSource(`/api/jobs/stream?ids=${encodeURIComponent(key)}`,{withCredentials:true});}catch{this.usePolling();return;}
+  this.source=source;this.streamKey=key;const epoch=this.epoch;
+  const current=()=>this.owner!==null&&this.epoch===epoch&&this.source===source;
+  const arm=()=>{if(this.watchdog!==undefined)clearTimeout(this.watchdog);this.watchdog=setTimeout(()=>{if(current())this.usePolling();},20000);};
+  source.addEventListener("jobs",event=>{
+   if(!current())return;
+   try{
+    const payload:unknown=JSON.parse((event as MessageEvent<string>).data);
+    const items=payload&&typeof payload==="object"?(payload as Record<string,unknown>).items:undefined;
+    if(!Array.isArray(items)||items.length!==ids.length||!items.every(isJob)||new Set(items.map(job=>job.id)).size!==ids.length||items.some(job=>!ids.includes(job.id)))throw new Error("Invalid stream snapshot");
+    arm();this.seed(items);
+   }catch{if(current())this.usePolling();}
+  });
+  source.addEventListener("heartbeat",()=>{if(current())arm();});
+  source.addEventListener("expired",()=>{if(current())this.expire();});
+  source.addEventListener("unavailable",()=>{if(current())this.usePolling();});
+  source.onerror=()=>{if(current())this.usePolling();};arm();
  }
  private cancel(id:string){
   const timer=this.timers.get(id);if(timer!==undefined)clearTimeout(timer);this.timers.delete(id);
   this.requests.get(id)?.abort();this.requests.delete(id);
  }
  private schedule(job:Job){
-  if(!this.owner||!unfinished(job)||this.snapshot.errors[job.id]||this.timers.has(job.id)||this.requests.has(job.id))return;
+  if(!this.owner||this.source||!unfinished(job)||this.snapshot.errors[job.id]||this.timers.has(job.id)||this.requests.has(job.id))return;
   this.timers.set(job.id,setTimeout(()=>{this.timers.delete(job.id);void this.read(job.id);},1000));
  }
  retry(id:string){
   const job=this.snapshot.jobs.find(job=>job.id===id);if(!this.owner||!job||!unfinished(job))return;
+  this.streamFailed=false;
   this.cancel(id);const errors={...this.snapshot.errors};delete errors[id];this.publish({...this.snapshot,errors});void this.read(id);
  }
  private async read(id:string){

@@ -12,6 +12,7 @@ function methodsFor(path: string[]): string[] | null {
   if (/^works\/(bulk|archive)$/.test(joined)) return ["POST"];
   if (/^jobs\/[a-zA-Z0-9_-]+\/tags$/.test(joined)) return ["GET"];
   if (joined === "jobs") return ["GET", "POST"];
+  if (joined === "jobs/stream") return ["GET"];
   if (/^jobs\/[a-zA-Z0-9_-]+\/library$/.test(joined)) return ["PATCH"];
   if (/^jobs\/[a-zA-Z0-9_-]+\/(recreate|cancel)$/.test(joined)) return ["POST"];
   if (/^jobs\/[a-zA-Z0-9_-]+(?:\/(?:events|result|recipe|download))?$/.test(joined)) return ["GET"];
@@ -42,7 +43,7 @@ export async function proxyTemplates(request: Request, path: string[]): Promise<
   try {
     const upstream = await fetch(url, options);
     const headers = new Headers({ "cache-control": "no-store" });
-    for (const name of ["content-type", "x-content-type-options", "location", "content-disposition", "retry-after"]) {
+    for (const name of ["content-type", "x-content-type-options", "location", "content-disposition", "retry-after", "x-accel-buffering"]) {
       const value = upstream.headers.get(name); if (value) headers.set(name, value);
     }
     for (const cookie of upstream.headers.getSetCookie()) headers.append("set-cookie", cookie);
