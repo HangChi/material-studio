@@ -1,9 +1,9 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～015已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑与草稿、作品管理、可靠受理/监控、批次/标签/ZIP和本地账号恢复；第10项另完成阶段断点、多实例租约/执行代次、SSE及轮询回退。账号页已统一优化。**
-原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012～015远端CI均已通过；最新提交状态见[015验收记录](docs/015-validation.md)。真实TLS与公网部署未执行。
-当前检查基线为122项前端测试、95项Java测试及各自构建通过；方法与边界见验收对照。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
+**002～016已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑与草稿、作品管理、可靠受理/监控、批次/标签/ZIP和本地账号恢复；第10项另完成阶段断点、多实例租约/执行代次、SSE及轮询回退。账号页已统一优化，审查发现的取消并发、列表乱序、空草稿及查询问题已修复。**
+原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012～015远端CI均已通过；本轮本地结果见[016验收记录](docs/016-validation.md)，尚未推送远端。真实TLS与公网部署未执行。
+当前检查基线为126项前端测试、97项Java测试及各自构建通过；方法与边界见016验收记录。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
 
 ## 迭代与开发入口
 
@@ -26,16 +26,17 @@
 | [013](specs/013-worker-leases/spec.md) | 第10项第二增量：数据库租约、执行代次与过期接管 | 本地及远端CI通过，7/7任务，见[记录](docs/013-validation.md) |
 | [014](specs/014-status-stream/spec.md) | 第10项第三增量：SSE快照、鉴权/连接回收、可靠查询回退 | 本地、真实代理/浏览器及远端CI通过，7/7任务，见[记录](docs/014-validation.md) |
 | [015](specs/015-account-interface/spec.md) | 账号页视觉、表单交互与安全操作分区 | 本地、浏览器及远端CI通过，6/6任务；交付状态见[记录](docs/015-validation.md) |
+| [016](specs/016-review-hardening/spec.md) | 并发取消、批次乱序、空草稿、批量读取与索引 | 本地容器检查通过，6/6任务，见[记录](docs/016-validation.md) |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/015-account-interface .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/016-review-hardening .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[015任务](specs/015-account-interface/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[014契约](specs/014-status-stream/contracts/http-api.md)、[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[016任务](specs/016-review-hardening/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[016兼容说明](specs/016-review-hardening/contracts/http-api.md)、[014契约](specs/014-status-stream/contracts/http-api.md)、[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -99,7 +100,7 @@ docker compose --profile test run --rm backend-test
 后端入口mvn verify，执行95个Java测试（HTTP/MySQL集成及可控故障用例）并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
-GitHub Actions在push/PR执行上述两条容器入口；公开仓库[首次远端流水线](https://github.com/HangChi/material-studio/actions/runs/40901483518)已通过，最新结果与本地验证见[015验收记录](docs/015-validation.md)。
+GitHub Actions在push/PR执行上述两条容器入口；公开仓库[首次远端流水线](https://github.com/HangChi/material-studio/actions/runs/40901483518)已通过，历史远端结果见[015验收记录](docs/015-validation.md)，当前本地验证见[016验收记录](docs/016-validation.md)；016尚未推送远端。
 镜像构建使用-DskipTests，独立检查入口必须先通过；不能把镜像构建等同于测试通过。
 
 ## 当前接口与演示

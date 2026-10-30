@@ -35,13 +35,17 @@ Spec Kit 0.16.4 的 `.specify/feature.json` 为忽略的机器本地指针，不
 克隆/切换 feature 后显式运行（将路径替换为目标 feature）：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/015-account-interface .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/016-review-hardening .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 脚本将持久化本机 feature 指针。禁止把新功能继续加到 001 的执行清单。
 
-当前交付包含002～015；现行契约以014及其前序契约为准。当前检查基线为前端122项、Java95项及构建通过，具体方法和边界见[014验收](014-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。
+当前交付包含002～016；现行契约以016兼容说明及014和前序契约为准。当前检查基线为前端126项、Java97项及构建通过，具体方法和边界见[016验收](016-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。
 
 ## 015 账号界面
 
-[015规格](../specs/015-account-interface/spec.md)继续优化账号视觉、表单模式、密码显示与安全概览，不改后端接口。前端24文件122项及生产构建通过，桌面/375px实测无横向溢出；当前入口为specs/015-account-interface，最新CI与进程关停见[015验收](015-validation.md)。014及前文数字保留阶段含义。
+[015规格](../specs/015-account-interface/spec.md)继续优化账号视觉、表单模式、密码显示与安全概览，不改后端接口。该阶段前端24文件122项及生产构建通过，桌面/375px实测无横向溢出；CI与进程关停见[015验收](015-validation.md)。014及前文数字保留阶段含义。
+
+## 016 代码审查优化
+
+[016规格](../specs/016-review-hardening/spec.md)按审查顺序修复批量取消并发、列表覆盖和空草稿；批次批量读取、元数据JOIN、状态索引与相关代码整理均已完成。永久回归先RED再GREEN，6/6任务，本地126项前端/97项Java及构建通过；当前入口为016，未推送远端。证据及性能结论边界见[016验收](016-validation.md)。

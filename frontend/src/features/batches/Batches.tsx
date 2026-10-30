@@ -11,6 +11,13 @@ type Batch={id:string;name:string;createdAt?:string;items:Job[]};
 type Row={id:string;templateId:string;assetIds:(string|null)[]};
 type Pending={key:string;body:string};
 function validBatch(value:Batch){return value&&typeof value.id==="string"&&typeof value.name==="string"&&Array.isArray(value.items)&&value.items.every(isJob);}
+function mergeBatchPage(previous:Batch[],incoming:Batch[],more:boolean,protectedIds:ReadonlySet<string>):Batch[]{
+ const preserved=previous.filter(batch=>protectedIds.has(batch.id));
+ const page=more?[...previous,...incoming]:incoming;
+ const merged=new Map(page.map(batch=>[batch.id,batch]));
+ for(const batch of preserved)merged.set(batch.id,batch);
+ return [...preserved,...[...merged.values()].filter(batch=>!protectedIds.has(batch.id))];
+}
 export function Batches(){return <SessionGate>{owner=><BatchBody key={owner} owner={owner}/>}</SessionGate>;}
 function BatchBody({owner}:{owner:string}){
  const {tracker,snapshot}=useJobTracker(owner),storage=`material-batch-pending:${owner}`;
@@ -31,20 +38,25 @@ function BatchBody({owner}:{owner:string}){
   const c=new AbortController();
   state.controllers.add(c);setLoading(true);setError("");
   try{
-   const response=await fetch(`/api/batches?limit=20${more&&cursor?`&cursor=${encodeURIComponent(cursor)}`:""}`,{signal:c.signal,cache:"no-store"});if(response.status===401){tracker.expire();return;}
-   const p=await response.json();if(!state.active)return;if(!response.ok||!Array.isArray(p.items)||!p.items.every(validBatch))throw new Error("批次记录暂时不可用，请重试。");
+   const response=await fetch(`/api/batches?limit=20${more&&cursor?`&cursor=${encodeURIComponent(cursor)}`:""}`,{signal:c.signal,cache:"no-store"});
+   if(response.status===401){tracker.expire();return;}
+   const p=await response.json();
+   if(!state.active)return;
+   if(!response.ok||!Array.isArray(p.items)||!p.items.every(validBatch)){
+    throw new Error("批次记录暂时不可用，请重试。");
+   }
    // Copy before the state updater runs: later requests can reuse the lifecycle set.
    const protectedIds=new Set(state.acceptedDuringRead);
-   setBatches(previous=>{
-    const preserved=previous.filter(batch=>protectedIds.has(batch.id));
-    const page=more?[...previous,...p.items]:p.items as Batch[];
-    const merged=new Map<string,Batch>(page.map((batch:Batch)=>[batch.id,batch]));
-    for(const batch of preserved)merged.set(batch.id,batch);
-    return [...preserved,...[...merged.values()].filter(batch=>!protectedIds.has(batch.id))];
-   });
+   setBatches(previous=>mergeBatchPage(previous,p.items,more,protectedIds));
    setCursor(p.nextCursor);
    for(const batch of p.items as Batch[])tracker.seed(batch.items);
-  }catch(e){if(state.active)setError(e instanceof Error?e.message:"批次查询失败");}finally{state.reading=false;state.controllers.delete(c);if(state.active)setLoading(false);}
+  }catch(e){
+   if(state.active)setError(e instanceof Error?e.message:"批次查询失败");
+  }finally{
+   state.reading=false;
+   state.controllers.delete(c);
+   if(state.active)setLoading(false);
+  }
  }
  useEffect(()=>{
   const state=life.current;state.active=true;const c=new AbortController();state.controllers.add(c);
