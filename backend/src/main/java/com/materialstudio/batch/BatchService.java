@@ -33,5 +33,13 @@ public class BatchService {
   if(cursor!=null){if(!cursor.matches("[a-f0-9-]{36}")||(anchor=mapper.owned(cursor,owner))==null)throw new ApiException(400,"INVALID_CURSOR","批次分页位置无效");}
   var rows=mapper.page(owner,anchor==null?null:anchor.createdAt(),cursor,limit+1);var selected=rows.subList(0,Math.min(limit,rows.size()));return new Page(selected.stream().map(row->view(row,owner)).toList(),rows.size()>limit?selected.getLast().id():null);
  }
- public View cancel(String owner,String id){return tx.execute(status->{var row=owned(owner,id);for(var job:view(row,owner).items())if(Set.of("QUEUED","RUNNING").contains(job.status())){try{state.cancel(job.id(),owner);}catch(ApiException ended){if(ended.status()!=409)throw ended;}}return view(row,owner);});}
+ public View cancel(String owner, String id) {
+  return tx.execute(status -> {
+   var row = owned(owner, id);
+   for (String child : mapper.children(row.id()).stream().sorted().toList()) {
+    state.cancelIfActive(child, owner);
+   }
+   return view(row, owner);
+  });
+ }
 }

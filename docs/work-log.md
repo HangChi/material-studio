@@ -385,3 +385,7 @@ US2 RED：成功后断点行期望0实际2，取消后PNG仍存在；新增断�
 015首轮GREEN有1项失败：安全操作按钮将副说明合成了可访问名称；补aria-labelledby/aria-describedby分别关联标题和说明，保留原测试动作名称，不放宽断言。容器全量lint/typecheck、24文件122项测试和生产构建通过（/tmp/material-015-front-all.log）。后端无改动，沿用014的95项本地通过基线；远端仍执行全量Java。
 015浏览器实际验收：原3000/account登录、注册、找回切换与显示密码开关通过，未提交真实凭据或重置任何账号。桌面1280/scroll1280，小屏375/scroll375；修正内外密码框双边框和小屏冗余介绍，最终生产重建成功。截图015-account-desktop/mobile.jpg仅空表单/产品文案/CSS自制插画，已目视检查，无凭据。登录态返回/恢复码门禁由组件测试覆盖，不冒充浏览器重置。视口已恢复，临时标签页已关闭；接下来推送CI并按用户要求关停项目。
 015交付e754d5e7d646f3fde9c100d6055b2efe661fabbd，远端CI41009196174前后端completed/success，6/6任务完成。21份当前文档164个本地链接/围栏及git diff --check通过。执行docker compose --profile test down --remove-orphans后，所有material-studio项目运行容器为0；前后端/MySQL/test-mysql移除，数据库和素材卷保留，3000/3111～3115/8080/3306无监听。宿主进程清单无本项目Next/Java/MySQL，其他项目及Docker Desktop不受影响。只更新完成状态与关停证据后推送，继续确认最后文档CI，不重启项目。
+
+### 016 · 代码审查逐项优化
+用户授权逐项修复三个已复现问题，并继续查询/可维护性/测试优化。建立016规格、计划、兼容契约与6项顺序任务，规格质量6/6；读取约章与008/011上下文，单智能体，未发布或操作演示数据。
+T002：永久BatchCancellationRaceTest在批次读取后、锁定某子任务前，用独立数据库连接完成该任务，验证其余任务取消提交且单任务终态仍409。初版MyBatis接口spy错误调用callRealMethod，属于测试错误，不计RED；改为SqlSessionTemplate真实mapper委派后，在原业务代码重跑：HTTP预期200实际500，日志确认UnexpectedRollbackException（/tmp/xiaoying-016-cancel-red.log）。实现锁内终态容忍入口cancelIfActive，批次按稳定ID顺序取消，不捕获共享事务内的预期409；单任务严格入口保持。GREEN命令：docker compose --profile test run --rm backend-test mvn -B -Dtest=BatchCancellationRaceTest,BatchApiTest,CancellationTest test，6项通过（/tmp/xiaoying-016-cancel-green.log）。
