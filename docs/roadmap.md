@@ -89,3 +89,7 @@ SPECIFY_FEATURE_DIRECTORY=specs/019-batch-workbench .specify/scripts/bash/check-
 ## 026 首页示例素材移除
 
 已移除展示和页脚入口，本地照片/验证包与模板封面保留。144项前端完整检查、生产重建及首页真实核对通过。见[026验收](026-validation.md)。
+
+## 027 作品管理表单
+
+已完成字段对齐、短按钮与轻量操作栏，144项前端/检查与构建、真实桌面/手机验证通过。[027验收](027-validation.md)。

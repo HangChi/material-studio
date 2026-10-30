@@ -262,3 +262,17 @@ body select:not([multiple]):disabled { cursor:not-allowed; opacity:.55; }
 .event-dialog .event-timeline li { padding:12px 0; }
 .event-dialog .event-timeline time { font-size:12px; margin-top:5px; }
 @media(max-width:600px) { .event-dialog { width:calc(100% - 24px); max-height:calc(100dvh - 32px); border-radius:8px; }.event-dialog-heading { padding:18px 16px 14px; gap:12px; }.event-dialog-heading h2 { font-size:18px; }.event-dialog-body { padding:14px 16px 20px; }.event-dialog .event-timeline { font-size:13px; } }
+
+/* Work metadata: aligned fields with separate collection actions. */
+.work-controls .work-panel { grid-template-columns:minmax(0,1fr); align-items:start; gap:16px; padding:14px 0 16px; background:transparent; }
+.work-fields { min-width:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+.work-fields form,.work-fields .tag-editor { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:10px 12px; margin:0; }
+.work-fields label { font-size:12px; gap:8px; }
+.work-fields input { max-width:none; min-height:44px!important; font-size:14px; }
+.work-fields button { min-height:44px; min-width:88px; padding:9px 14px; font-size:13px; white-space:nowrap; }
+.work-fields .tag-editor>p { grid-column:1/-1; margin:0; font-size:12px; }
+.work-panel .work-shortcuts { display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:12px 0 0; border-top:1px solid var(--line); }
+.work-shortcuts button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; font-size:13px; padding:8px 10px; border-color:transparent; background:transparent; color:var(--muted); }.work-shortcuts button:hover:not(:disabled) { color:var(--action); background:var(--soft); }
+.work-shortcuts .studio-icon { width:16px; height:16px; }
+@media(max-width:900px) { .work-fields { grid-template-columns:minmax(0,1fr); gap:16px; }.work-controls .work-panel { grid-template-columns:minmax(0,1fr); gap:18px; }.work-panel .work-shortcuts { margin:0; padding:16px 0 0; border-left:0; border-top:1px solid var(--line); } }
+@media(max-width:600px) { .work-controls .work-panel { padding:14px 0 16px; }.work-fields { gap:16px; }.work-fields form,.work-fields .tag-editor { gap:8px; }.work-fields button { min-width:80px; padding-inline:10px; font-size:12px; }.work-fields input { font-size:13px; }.work-shortcuts button { font-size:12px; } }

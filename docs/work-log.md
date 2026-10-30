@@ -455,3 +455,7 @@ SampleGallery契约RED：缺少具名素材区域（/tmp/xiaoying-023-red.log）
 ### 026 · 删除首页示例素材展示
 按用户要求先建立026规格/计划/契约，单智能体串行。移除首页照片下载区及页脚锚点、废弃组件/专用样式，只删除已失效的展示组件1项测试；本地6张照片、来源、ZIP、materials清单和模板封面无变更。纯展示删除不强造RED。
 Docker完整lint/typecheck/test/build通过，30文件144项（/tmp/xiaoying-026-front.log）；生产重建成功（/tmp/xiaoying-026-runtime.log）。真实首页刷新确认3模板保留、列表后直接页脚，无素材区或入口；截图026-home.jpg，浏览器旧连接经重置恢复。README/roadmap及任务同步，未操作用户数据，Java无变化未重跑，未推送远端或执行新CI，项目继续运行。
+
+### 027 · 作品管理区精简
+用户截图要求优化，首版后继续反馈仍丑。先建立027规格/计划/契约，单智能体串行。最终桌面名称/标签左右并排、手机纵排，收藏隐藏为底部轻量操作，去嵌套框与空侧栏。可见保存标签/重试移除id，辅助名称保留，数据请求/保存逻辑不变。纯展示不强造RED或新测试。
+首次测试卷缺eslint，标准npm ci下载网络慢，未计为RED/通过；复用Dockerfile build阶段容器依赖，docker build --target build -t material-studio-frontend-check ./frontend后docker run --rm material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test'通过30文件144项（/tmp/xiaoying-027-check.log）。最终生产Docker构建重启成功（/tmp/xiaoying-027-final-runtime.log），停止慢下载临时容器。1280/375px实测输入对齐、无溢出、四按钮44px；截图2份已核对，视口恢复，未写入真实作品数据。README/roadmap/tasks同步，Java无变化未重跑，未推送远端或新CI，项目继续运行。
