@@ -7,8 +7,8 @@
 - [x] T003 [US1] backend/src/main/java/com/materialstudio/job/{CheckpointMapper,CheckpointStore,PipelineState,PipelineWorker}.java及V13实现输入64字符摘要、两阶段标记、原子PNG与RESUMED，完成GREEN。
 ## US2
 独立验收：丢失/损坏/输入变化重算，取消及事务失败不复用。
-- [ ] T004 [US2] backend/src/test/java/com/materialstudio/job/CheckpointTest.java先RED覆盖三类失效、事务原子与取消。
-- [ ] T005 [US2] backend/src/main/java/com/materialstudio/job/CheckpointStore.java完成回退/终态清理/路径保护并GREEN，旧恢复/阶段测试回归。
+- [x] T004 [US2] backend/src/test/java/com/materialstudio/job/CheckpointTest.java与storage/StorageLifecycleTest.java先RED覆盖失效、事务原子、取消和断点孤儿盘点保护。
+- [x] T005 [US2] backend/src/main/java/com/materialstudio/job/CheckpointStore.java及storage文件维护完成回退/终态与旧产物清理/路径保护并GREEN，旧恢复/阶段测试回归。
 ## Delivery
 - [ ] T006 scripts/verify-012.mjs与docs/012-validation.md记录完整容器检查、独立卷SIGKILL/原编号恢复和未重复合成证据。
 - [ ] T007 README.md、docs/roadmap.md、docs/async-workflow.md、docs/work-log.md同步，提交/推送并验证远端CI。

@@ -58,6 +58,6 @@ public class PipelineWorker {
             boolean unavailable=e instanceof ApiException api && api.code().equals("ASSET_UNAVAILABLE");
             if(e instanceof java.io.IOException||e instanceof org.springframework.dao.TransientDataAccessException)state.retry(id,"TEMPORARY_FAILURE","暂时性制作错误");
             else state.fail(id,unavailable?"ASSET_UNAVAILABLE":"PIPELINE_FAILED",unavailable?"素材已失效，请重新上传":"制作阶段失败，请重新提交");
-        } finally { checkpoints.discard(pending);if(generated!=null)generated.flush(); }
+        } finally { checkpoints.discard(pending);checkpoints.cleanupTerminal(id);if(generated!=null)generated.flush(); }
     }
 }

@@ -31,7 +31,7 @@ export function JobEvents({id,version,onExpire}:{id:string;version:number;onExpi
    {state.loading&&<p role="status">正在读取执行详情…</p>}
    {state.error&&<div><p role="alert">{state.error}</p><button type="button" aria-label={`重新读取详情 ${id}`} onClick={()=>setAttempt(value=>value+1)}>重新读取详情</button></div>}
    {!state.loading&&!state.error&&state.items.length===0&&<p>暂无阶段事件，任务可能正在等待处理。</p>}
-   <ol className="event-timeline">{state.items.map(event=><li key={event.version}><span className="event-kind">{({STARTED:"开始",COMPLETED:"完成",FAILED:"失败",INTERRUPTED:"中断"})[event.kind]??event.kind}</span><span>{event.message}</span><time dateTime={event.createdAt}>{new Date(event.createdAt).toLocaleString("zh-CN")}</time></li>)}</ol>
+   <ol className="event-timeline">{state.items.map(event=><li key={event.version}><span className="event-kind">{({STARTED:"开始",COMPLETED:"完成",FAILED:"失败",INTERRUPTED:"中断",RESUMED:"断点恢复"})[event.kind]??event.kind}</span><span>{event.message}</span><time dateTime={event.createdAt}>{new Date(event.createdAt).toLocaleString("zh-CN")}</time></li>)}</ol>
   </div>}
  </div>;
 }

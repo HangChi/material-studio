@@ -46,4 +46,11 @@ class StorageLifecycleTest extends ApiTestSupport {
   try{assertThat(call("/actuator/storage/quarantine",HttpMethod.POST,null,Map.of("snapshot",snapshot,"confirm",true)).getStatusCode().value()).isEqualTo(500);assertThat(Files.exists(file)).isTrue();}
   finally{jdbc.execute("DROP TRIGGER IF EXISTS reject_storage_audit");}
  }
+ @Test void checkpointInventoryProtectsRegisteredFilesAndListsOnlyOldOrphans()throws Exception{
+  String cookie=session(),asset=asset(cookie),id=call("/api/jobs",HttpMethod.POST,cookie,Map.of("templateId","demo-portrait","assetIds",List.of(asset))).getBody().path("job").path("id").asText();
+  Path registered=oldFile(".checkpoints/"+UUID.randomUUID()+".png"),orphan=oldFile(".checkpoints/"+UUID.randomUUID()+".png"),temporary=oldFile(".checkpoints/checkpoint-12345.part");
+  jdbc.update("INSERT INTO job_checkpoint(job_id,stage,input_hash,artifact_path,artifact_hash,created_at) VALUES(?,'GENERATE',?,?,?,CURRENT_TIMESTAMP(6))",id,"0".repeat(64),registered.getFileName().toString(),"0".repeat(64));
+  var paths=new ArrayList<String>();report().path("candidates").forEach(row->paths.add(row.path("path").asText()));
+  assertThat(paths).contains(STORAGE.relativize(orphan).toString(),STORAGE.relativize(temporary).toString()).doesNotContain(STORAGE.relativize(registered).toString());
+ }
 }

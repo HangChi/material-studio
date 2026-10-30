@@ -20,11 +20,11 @@ public class StorageLifecycle {
  private ApiException unavailable(){return new ApiException(503,"STORAGE_UNAVAILABLE","文件维护暂时不可用，请保留审计后重试");}
  private void safeDirectory(Path dir)throws IOException{if(Files.isSymbolicLink(dir))throw new IOException("Symbolic directory is not managed");}
  private String digest(Object value){try{return HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(value.toString().getBytes(StandardCharsets.UTF_8)));}catch(java.security.NoSuchAlgorithmException e){throw new IllegalStateException(e);}}
- private boolean managed(String name){return name.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\\.(png|jpg)")||name.matches("(upload|result)-[0-9]+\\.part");}
+ private boolean managed(String name){return name.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\\.(png|jpg)")||name.matches("(upload|result|checkpoint)-[0-9]+\\.part");}
  public synchronized Report report(){
   try{
    safeDirectory(root);var protectedFiles=new HashSet<>(mapper.protectedPaths());var candidates=new ArrayList<Candidate>();
-   for(String directory:List.of("","results")){Path dir=root.resolve(directory);safeDirectory(dir);if(!Files.isDirectory(dir,LinkOption.NOFOLLOW_LINKS))continue;
+   for(String directory:List.of("","results",".checkpoints")){Path dir=root.resolve(directory);safeDirectory(dir);if(!Files.isDirectory(dir,LinkOption.NOFOLLOW_LINKS))continue;
     try(var files=Files.list(dir)){for(Path file:files.toList()){
      if(!Files.isRegularFile(file,LinkOption.NOFOLLOW_LINKS)||!managed(file.getFileName().toString()))continue;
      String relative=root.relativize(file).toString();long modified=Files.getLastModifiedTime(file,LinkOption.NOFOLLOW_LINKS).toMillis();
