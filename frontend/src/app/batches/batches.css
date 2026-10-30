@@ -15,16 +15,16 @@
 .batch-workspace .batch-item-heading { display:grid; grid-template-columns:32px minmax(0,1fr) 145px auto; align-items:center; gap:12px; padding:16px 18px; margin:0; border-bottom:1px solid var(--line); }
 .batch-item-number { display:grid; place-items:center; width:32px; height:36px; background:var(--soft); border-radius:5px; font:12px var(--mono); color:var(--muted); }
 .batch-workspace .batch-item-title h2 { font-size:15px; line-height:1.5; margin:0 0 3px; }
-.batch-item-status { font-size:10px; color:var(--muted); }
+.batch-item-status { font-size:11px; color:var(--muted); }
 .batch-item-status.is-ready { color:var(--action); }
 .batch-item-status:before { content:""; display:inline-block; width:4px; height:4px; border-radius:50%; background:currentColor; vertical-align:middle; margin-right:5px; }
-.batch-workspace .batch-item-heading .batch-template-field { min-width:0; width:auto; font-size:11px; color:var(--muted); gap:5px; }
+.batch-workspace .batch-item-heading .batch-template-field { min-width:0; width:auto; font-size:12px; color:var(--muted); gap:5px; }
 .batch-template-field select { width:100%; font-size:12px; }
 .batch-workspace .batch-item-heading .batch-remove { display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:7px 9px; margin-top:20px; background:transparent; border-color:transparent; font-size:11px; color:var(--muted); }
 .batch-remove .studio-icon { width:15px; height:15px; }
 .batch-remove:hover:not(:disabled) { color:#82382f; background:#fff4f1; }
 .batch-item-body { padding:16px 18px 18px; }
-.batch-image-requirements { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:11px; color:var(--muted); margin:0 0 14px; }
+.batch-image-requirements { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin:0 0 14px; }
 .batch-image-requirements>span+span:before { content:"·"; margin-right:8px; color:#9eafa3; }
 .batch-workspace .batch-item .upload-grid { gap:14px; }
 .batch-workspace .batch-item .upload-single { grid-template-columns:minmax(0,1fr); }
@@ -41,9 +41,9 @@
 .batch-workspace .batch-item .slot-content { padding:0; min-width:0; }
 .batch-workspace .slot-index { display:none; }
 .batch-workspace .slot-heading { gap:8px; }
-.batch-workspace .slot-heading>strong { font-size:12px; }
-.batch-workspace .batch-item .slot-badge { font-size:10px; margin-left:auto; padding:2px 5px; }
-.batch-workspace .batch-item .slot-description { font-size:11px; margin:8px 0 11px; line-height:1.8; }
+.batch-workspace .slot-heading>strong { font-size:13px; }
+.batch-workspace .batch-item .slot-badge { font-size:10px; margin-left:4px; padding:2px 5px; }
+.batch-workspace .batch-item .slot-description { font-size:12px; margin:8px 0 11px; line-height:1.8; }
 .batch-workspace .batch-item .slot-actions { gap:5px 8px; }
 .batch-workspace .batch-item .slot-actions button { font-size:11px; padding:7px 9px; min-height:44px; }
 .batch-workspace .batch-item .slot-actions .remove-photo { padding-inline:2px; }
@@ -63,19 +63,19 @@
 .batch-workspace progress::-webkit-progress-bar { background:var(--soft); border-radius:99px; }
 .batch-workspace progress::-webkit-progress-value { background:var(--action); border-radius:99px; }
 .batch-workspace progress::-moz-progress-bar { background:var(--action); border-radius:99px; }
-.batch-image-count { color:var(--muted); font-size:11px; margin:9px 0 18px; }
+.batch-image-count { color:var(--muted); font-size:12px; margin:9px 0 18px; }
 .batch-summary-items { list-style:none; padding:16px 0; margin:0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); display:grid; gap:11px; }
 .batch-summary-items li { display:flex; align-items:center; gap:8px; font-size:12px; min-width:0; }
 .batch-summary-items li>span:first-child { width:5px; height:5px; border-radius:50%; background:#bdc7c0; flex-shrink:0; }
 .batch-summary-items li>span.ready-dot { background:var(--action); }
 .batch-summary-items li>span:nth-child(2) { min-width:0; overflow-wrap:anywhere; }
 .batch-summary-items small { margin-left:auto; color:var(--muted); font:11px var(--mono); white-space:nowrap; }
-.batch-readiness { color:var(--muted); margin:17px 0 12px; font-size:11px; line-height:1.8; }
+.batch-readiness { color:var(--muted); margin:17px 0 12px; font-size:12px; line-height:1.8; }
 .batch-readiness.is-ready { color:var(--action); }
 .batch-workspace .batch-submit { width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:13px; min-height:46px; }
 .batch-workspace .batch-submit:disabled { background:#e3eae5; border-color:#e3eae5; color:#65786c; opacity:1; }
 .batch-submit .studio-icon { width:17px; height:17px; }
-.batch-summary-help { font-size:10px; color:var(--muted); margin:12px 0 0; line-height:1.9; }
+.batch-summary-help { font-size:11px; color:var(--muted); margin:12px 0 0; line-height:1.9; }
 .batch-feedback { font-size:13px; margin:16px 0; }
 .batch-retry { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
 .batch-retry p { font-size:12px; color:var(--muted); margin:0; }
@@ -127,13 +127,13 @@
  .batch-workspace .batch-item .upload-multiple { grid-template-columns:minmax(0,1fr); gap:18px; }
  .batch-workspace .batch-item .slot-body,.batch-workspace .batch-item .upload-multiple .slot-body { display:grid; grid-template-columns:96px minmax(0,1fr); align-items:center; gap:12px; }
  .batch-workspace .batch-item .file-target,.batch-workspace .batch-item .upload-multiple .file-target { height:122px; }
- .batch-workspace .file-target strong { font-size:10px; }
+ .batch-workspace .file-target strong { font-size:11px; }
  .batch-workspace .file-target>span:last-child:not(.replace-photo) { font-size:8px; }
- .batch-workspace .batch-item .slot-description { font-size:10px; margin:7px 0; }
- .batch-workspace .batch-item .slot-actions button { font-size:10px; padding-inline:6px; }
+ .batch-workspace .batch-item .slot-description { font-size:11px; margin:7px 0; }
+ .batch-workspace .batch-item .slot-actions button { font-size:11px; padding-inline:6px; }
  .batch-workspace .batch-item .slot-actions .library-select { gap:4px; }
  .batch-workspace .batch-item .slot-actions .library-select .studio-icon { width:13px; height:13px; }
- .batch-image-requirements { font-size:10px; gap:6px; }
+ .batch-image-requirements { font-size:11px; gap:6px; }
  .batch-image-requirements>span+span:before { margin-right:6px; }
  .batch-add { font-size:12px; }
  .batch-add>span { font-size:10px; }

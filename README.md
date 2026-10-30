@@ -1,9 +1,9 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～018已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑与草稿、作品管理、可靠受理/监控、批次/标签/ZIP和本地账号恢复；第10项另完成阶段断点、多实例租约/执行代次、SSE及轮询回退。账号页已统一优化，审查发现的取消并发、列表乱序、空草稿及查询问题已修复。**
-原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012～015远端CI均已通过；本轮本地结果见[018验收记录](docs/018-validation.md)，尚未推送远端。真实TLS与公网部署未执行。
-当前检查基线为131项前端测试及构建通过，Java沿用016的97项全量基线；身份体验与验证边界见[018验收记录](docs/018-validation.md)。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
+**002～019已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑与草稿、作品管理、可靠受理/监控、批次/标签/ZIP和本地账号恢复；第10项另完成阶段断点、多实例租约/执行代次、SSE及轮询回退。账号页已统一优化，审查发现的取消并发、列表乱序、空草稿及查询问题已修复。**
+原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012～015远端CI均已通过；本轮本地结果见[019验收记录](docs/019-validation.md)，尚未推送远端。真实TLS与公网部署未执行。
+当前检查基线为134项前端测试及构建通过，Java沿用016的97项全量基线；批量工作台与验证边界见[019验收记录](docs/019-validation.md)。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
 
 ## 迭代与开发入口
 
@@ -29,16 +29,17 @@
 | [016](specs/016-review-hardening/spec.md) | 并发取消、批次乱序、空草稿、批量读取与索引 | 本地容器检查通过，6/6任务，见[记录](docs/016-validation.md) |
 | [017](specs/017-history-interface/spec.md) | 紧凑筛选与按选择展开批量管理 | 完整前端/浏览器1280与375px通过，5/5任务，见[记录](docs/017-validation.md) |
 | [018](specs/018-guest-experience/spec.md) | 移除游客切换、账号入口/退出与过期提示 | 完整前端/真实游客界面通过，4/4任务，见[记录](docs/018-validation.md) |
+| [019](specs/019-batch-workbench/spec.md) | 批量工作台、素材准备概览与紧凑上传 | 完整前端/桌面375px通过，4/4任务，见[记录](docs/019-validation.md) |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/018-guest-experience .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/019-batch-workbench .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[018任务](specs/018-guest-experience/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[016兼容说明](specs/016-review-hardening/contracts/http-api.md)、[014契约](specs/014-status-stream/contracts/http-api.md)、[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[019任务](specs/019-batch-workbench/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[016兼容说明](specs/016-review-hardening/contracts/http-api.md)、[014契约](specs/014-status-stream/contracts/http-api.md)、[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -378,3 +379,7 @@ SSE每跟踪器一个源、最多50项；每后台64连接/每owner2、10秒心�
 ## 018 · 游客与账号体验
 
 游客维持当前浏览器身份，不再提供切换入口或显示游客编号。登录用户可管理账号及退出登录，会话过期有明确登录指引。131项前端测试及完整检查通过，原游客作品和登录入口已在真实浏览器核对，项目保留运行。详见[018验收](docs/018-validation.md)。
+
+## 019 · 批量制作工作台
+
+[批量制作](http://localhost:3000/batches)已重排为紧凑制作清单和准备概览，单/多图模板、已就绪项数与图片数一目了然，手机纵向操作。134项前端及完整检查通过，真实素材库复用、1280/375px多项布局已核对；截图和边界见[019验收](docs/019-validation.md)。项目保持运行。

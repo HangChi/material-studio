@@ -413,3 +413,4 @@ T002 RED：history-interface与bulk-interface共4项因缺少更多筛选、未�
 用户截图要求优化批量制作页。读取约章、011批次契约与018边界，使用frontend-design/ui-ux-pro-max的分组/进度指引，先建立019规格/计划/契约，质量6/6，单智能体串行。保留原提交/幂等/任务跟踪和素材库，不改Java、数据库或依赖。
 workbench.test.tsx三项RED：缺少准备进度、具名制作项区域和明确10项容量（/tmp/xiaoying-019-red.log）。实现左侧紧凑制作清单、右侧准备概览/唯一提交入口，手机纵向；进度从原素材校验派生，切换模板只清空当前项，增删序号与1～10上限保持。批量页独立batches.css局部调整共享UploadSlots展示，不改其上传逻辑，新增批次历史空态/摘要。
 相关上传/素材库/幂等/旧列表保护及新行为13项GREEN（/tmp/xiaoying-019-green.log）；完整docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：29文件134项及全部检查通过（/tmp/xiaoying-019-all.log）。开始重建运行前端做真实桌面/375px验证，保留用户项目运行。
+019真实浏览器：原演示游客素材库复用既有演示图片，进度1/1启用提交；增加三图拼贴后1/2项、1/4图，第一项保留且提交禁用。1280及375px均无横向溢出，多图槽位与手机概览顺序可操作。目视后提高辅助字号、收紧就绪标签，最终生产重建成功（/tmp/xiaoying-019-refined.log）；最终三张019截图已核对。未实际提交批次/取消任务/删除素材；恢复空白表单和浏览器视口，保留/batches页。README/roadmap/验收文档同步，前端/后端/MySQL均healthy，未推送远端。

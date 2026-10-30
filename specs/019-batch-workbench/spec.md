@@ -1,6 +1,6 @@
 # Specification: 批量制作工作台
 **Created**: 2026-10-30
-**Status**: In progress
+**Status**: Complete (container and browser validated)
 **Input**: 用户截图认为批量制作页空白过大、控件分散，要求优化。
 ## Requirements
 - FR-001 桌面左侧紧凑制作清单，右侧概览与唯一提交入口；手机按顺序纵向排列。批次名称、项序号、模板、素材数量要求有清晰层级。
