@@ -441,3 +441,8 @@ SampleGallery契约RED：缺少具名素材区域（/tmp/xiaoying-023-red.log）
 新增离线PrepareSamples文件适配器复用真实TemplateRenderer/PostcardRenderer生成3张照片封面，不复制算法、不操作DB或用户会话；cover使用contain呈现完整样张。4个拒绝文件（5MiB+1、2025万像素PNG、损坏JPG、TXT）只放ZIP的invalid目录，完整步骤与来源入包。实际解码、ZIP12项CRC及字节比对通过，整包5330631字节（/tmp/xiaoying-023-assets-final.log）。首个工具命令停在新增Maven插件解析，已停止该临时容器并改用已有缓存/boot包lib离线成功，无依赖新增，环境失败不算RED。目视后将03照片标题校正为“旷野远景”，清单与ZIP重新生成一致。
 完整后端verify 100项、0失败/错误/跳过与打包通过（/tmp/xiaoying-023-java.log）。完整前端lint/typecheck/test/build 31文件142项与构建通过（/tmp/xiaoying-023-front.log）；新增HTTP脚本另跑lint通过（/tmp/xiaoying-023-final-lint.log）。生产重建成功（/tmp/xiaoying-023-runtime.log），只读HTTP核对6图hash、ZIP/SOURCES与本地文件相同及3封面尺寸（/tmp/xiaoying-023-downloads.log）。
 2026-10-31真实1280/375px验收首页新封面、6图全部加载、锚点定位及步骤展开，无横向溢出。图片/下载包是共享静态样例，没有向当前身份素材库写入记录或提交制作任务；人工用例留给用户执行，不宣称已经代用户验证。3份023截图保存，视口恢复并保留素材页；前后端/MySQL healthy，独立测试库停止移除、项目卷保留。README修正自制几何封面旧说明，补充来源和下载/复现入口；未远端推送或新CI。
+
+### 024 · 素材库展开偏移修复
+用户截图指出素材库向右缩进并紧贴上传框。源码定位为020移除单图slot-body padding后，旧asset-library margin0 16px 16px（手机0 12px 12px）未同步。建立024规格/计划/契约，质量6/6；单智能体串行。
+纯CSS修复：单图16px 0 0，多图匹配16px/手机14px槽位内容，批量页原规则保持；空网格不占位，关闭按钮44px。不改变请求、选择/分页/排除已选或归属逻辑，不造业务RED/CSS快照。
+完整Docker前端lint/typecheck/test/build：31文件142项及构建通过（/tmp/xiaoying-024-front.log）；生产frontend重建成功（/tmp/xiaoying-024-runtime.log）。真实浏览器单图/批量/三图各1280/375px六组读取：左右相对内容差0px、顶部间距16px，无横向溢出。三图边界计算的首个浏览器读取使用了受限作用域不支持的parseFloat，改用数值转换后读取通过，未因此修改应用代码。现有一项演示素材列表展开/关闭可见，未选择/上传/删除素材或提交任务；不清空真实列表模拟空态。4份024截图，视口恢复，保留单图页展开素材库。Java无改动，沿用023的100项基线；无新远端CI或推送，项目保持运行。

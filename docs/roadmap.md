@@ -77,3 +77,7 @@ SPECIFY_FEATURE_DIRECTORY=specs/019-batch-workbench .specify/scripts/bash/check-
 ## 023 真实照片与人工验证素材
 
 已完成6张带出处照片、3张真实渲染封面、单图与ZIP下载；包内有4类异常输入及验证步骤。142项前端、100项Java/构建、资产及HTTP下载校验、1280/375px界面验收通过。实际人工制作由用户继续，详见[023验收](023-validation.md)。
+
+## 024 素材库展开对齐
+
+已修复旧边距造成的偏移；142项前端完整检查、单图/多图/批量桌面与手机验收通过。详见[024验收](024-validation.md)。

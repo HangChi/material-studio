@@ -1,5 +1,5 @@
 # Specification: 素材库展开对齐
-2026-10-31 · In progress
+2026-10-31 · Complete (container and browser validated)
 用户截图显示展开素材库向右缩进且紧贴上传框。
 - 单图制作页素材库与上传区左右对齐，顶部16px间距；多图时与所属槽位内容对齐，不越出卡片。
 - 375px与批量页保持相同对齐规则，无横向溢出。
