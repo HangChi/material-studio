@@ -61,3 +61,7 @@ SPECIFY_FEATURE_DIRECTORY=specs/019-batch-workbench .specify/scripts/bash/check-
 ## 019 批量制作工作台
 
 [019规格](../specs/019-batch-workbench/spec.md)优化用户截图中的批量页面，紧凑制作项、素材准备概览、唯一提交入口及历史摘要；4/4任务，134项前端和真实1280/375px多项布局通过。当前入口019，项目保留运行。见[019验收](019-validation.md)。
+
+## 020 全站界面减法
+
+已完成五类页面和导航的文案/视觉减法，三条内置模板用途说明使用V16更新。134项前端、97项Java及构建通过，1280/375px真实页面核对完成，项目继续运行。实际投入与未执行边界见[020验收](020-validation.md)。

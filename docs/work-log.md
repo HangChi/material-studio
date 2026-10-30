@@ -414,3 +414,9 @@ T002 RED：history-interface与bulk-interface共4项因缺少更多筛选、未�
 workbench.test.tsx三项RED：缺少准备进度、具名制作项区域和明确10项容量（/tmp/xiaoying-019-red.log）。实现左侧紧凑制作清单、右侧准备概览/唯一提交入口，手机纵向；进度从原素材校验派生，切换模板只清空当前项，增删序号与1～10上限保持。批量页独立batches.css局部调整共享UploadSlots展示，不改其上传逻辑，新增批次历史空态/摘要。
 相关上传/素材库/幂等/旧列表保护及新行为13项GREEN（/tmp/xiaoying-019-green.log）；完整docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：29文件134项及全部检查通过（/tmp/xiaoying-019-all.log）。开始重建运行前端做真实桌面/375px验证，保留用户项目运行。
 019真实浏览器：原演示游客素材库复用既有演示图片，进度1/1启用提交；增加三图拼贴后1/2项、1/4图，第一项保留且提交禁用。1280及375px均无横向溢出，多图槽位与手机概览顺序可操作。目视后提高辅助字号、收紧就绪标签，最终生产重建成功（/tmp/xiaoying-019-refined.log）；最终三张019截图已核对。未实际提交批次/取消任务/删除素材；恢复空白表单和浏览器视口，保留/batches页。README/roadmap/验收文档同步，前端/后端/MySQL均healthy，未推送远端。
+
+### 020 · 全站界面减法
+用户要求整体去AI味。读取约章和设计技能，建立020规格/计划/契约，范围为模板库、制作、记录、批量、账号与公共导航，单智能体串行。删除账号宣传栏/倾斜照片插画、无信息图标与箭头、重复序号，文案直接描述用途；统一标题/圆角，去掉1500px以上模板首屏390px空白；账号改为单列表单，保留迁移确认、恢复码保存门禁和本机草稿限制。制作区减少嵌套外框，记录页游客提示/未选批量栏改为平面信息。未改变请求、异步归属、重试或权限。
+纯文案/样式不强造RED；account原测试仅同步“注册”“注册账号”可见名称，保留绑定/恢复码/密码显隐/安全概览断言。首轮完整前端134项和构建通过（/tmp/xiaoying-020-all.log）；真实桌面目视后进一步减少制作/记录卡片嵌套，最终相同Docker完整命令lint/typecheck/test/build全部通过，29文件134项（/tmp/xiaoying-020-final.log）。
+浏览器发现Java返回的三个模板说明仍含“故事/生活切片”口号，先更新020规格/契约，再新增V16仅更新三个指定内置模板的description；保留旧迁移/模板配置和用户数据。无业务规则变化，不写仅断言文案的测试；独立tmpfs测试数据库运行docker compose --profile test run --rm backend-test mvn -B verify：97项、0失败/错误/跳过及打包通过（/tmp/xiaoying-020-java.log）。
+重建生产前后端（/tmp/xiaoying-020-final-runtime.log）；Flyway验证16项并将演示库从15升级至16成功，三条新说明在真实模板库和制作页可见。五类页面1280px/375px逐页检查，scrollWidth均等于视口；手机展开更多条件、多选/清空后回到选择入口正常，既有游客成功作品仍可见，未提交真实账号凭据、批次或新任务。最终11张020截图留存并目视核对关键页，无横向溢出；视口恢复，保留/batches。前端/后端/MySQL均healthy，停止并移除本轮独立测试数据库，保留运行项目与数据卷。未推送远端或声称新CI通过。
