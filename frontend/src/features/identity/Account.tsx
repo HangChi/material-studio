@@ -8,7 +8,7 @@ export function Account(){return <SessionGate>{(owner,username)=><AccountBody ke
 function AccountBody({username}:{username?:string}){
  const [mode,setMode]=useState<Mode>("login"),[name,setName]=useState(username??""),[password,setPassword]=useState(""),[recovery,setRecovery]=useState(""),[merge,setMerge]=useState(false),[saved,setSaved]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(""),[outcome,setOutcome]=useState<Outcome|null>(null);
  const life=useRef({active:true,controller:null as AbortController|null});useEffect(()=>{const state=life.current;state.active=true;return()=>{state.active=false;state.controller?.abort();};},[]);
- function notify(){try{localStorage.setItem("material-visitor-epoch",crypto.randomUUID());}catch{/* Other tabs must refresh if storage is unavailable. */}}
+ function notify(){try{localStorage.setItem("material-visitor-epoch",crypto.randomUUID());}catch{/* Other tabs must refresh if storage is unavailable. */}window.dispatchEvent(new Event("material-account-changed"));}
  async function submit(){
   const state=life.current;if(state.controller)return;if(mode==="login"&&merge&&!window.confirm("将当前访客的素材、终态作品和批次迁移至账号；未完成任务或提交标识冲突会拒绝迁移。确定迁移并登录吗？"))return;
   const c=new AbortController();state.controller=c;setBusy(true);setError("");
@@ -24,20 +24,20 @@ function AccountBody({username}:{username?:string}){
  const isOverview=!!username&&mode!=="recover"&&mode!=="rotate";
  return <div className="account-layout">
   <section className="account-panel" aria-label="账号管理" aria-busy={busy}>
-  {outcome?<div className="account-outcome"><p className="eyebrow">{outcome.code?"请完成最后一步":"登录成功"}</p><h2>已登录 {outcome.username}</h2>
+  {outcome?<div className="account-outcome"><p className="eyebrow">{outcome.code?"请完成最后一步":"登录成功"}</p><h1>已登录 {outcome.username}</h1>
    {outcome.code?<><p className="account-description">请保存这份恢复码</p><p className="account-help">仅显示这一次。密码和恢复码都丢失时，将无法找回账号。</p><output className="recovery-code" aria-label="一次性恢复码">{outcome.code}</output><label className="checkbox-label account-save"><input type="checkbox" checked={saved} onChange={e=>setSaved(e.target.checked)}/>我已保存恢复码</label></>:<p className="account-description">登录成功。</p>}
    <button className="primary account-submit" disabled={!!outcome.code&&!saved} onClick={()=>window.location.reload()}>继续使用</button>
   </div>:<>
    {isOverview?<>
-    <div className="account-profile"><span className="account-avatar" aria-hidden="true">{username.slice(0,1).toUpperCase()}</span><div><span className="account-status">已登录</span><h2>{username}</h2></div></div>
+    <div className="account-profile"><span className="account-avatar" aria-hidden="true">{username.slice(0,1).toUpperCase()}</span><div><span className="account-status">已登录</span><h1>{username}</h1></div></div>
     <p className="account-description">账号下的素材、作品与批次可在登录后查看。</p><a className="account-work-link" href="/history">查看我的制作记录</a>
-    <div className="account-security"><h3>账号安全</h3><p className="account-help">忘记密码时，需要使用恢复码。</p>
+    <div className="account-security"><h2>账号安全</h2><p className="account-help">忘记密码时，需要使用恢复码。</p>
      <button className="account-security-row" aria-labelledby="account-rotate-title" aria-describedby="account-rotate-help" disabled={busy} onClick={()=>changeMode("rotate")}><span><strong id="account-rotate-title">重新生成恢复码</strong><small id="account-rotate-help">旧恢复码将失效，请保存新的一份</small></span></button>
      <button className="account-security-row" aria-labelledby="account-reset-title" aria-describedby="account-reset-help" disabled={busy} onClick={()=>changeMode("recover")}><span><strong id="account-reset-title">使用恢复码重置密码</strong><small id="account-reset-help">已有恢复码时，可重新设置密码</small></span></button>
     </div><div className="account-signout"><p>退出后，账号记录仍会保留。</p><button disabled={busy} onClick={()=>void logout()}>{busy?"正在退出…":"退出账号"}</button></div>
    </>:<>
     {username?<button className="account-back" aria-label="返回账号概览" disabled={busy} onClick={()=>changeMode("login")}>← 返回账号概览</button>:mode==="recover"?<button className="account-back" disabled={busy} onClick={()=>changeMode("login")}>← 返回登录</button>:<div className="account-tabs" aria-label="账号访问方式">{[["login","登录"],["register","注册"]].map(([value,label])=><button key={value} disabled={busy} aria-pressed={mode===value} onClick={()=>changeMode(value as Mode)}>{label}</button>)}</div>}
-    <div className="account-form-heading"><h2>{titles[mode]}</h2><p className="account-description">{descriptions[mode]}</p></div>
+    <div className="account-form-heading"><h1>{titles[mode]}</h1><p className="account-description">{descriptions[mode]}</p></div>
     <form onSubmit={e=>{e.preventDefault();void submit();}}><fieldset disabled={busy}>
      {mode!=="rotate"&&<div className="account-field"><label htmlFor="account-name">用户名</label><input id="account-name" autoComplete="username" autoCapitalize="none" spellCheck={false} required minLength={3} maxLength={32} pattern="[A-Za-z0-9_]{3,32}" aria-describedby="account-name-help" placeholder="例如 studio_chen" value={name} onChange={e=>setName(e.target.value)}/><p id="account-name-help" className="account-help">3～32 位字母、数字或下划线</p></div>}
      <PasswordField key={mode} label={mode==="recover"?"新密码":"密码"} value={password} onChange={setPassword} fresh={mode==="register"||mode==="recover"}/>
