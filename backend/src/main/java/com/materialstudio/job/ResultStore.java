@@ -14,18 +14,18 @@ public class ResultStore {
     public ResultStore(@Value("${studio.storage-root:/data}") String root) { this.root=Path.of(root).toAbsolutePath().normalize().resolve("results"); }
     public String publish(String id,String cover) throws IOException {
         if(!Set.of("portrait.png","postcard.png","collage.png").contains(cover))throw new IOException("Unknown preset");
-        Files.createDirectories(root);Path temporary=Files.createTempFile(root,"result-",".part");
+        Files.createDirectories(root);Path temporary=Files.createTempFile(root,"result-",".part");String filename=java.util.UUID.randomUUID()+".png";
         try(var input=new ClassPathResource("demo/"+cover).getInputStream()) {
             Files.copy(input,temporary,StandardCopyOption.REPLACE_EXISTING);
-            Files.move(temporary,root.resolve(id+".png"),StandardCopyOption.ATOMIC_MOVE);
-            return id+".png";
+            Files.move(temporary,root.resolve(filename),StandardCopyOption.ATOMIC_MOVE);
+            return filename;
         } finally { Files.deleteIfExists(temporary); }
     }
     public String publish(String id,java.awt.image.BufferedImage image) throws IOException {
-        Files.createDirectories(root);Path temporary=Files.createTempFile(root,"result-",".part");
+        Files.createDirectories(root);Path temporary=Files.createTempFile(root,"result-",".part");String filename=java.util.UUID.randomUUID()+".png";
         try {
             if(!javax.imageio.ImageIO.write(image,"png",temporary.toFile()))throw new IOException("PNG encoder unavailable");
-            Files.move(temporary,root.resolve(id+".png"),StandardCopyOption.ATOMIC_MOVE);return id+".png";
+            Files.move(temporary,root.resolve(filename),StandardCopyOption.ATOMIC_MOVE);return filename;
         } finally { Files.deleteIfExists(temporary); }
     }
     public Resource read(JobRow job) {

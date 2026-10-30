@@ -3,8 +3,8 @@
 - [x] T001 specs/013-worker-leases规格、设计、契约与16项质量检查通过，承接012的已通过CI。
 ## US1 / 唯一领取
 独立标准：12并发1领取成功；同job发布不同路径。
-- [ ] T002 [US1] backend/src/test/java/com/materialstudio/job/LeaseTest.java与ResultStoreIsolationTest.java先观察claim缺失与结果覆盖RED，最小编译stub不记完成。
-- [ ] T003 [US1] backend/src/main/java/com/materialstudio/job/LeaseGuard.java、ExecutionMapper.java、ResultStore.java及V14实现lease_owner36位/代次>=0/默认15000ms最小3000ms/唯一发布，定向GREEN。
+- [x] T002 [US1] backend/src/test/java/com/materialstudio/job/LeaseTest.java与ResultStoreIsolationTest.java先观察claim缺失与结果覆盖RED，最小编译stub不记完成。
+- [x] T003 [US1] backend/src/main/java/com/materialstudio/job/LeaseGuard.java、ExecutionMapper.java、ResultStore.java及V14实现lease_owner36位/代次>=0/默认15000ms最小3000ms/唯一发布，定向GREEN。
 ## US2 / 过期接管与写隔离
 独立标准：存活不重置，过期不复活，旧代次开始/完成/重试/失败无效。
 - [ ] T004 [US2] backend/src/test/java/com/materialstudio/job/LeaseTest.java先RED覆盖旧代次、启动恢复保护和取消，不放宽原状态断言。

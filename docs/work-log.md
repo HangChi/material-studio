@@ -368,3 +368,4 @@ US1真实RED：CheckpointTest整理暂时失败后重试，期望合成一次实
 US2 RED：成功后断点行期望0实际2，取消后PNG仍存在；新增断点目录盘点期望孤儿/part实际空。缺失/损坏/源内容改变/符号链接回退和完成事件故障事务回滚均已通过，未将本来通过的保护校验谎称RED。实现终态清理、替换旧产物afterCommit清理，维护保护所有登记断点并识别24h旧孤儿与part。定向17项通过（/tmp/material-012-boundaries-green.log），完整83项Java/0失败错误跳过及打包通过（backend-all.log）。前端仅补RESUMED中文标签，无新交互，不强造RED；随后检查前端和独立SIGKILL。
 012全量前端23文件112项、lint/typecheck/build通过。独立material-studio-012端口3112空卷V1～V13启动，脚本在GENERATE完成/FINALIZE开始后ready，立即SIGKILL独立backend并保留卷重启，6c2cc629同编号第2次成功、GENERATE STARTED仅1、9事件中含RESUMED、PNG可读。未触碰原3000，fixture Cookie只在容器/tmp权限600，验收结束撤销会话并删除。详见012-validation；后续多实例/推送仍分别立项，未冒充已完成。
 012交付7934dae远端CI40988656812前后端均success，7/7任务完成。013按独立规格立项，16项质量检查通过、7任务；按数据库时间短事务领取、代次fence、随机最终文件名和续租设计，不承诺物理计算恰好一次或线性扩容。原3000仍011，待第10项全部验收后保留卷更新。
+013 US1 RED：可编译空claim桩下12并发期望1实际0；同job第二次publish返回同文件名并覆盖内容。实现V14租约字段、DB时间/任务锁领取、代次和唯一PNG路径，2项GREEN；原Creation/Workflow下载和合成相关8项通过（/tmp/material-013-claim-regression.log）。本提交为领取基础，尚未接入生产worker状态fence，不宣传已支持多实例。
