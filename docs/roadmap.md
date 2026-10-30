@@ -41,3 +41,7 @@ SPECIFY_FEATURE_DIRECTORY=specs/014-status-stream .specify/scripts/bash/check-pr
 脚本将持久化本机 feature 指针。禁止把新功能继续加到 001 的执行清单。
 
 当前交付包含002～014；现行契约以014及其前序契约为准。当前检查基线为前端120项、Java95项及构建通过，具体方法和边界见[014验收](014-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。
+
+## 015 账号界面
+
+[015规格](../specs/015-account-interface/spec.md)继续优化账号视觉、表单模式、密码显示与安全概览，不改后端接口。前端24文件122项及生产构建通过，桌面/375px实测无横向溢出；当前入口为specs/015-account-interface，最新CI与进程关停见[015验收](015-validation.md)。014及前文数字保留阶段含义。
