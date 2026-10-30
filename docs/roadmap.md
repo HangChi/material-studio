@@ -81,3 +81,7 @@ SPECIFY_FEATURE_DIRECTORY=specs/019-batch-workbench .specify/scripts/bash/check-
 ## 024 素材库展开对齐
 
 已修复旧边距造成的偏移；142项前端完整检查、单图/多图/批量桌面与手机验收通过。详见[024验收](024-validation.md)。
+
+## 025 执行详情与批量工具栏
+
+已完成原生详情弹窗与紧凑全选操作栏；145项前端和完整检查、生产重建、桌面/手机滚动及键盘验收通过。见[025验收](025-validation.md)。
