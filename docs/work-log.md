@@ -420,3 +420,10 @@ workbench.test.tsx三项RED：缺少准备进度、具名制作项区域和明�
 纯文案/样式不强造RED；account原测试仅同步“注册”“注册账号”可见名称，保留绑定/恢复码/密码显隐/安全概览断言。首轮完整前端134项和构建通过（/tmp/xiaoying-020-all.log）；真实桌面目视后进一步减少制作/记录卡片嵌套，最终相同Docker完整命令lint/typecheck/test/build全部通过，29文件134项（/tmp/xiaoying-020-final.log）。
 浏览器发现Java返回的三个模板说明仍含“故事/生活切片”口号，先更新020规格/契约，再新增V16仅更新三个指定内置模板的description；保留旧迁移/模板配置和用户数据。无业务规则变化，不写仅断言文案的测试；独立tmpfs测试数据库运行docker compose --profile test run --rm backend-test mvn -B verify：97项、0失败/错误/跳过及打包通过（/tmp/xiaoying-020-java.log）。
 重建生产前后端（/tmp/xiaoying-020-final-runtime.log）；Flyway验证16项并将演示库从15升级至16成功，三条新说明在真实模板库和制作页可见。五类页面1280px/375px逐页检查，scrollWidth均等于视口；手机展开更多条件、多选/清空后回到选择入口正常，既有游客成功作品仍可见，未提交真实账号凭据、批次或新任务。最终11张020截图留存并目视核对关键页，无横向溢出；视口恢复，保留/batches。前端/后端/MySQL均healthy，停止并移除本轮独立测试数据库，保留运行项目与数据卷。未推送远端或声称新CI通过。
+
+### 021 · 右上角登录与账号页整理
+用户要求继续优化账号页，入口移至右上角。读取约章、frontend-design/ui-ux-pro-max与018/020边界，先建立021规格/计划/契约，质量6/6；单智能体串行，无Java/数据库/依赖变化。
+RED命令docker compose --profile test run --rm --no-deps frontend-test npm test -- src/components/HeaderAccount.test.tsx src/components/SiteNav.test.tsx：6项因缺少登录链接、会话只读请求、账号状态更新与主导航仍有账号失败，4项原行为通过（/tmp/xiaoying-021-red.log）。之后一次相关GREEN执行的自动权限审核超时，按工具提示重试完整命令成功启动；未将授权超时算RED。首轮完整检查发现新增测试误用了浏览器locator的exact选项（RTL类型不支持），删除该多余选项后重新执行。
+HeaderAccount独立GET /api/session，不创建游客；路由与跨标签/当前页账号通知重读，AbortController+代次防迟到用户名，失败仍可登录。原SessionGate不订阅同页展示事件，注册成功的恢复码表单保持；集成测试验证头部用户名更新时恢复码仍可见、继续使用仍禁用。主导航仅三项制作入口，手机品牌/登录首行、导航次行。账号页删除重复外层标题，保留一个动态h1，安全区为h2，集中白色单列表单，不改变迁移/恢复码保存/密码校验。
+完整docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：30文件139项、lint/typecheck/构建均通过（/tmp/xiaoying-021-all.log）。随后生产Docker重建成功（/tmp/xiaoying-021-runtime.log），包含最后安全标题层级整理。
+真实浏览器1280/375px验收批量页右上角入口与账号页、注册/找回/返回登录；宽度均无溢出，手机登录按钮x291～355、y12～56，即64×44px，截图6份。没有输入或提交真实账号凭据、恢复码或新任务；登录后用户名和恢复码展示由组件集成测试覆盖。临时视口已恢复，保留/account页面。Java无改动沿用020的97项基线，本轮未重跑Java、未推送或执行新远端CI。当前前端已更新，项目保留运行。
