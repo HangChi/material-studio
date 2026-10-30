@@ -361,3 +361,7 @@ US4 RED：AccountApiTest5项均注册404；账号UI两项空组件缺恢复码/�
 首次推送3089e04的远端CI40920072716：前端success，Java78项中1失败。日志精确显示HistoryApiTest只读断言期间，裸QUEUED fixture被后台扫描器改成FAILED/PIPELINE_FAILED；接口仍只读，是此前查询测试未隔离生产worker的时序竞争。先补011 plan验证约束，为该类MockitoBean替换JobDispatcher并增加verifyNoInteractions，保留全字段不变断言，不改生产逻辑。容器定向3项通过（/tmp/material-011-history-isolation.log），再完整backend-test78项/0失败错误跳过及打包通过（/tmp/material-011-backend-delivery.log）。未通过的首次CI保留记录，不以重跑掩盖失败；随后推送修复重新验收。
 
 修复提交cd27cc00df2a144049d6559fddd797775fa5d84f已推送，远端CI40980287554的frontend/backend均completed/success，011全部13/13完成。文档20文件190个相对链接/围栏及git diff --check通过，verify-011容器node --check通过，常见凭据模式扫描无命中；原题README未修改。独立material-studio-011项目down保留卷，本机600权限随机测试凭据副本已删除，原3000三服务healthy。收尾仅更新通过的CI链接、任务状态与文档；不重复本地无关业务测试，仍确认最后文档提交的远端检查。
+
+### 012 · 第10项/阶段断点
+用户授权开始按实际规模演进执行架构；三个方向按012断点→013租约/执行代次→014 SSE分别立项，串行执行。当前无生产吞吐数据，不声称已达到规模瓶颈。012规格16/16通过、7项任务，约章1.2.0明确新增范围，无新运行依赖。
+US1真实RED：CheckpointTest整理暂时失败后重试，期望合成一次实际两次（/tmp/material-012-checkpoint-red.log）。实现V13两阶段标记、输入/产物SHA、原子PNG、同事务完成登记与RESUMED计预算；Checkpoint/Recovery/PipelineConsistency共7项通过（green2.log）。首次回归发现源文件丢失在读取摘要时提前失败丢失ASSET_CHECK阶段，保留已有阶段契约后通过；未放宽断言。尚未交付终态清理、真实强杀或远端CI，不将US1提交视作012完成。

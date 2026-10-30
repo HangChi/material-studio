@@ -3,8 +3,8 @@
 - [x] T001 完成specs/012-stage-checkpoints规格/计划/契约/质量检查与约章范围同步。
 ## US1 / MVP
 独立验收：整理暂时失败后的第二次执行不重复合成。
-- [ ] T002 [US1] backend/src/test/java/com/materialstudio/job/CheckpointTest.java添加合成复用行为，观察调用两次的RED。
-- [ ] T003 [US1] backend/src/main/java/com/materialstudio/job/{CheckpointMapper,CheckpointStore,PipelineState,PipelineWorker}.java及V13实现输入64字符摘要、两阶段标记、原子PNG与RESUMED，完成GREEN。
+- [x] T002 [US1] backend/src/test/java/com/materialstudio/job/CheckpointTest.java添加合成复用行为，观察调用两次的RED。
+- [x] T003 [US1] backend/src/main/java/com/materialstudio/job/{CheckpointMapper,CheckpointStore,PipelineState,PipelineWorker}.java及V13实现输入64字符摘要、两阶段标记、原子PNG与RESUMED，完成GREEN。
 ## US2
 独立验收：丢失/损坏/输入变化重算，取消及事务失败不复用。
 - [ ] T004 [US2] backend/src/test/java/com/materialstudio/job/CheckpointTest.java先RED覆盖三类失效、事务原子与取消。

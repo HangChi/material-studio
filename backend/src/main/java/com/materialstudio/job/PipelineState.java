@@ -9,9 +9,17 @@ import static com.materialstudio.job.Simulation.Stage;
 
 @Service
 public class PipelineState {
-    private final EventMapper events;private final ExecutionMapper execution;private final long backoff;
+    private final EventMapper events;private final ExecutionMapper execution;private final long backoff;private final CheckpointMapper checkpoints;
     private final TransactionTemplate transaction;
-    public PipelineState(EventMapper events,PlatformTransactionManager manager,ExecutionMapper execution,@org.springframework.beans.factory.annotation.Value("${studio.retry-backoff-ms:1000}") long backoff) { this.events=events;this.execution=execution;this.backoff=Math.max(0,backoff);transaction=new TransactionTemplate(manager); }
+    public PipelineState(EventMapper events,PlatformTransactionManager manager,ExecutionMapper execution,@org.springframework.beans.factory.annotation.Value("${studio.retry-backoff-ms:1000}") long backoff,CheckpointMapper checkpoints) { this.checkpoints=checkpoints;this.events=events;this.execution=execution;this.backoff=Math.max(0,backoff);transaction=new TransactionTemplate(manager); }
+    public boolean resume(String id,Stage after) {
+        return Boolean.TRUE.equals(transaction.execute(tx->{
+            var job=events.lock(id);if(job==null||!job.status().equals("QUEUED"))return false;execution.ensure(id);var run=execution.runtime(id);
+            if(run.availableAt()!=null&&run.availableAt().isAfter(Instant.now()))return false;
+            if(execution.begin(id)==0){write(job,"FAILED",null,"FAILED",null,"RETRY_EXHAUSTED","已达到三次执行上限","执行次数已耗尽");return false;}
+            write(job,"RUNNING",after.name(),"RESUMED",null,null,null,"从"+label(after,job.templateId())+"断点恢复");return true;
+        }));
+    }
     public boolean start(String id,Stage stage) {
         return Boolean.TRUE.equals(transaction.execute(tx->{
             var job=events.lock(id);if(job==null)return false;
@@ -23,17 +31,21 @@ public class PipelineState {
             else {
                 var history=events.events(id);
                 Stage previous=Stage.values()[stage.ordinal()-1];
-                if(!job.status().equals("RUNNING")||!Objects.equals(job.stage(),previous.name())||history.isEmpty()||!history.getLast().kind().equals("COMPLETED"))return false;
+                if(!job.status().equals("RUNNING")||!Objects.equals(job.stage(),previous.name())||history.isEmpty()||!java.util.Set.of("COMPLETED","RESUMED").contains(history.getLast().kind()))return false;
             }
             write(job,"RUNNING",stage.name(),"STARTED",null,null,null,label(stage,job.templateId())+"开始");return true;
         }));
     }
     public boolean complete(String id,Stage stage,String result) {
+        return complete(id,stage,result,null);
+    }
+    public boolean complete(String id,Stage stage,String result,CheckpointMapper.Checkpoint checkpoint) {
         return Boolean.TRUE.equals(transaction.execute(tx->{
             var job=events.lock(id);if(job==null||!job.status().equals("RUNNING")||!stage.name().equals(job.stage()))return false;
             var history=events.events(id);if(history.isEmpty()||!history.getLast().kind().equals("STARTED"))return false;
             boolean done=stage==Stage.FINALIZE;
             if(done && result==null)throw new IllegalArgumentException("Result required");
+            if(checkpoint!=null){if(!checkpoint.jobId().equals(id)||!checkpoint.stage().equals(stage.name()))throw new IllegalArgumentException("Checkpoint does not match stage");checkpoints.save(checkpoint);}
             write(job,done?"SUCCEEDED":"RUNNING",stage.name(),"COMPLETED",result,null,null,label(stage,job.templateId())+"完成");return true;
         }));
     }
