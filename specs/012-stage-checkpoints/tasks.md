@@ -11,6 +11,6 @@
 - [x] T005 [US2] backend/src/main/java/com/materialstudio/job/CheckpointStore.java及storage文件维护完成回退/终态与旧产物清理/路径保护并GREEN，旧恢复/阶段测试回归。
 ## Delivery
 - [x] T006 scripts/verify-012.mjs与docs/012-validation.md记录完整容器检查、独立卷SIGKILL/原编号恢复和未重复合成证据。
-- [ ] T007 README.md、docs/roadmap.md、docs/async-workflow.md、docs/work-log.md同步，提交/推送并验证远端CI。
+- [x] T007 README.md、docs/roadmap.md、docs/async-workflow.md、docs/work-log.md同步，提交/推送并验证远端CI。
 
 依赖T001→US1→US2→交付；共7任务，US1两项、US2两项。严格串行，无并行委派。每个可审阅GREEN增量提交，不提交RED。012后分别立项013租约/执行代次与014 SSE，不能以规划替代实现。

@@ -1,6 +1,6 @@
 # Feature Specification: 阶段断点续跑
 **Created**: 2026-10-30
-**Status**: Ready
+**Status**: Complete
 **Input**: 第10项第一独立增量：已完成阶段不因暂时失败或重启重复计算。
 
 ## User Scenarios & Testing

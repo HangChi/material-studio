@@ -22,7 +22,7 @@
 | [009](specs/009-studio-identity/spec.md) | 全模块界面、品牌、导航、响应式排版与视觉精修 | 已完成本地验收；20/20任务 |
 | [010](specs/010-reliable-operations/spec.md) | 交付验证、身份确认、动态模板、持久排队/配额、内部监控 | 已完成本地及远端CI验收；16/16任务，见[记录](docs/010-validation.md) |
 | [011](specs/011-creative-library/spec.md) | 文件生命周期、批次、标签/批量管理/ZIP、本地账号/恢复与迁移 | 本地及远端CI通过；13/13任务，见[记录](docs/011-validation.md) |
-| [012](specs/012-stage-checkpoints/spec.md) | 第10项第一增量：阶段断点续跑与安全回退/清理 | 本地83项Java/112项前端及真实强杀通过，远端CI待核对，见[记录](docs/012-validation.md) |
+| [012](specs/012-stage-checkpoints/spec.md) | 第10项第一增量：阶段断点续跑与安全回退/清理 | 本地及远端CI通过，7/7任务，见[记录](docs/012-validation.md) |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
