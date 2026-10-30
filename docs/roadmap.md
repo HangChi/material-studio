@@ -35,12 +35,12 @@ Spec Kit 0.16.4 的 `.specify/feature.json` 为忽略的机器本地指针，不
 克隆/切换 feature 后显式运行（将路径替换为目标 feature）：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/019-batch-workbench .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/027-work-management .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 脚本将持久化本机 feature 指针。禁止把新功能继续加到 001 的执行清单。
 
-当前交付包含002～019；现行契约以016兼容说明及014和前序契约为准。当前前端134项及构建通过，Java沿用016的97项全量基线；方法和边界见[019验收](019-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。
+当前交付包含002～027，功能版本6986a10；现行契约以022账号兼容说明、016兼容说明及014和前序契约为准。已有前端144项、Java100项及构建通过，版本、方式和本轮不重复测试的边界见[提交说明](submission.md)及[027验收](027-validation.md)。执行顺序1～5由010实现，6～9由011实现，第10项由012～014分别实现，见[异步流程](async-workflow.md)。
 
 ## 015 账号界面
 

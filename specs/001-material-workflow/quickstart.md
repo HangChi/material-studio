@@ -1,21 +1,21 @@
-> 001作为总体需求归档；本页仅汇总后续已交付项目的当前操作入口。现行约束见[README](../../README.md)，接口以014、013、012、011、010和008及其引用的002～007契约为准，009不改接口；复查收尾与未验证边界见[归档说明](README.md)。
+> 001作为总体需求归档；本页仅汇总后续已交付项目的当前操作入口。现行约束见[README](../../README.md)，接口以022、016、014、013、012、011、010和008及其引用的002～007契约为准，009不改接口；复查收尾与未验证边界见[归档说明](README.md)。
 
 # 启动与验证指南（当前项目入口）
 
-前后端源码、Compose、Dockerfile、依赖锁文件与V1～V14 SQL已由002～015交付，009完成全模块界面优化。
-本页命令从仓库根目录执行；当前交付包含002～015，实际执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
+前后端源码、Compose、Dockerfile、依赖锁文件、本地素材与V1～V16 SQL均已交付；当前功能版本为6986a10。
+本页命令从仓库根目录执行；当前交付包含002～027，实际执行结果见[验收对照](../../docs/acceptance.md)和[工作日志](../../docs/work-log.md)。
 
 ## 规格与仓库检查
 
 从仓库根目录运行：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/015-account-interface .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/027-work-management .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 git status --short
 git log --oneline -5
 ```
 
-feature.json是忽略的本机指针，不依赖Git分支解析。当前交付入口为015，不将001设为implement目标。
+feature.json是忽略的本机指针，不依赖Git分支解析。当前功能入口为027，交付与验证边界见[提交说明](../../docs/submission.md)，不将001设为implement目标。
 
 ## 一键运行
 

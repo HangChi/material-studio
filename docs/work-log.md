@@ -459,3 +459,8 @@ Docker完整lint/typecheck/test/build通过，30文件144项（/tmp/xiaoying-026
 ### 027 · 作品管理区精简
 用户截图要求优化，首版后继续反馈仍丑。先建立027规格/计划/契约，单智能体串行。最终桌面名称/标签左右并排、手机纵排，收藏隐藏为底部轻量操作，去嵌套框与空侧栏。可见保存标签/重试移除id，辅助名称保留，数据请求/保存逻辑不变。纯展示不强造RED或新测试。
 首次测试卷缺eslint，标准npm ci下载网络慢，未计为RED/通过；复用Dockerfile build阶段容器依赖，docker build --target build -t material-studio-frontend-check ./frontend后docker run --rm material-studio-frontend-check sh -c 'npm run lint && npm run typecheck && npm test'通过30文件144项（/tmp/xiaoying-027-check.log）。最终生产Docker构建重启成功（/tmp/xiaoying-027-final-runtime.log），停止慢下载临时容器。1280/375px实测输入对齐、无溢出、四按钮44px；截图2份已核对，视口恢复，未写入真实作品数据。README/roadmap/tasks同步，Java无变化未重跑，未推送远端或新CI，项目继续运行。
+
+
+### 交付说明统一 · 2026-10-31
+用户在027前端修改后要求处理提交前审查事项，并明确“不需要进行测试了”。读取当前干净工作区及功能版本6986a1060e555625fbc20bf1cc6f3c279f1adc5e，串行整理README、验收索引、迭代入口及001归档操作入口；新增docs/submission.md，区分027既有前端144项记录、此前8f084ad提交前复查的Java100项与前端镜像复用检查，以及历史远端CI。修正照片封面重建入口、V1～V16迁移、账号找回与多后台边界。未改应用源码、依赖、CI配置或上级原题。
+本轮仅做Git差异、文档链接和版本核对，不运行安装、测试、构建、浏览器验收或应用脚本，不将前序验证当成本轮重跑。按用户本轮不再测试要求，文档提交使用[skip ci]避免推送触发重复测试；最终提交号与推送结果由交付回复给出，不宣称最终提交已有新CI通过。实际投入为本轮材料核对、文档整理、Git提交及推送，不虚构精确人工工时。

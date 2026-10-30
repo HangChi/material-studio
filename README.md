@@ -1,9 +1,9 @@
 # 素材工坊 · Material Studio
 
 独立运行的图片模板与素材制作项目，需求见[原始题目](docs/requirements-source.md)。
-**002～019已完成本地验收：完整制作闭环、三模板真实合成、素材复用、编辑与草稿、作品管理、可靠受理/监控、批次/标签/ZIP和本地账号恢复；第10项另完成阶段断点、多实例租约/执行代次、SSE及轮询回退。账号页已统一优化，审查发现的取消并发、列表乱序、空草稿及查询问题已修复。**
-原题逐项实现、测试和运行证据见[验收对照](docs/acceptance.md)；012～015远端CI均已通过；本轮本地结果见[019验收记录](docs/019-validation.md)，尚未推送远端。真实TLS与公网部署未执行。
-当前检查基线为134项前端测试及构建通过，Java沿用016的97项全量基线；批量工作台与验证边界见[019验收记录](docs/019-validation.md)。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
+**当前交付包含002～027：模板浏览、图片上传、Java三阶段异步制作、多任务跟踪、个人历史与结果预览，以及素材复用、草稿、作品管理、批次、本地账号恢复、阶段断点、多实例租约和SSE回退。**
+交付功能版本为 `6986a10`，分支为 `006-mvp-hardening`；最终交付提交取 `git rev-parse HEAD`，提交时请附完整commit或其固定链接。见[提交说明与验证边界](docs/submission.md)、[原题验收对照](docs/acceptance.md)及[027验收记录](docs/027-validation.md)。
+最近已有记录为前端30文件144项测试、lint/typecheck及生产构建通过，Java100项测试与打包通过；各自对应版本与执行方式见提交说明。2026-10-31本轮仅整理交付文档，按用户要求不重复测试，以 `[skip ci]` 提交避免重复CI；保留push/PR流水线配置，不宣称最终交付提交已有新CI通过。真实TLS与公网部署未执行。Java执行与前端状态组织见[异步流程与执行架构](docs/async-workflow.md)。
 
 ## 迭代与开发入口
 
@@ -30,16 +30,24 @@
 | [017](specs/017-history-interface/spec.md) | 紧凑筛选与按选择展开批量管理 | 完整前端/浏览器1280与375px通过，5/5任务，见[记录](docs/017-validation.md) |
 | [018](specs/018-guest-experience/spec.md) | 移除游客切换、账号入口/退出与过期提示 | 完整前端/真实游客界面通过，4/4任务，见[记录](docs/018-validation.md) |
 | [019](specs/019-batch-workbench/spec.md) | 批量工作台、素材准备概览与紧凑上传 | 完整前端/桌面375px通过，4/4任务，见[记录](docs/019-validation.md) |
+| [020](specs/020-product-restraint/spec.md) | 全站界面与模板文案精简 | 已完成，见[记录](docs/020-validation.md) |
+| [021](specs/021-header-login/spec.md) | 右上角账号入口 | 已完成，见[记录](docs/021-validation.md) |
+| [022](specs/022-account-simplicity/spec.md) | 账号表单与新密码规则 | 已完成，见[记录](docs/022-validation.md) |
+| [023](specs/023-photo-materials/spec.md) | 本地照片、样张与人工验证包 | 已完成；首页展示后由026移除，见[记录](docs/023-validation.md) |
+| [024](specs/024-library-alignment/spec.md) | 素材库展开对齐 | 已完成，见[记录](docs/024-validation.md) |
+| [025](specs/025-history-interactions/spec.md) | 执行详情弹窗与批量工具栏 | 已完成，见[记录](docs/025-validation.md) |
+| [026](specs/026-remove-sample-gallery/spec.md) | 移除首页示例素材展示，保留文件 | 已完成，见[记录](docs/026-validation.md) |
+| [027](specs/027-work-management/spec.md) | 作品管理表单与操作按钮 | 已完成，见[记录](docs/027-validation.md) |
 
 实施前读取 [AGENTS.md](AGENTS.md)、[约章](.specify/memory/constitution.md)和当前feature的spec/plan/contracts/tasks。
 Spec Kit CLI0.16.4已初始化，仓库内保存模板、脚本及Codex skills。克隆后显式选择当前feature：
 
 ```sh
-SPECIFY_FEATURE_DIRECTORY=specs/019-batch-workbench .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+SPECIFY_FEATURE_DIRECTORY=specs/027-work-management .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
 ```
 
 每个feature独立走 specify → plan → tasks → implement；每个业务行为记录RED → GREEN → REFACTOR。
-当前交付入口为[019任务](specs/019-batch-workbench/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[016兼容说明](specs/016-review-hardening/contracts/http-api.md)、[014契约](specs/014-status-stream/contracts/http-api.md)、[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准。001原始大任务清单保留溯源，不作为当前执行清单。
+当前交付入口为[提交说明](docs/submission.md)、[027任务](specs/027-work-management/tasks.md)及[验收对照](docs/acceptance.md)；现行业务接口以[022账号兼容说明](specs/022-account-simplicity/contracts/account.md)、[016兼容说明](specs/016-review-hardening/contracts/http-api.md)、[014契约](specs/014-status-stream/contracts/http-api.md)、[011契约](specs/011-creative-library/contracts/http-api.md)、[010契约](specs/010-reliable-operations/contracts/http-api.md)及其引用的前序契约为准。001原始大任务清单保留溯源，不作为当前执行清单。
 
 ## 技术版本与结构
 
@@ -81,12 +89,13 @@ Java素材默认STORAGE_ROOT=/data，Compose的asset-data命名卷持久保存�
 反向代理提供HTTPS时设置APP_ORIGIN为公开源（如https://studio.example.com），同时设置COOKIE_SECURE=true。
 修改数据库用户名/密码不会重设已初始化的MySQL卷，须同步数据库配置或仅在本地演示时重置卷。
 
-Flyway自动执行V1模板种子、V2身份/素材/任务、V3执行配置/事件、V4配方/幂等、V5作品属性、V6执行恢复、V7受理锁、V8隔离审计、V9批次、V10标签、V11账号/多会话、V12标签精确排序规则、V13阶段断点及V14执行租约；兼容既有数据和旧Cookie，无需清空数据库。
+Flyway自动执行V1～V16：模板种子、身份/素材/任务、执行事件、配方/幂等、作品属性、执行恢复、受理锁、隔离审计、批次、标签、账号/多会话、精确标签规则、阶段断点、执行租约，以及V15状态查询索引和V16模板说明；兼容既有数据和旧Cookie，无需清空数据库。
 封面位于 `backend/src/main/resources/demo/`，Java白名单接口提供；023起用授权Unsplash照片经现有制作程序生成真实PNG样张。照片与来源清单已本地保存，页面运行无需外部图片网络。
-可在容器中重新生成：
+仓库已包含全部照片和封面，正常启动无需重新生成。需要重建照片样张与验证包时，在仓库根目录先为backend-test的Maven卷准备依赖，再运行离线生成器（详细前提见[素材复现说明](docs/023-validation.md#复现)）：
 
 ```sh
-docker compose --profile test run --rm backend-test java -Djava.awt.headless=true tools/CreateDemoImages.java
+docker compose --profile test run --rm --no-deps backend-test mvn -B -DskipTests package
+docker compose --profile test run --rm --no-deps -v "$PWD:/project" backend-test sh /project/scripts/prepare-samples.sh
 ```
 
 普通停止保留数据库卷：`docker compose --profile test down`。
@@ -99,11 +108,11 @@ docker compose --profile test run --rm frontend-test
 docker compose --profile test run --rm backend-test
 ```
 
-前端入口从锁文件npm ci，再执行eslint、tsc、120个Vitest测试、next build。
-后端入口mvn verify，执行95个Java测试（HTTP/MySQL集成及可控故障用例）并打包；数据库使用独立test-mysql，避免污染演示数据。
+前端入口从锁文件npm ci，再执行eslint、tsc、Vitest全量测试和next build；最近记录为30文件144项测试。
+后端入口mvn verify，执行100个Java测试（HTTP/MySQL集成及可控故障用例）并打包；数据库使用独立test-mysql，避免污染演示数据。
 单测循环可覆盖命令，例如 `frontend-test npm test -- src/features/templates/catalog.test.tsx` 或
 `backend-test mvn -B -Dtest=TemplateApiTest test`；首次需要先运行默认入口安装依赖。
-GitHub Actions在push/PR执行上述两条容器入口；公开仓库[首次远端流水线](https://github.com/HangChi/material-studio/actions/runs/40901483518)已通过，历史远端结果见[015验收记录](docs/015-validation.md)，当前本地验证见[017验收记录](docs/017-validation.md)；017尚未推送远端。
+GitHub Actions在push/PR执行上述两条容器入口；公开仓库[首次远端流水线](https://github.com/HangChi/material-studio/actions/runs/40901483518)及012～015阶段已通过，历史远端结果见[015验收记录](docs/015-validation.md)。当前交付的已有本地验证及未执行项见[提交说明](docs/submission.md)；本轮按用户要求不重复运行测试，文档提交使用 `[skip ci]`，不将历史CI视为最终提交的新CI。
 镜像构建使用-DskipTests，独立检查入口必须先通过；不能把镜像构建等同于测试通过。
 
 ## 当前接口与演示
@@ -136,7 +145,7 @@ Template含id、title、categoryId、coverUrl、description、requiredImageCount
 | GET /api/jobs/stream?ids=UUID,UUID | 本人1～50项SSE最新快照/心跳/失效通知；初次全归属校验，终态/期限关闭，故障回退GET |
 
 Cookie为HttpOnly/SameSite=Lax，数据库仅保存SHA-256哈希，客户端不得提交ownerId；删除身份撤销token但保留资源。
-同一浏览器刷新保留身份，另一个浏览器/无痕窗口为新身份；清除cookie或撤销后无账号找回入口。
+同一浏览器刷新保留身份，另一个浏览器/无痕窗口为新身份。已绑定本地账号可重新登录或用一次性恢复码找回；未绑定访客清除Cookie或撤销会话后无法找回原记录。
 
 004已接通真实Java后台；003时期的PROCESSOR_NOT_AVAILABLE历史记录仍保留，不改写为新结果。
 页面区分提交请求失败与已受理任务失败。网络、5xx或无效受理响应进入“结果尚未确认”，禁用重复提交；
@@ -196,7 +205,7 @@ docker compose up -d --wait backend
 docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=module < scripts/verify-008.mjs
 ```
 
-仅支持单后端进程，不允许多副本共用队列/启动对账逻辑。进程被强杀可能留下未登记结果/临时文件；孤儿文件自动清理不在范围，演示重置卷时统一清理。
+默认一个后端进程；013起支持共享MySQL与素材卷的多个后台，通过数据库租约和执行代次防止旧执行提交，扩容方式见文末。进程强杀可能留下未登记结果/临时文件；011提供显式盘点、隔离和到期清理，无自动孤儿清理。
 数据库完全不可写时无法持久保存新状态；恢复后由扫描/租约到期接管。012/013已补阶段断点和多实例安全提交，仍无真实AI、支付或复杂模板后台。第10项真实故障验收使用独立项目，见文末；不要在原数据卷直接运行写fixture/强杀脚本。
 原题业务闭环已按002～005完成，具体实现与运行证据见验收对照；后续用户授权扩展以007/008规格为准。
 后端运行镜像暂复用固定Maven/Java镜像以简化演示，体积可在后续优化。
@@ -298,7 +307,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 
 部署固定源码commit并运行Compose，等待健康检查后验证列表/详情、一次成功任务及私有结果。发布前备份数据库和素材卷。
 回滚到上一验收commit重建；V3等schema变更须同时恢复匹配备份，不能假定旧应用兼容新表。
-当前无需公网部署。完整源码在本地独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、SQL种子、CI及全部Spec Kit产物；009基线为 `af006c8`，010监控实现提交为 `36641f4`；最新交付及远端CI见[014验收](docs/014-validation.md)。交付时用 `git rev-parse HEAD` 确认包含本文档的完整提交号。源码已按用户授权推送至公开仓库 [HangChi/material-studio](https://github.com/HangChi/material-studio)。
+当前无需公网部署。完整源码在独立Git目录 `xiaoying/material-studio/`，包含前后端、锁文件、V1～V16 SQL、本地素材、CI及全部Spec Kit产物。仓库为 [HangChi/material-studio](https://github.com/HangChi/material-studio)，交付分支 `006-mvp-hardening`，功能版本 `6986a10`；最终源码及本文档以该分支交付后的完整HEAD为准。交付时用 `git rev-parse HEAD` 获取验收commit；验证与CI边界见[提交说明](docs/submission.md)。
 实际投入按工具可核对时段记录在[docs/work-log.md](docs/work-log.md)，不虚构精确人工工时。
 
 使用Codex辅助：原题→总体基线→独立feature规格→计划/契约/任务→测试先失败→最小实现→重构/完整检查→提交。
