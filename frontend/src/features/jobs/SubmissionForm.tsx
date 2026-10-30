@@ -19,10 +19,11 @@ function SubmissionBody({template,owner,sourceJobId}:{template:Template;owner:st
  const jobs=snapshot.jobs;
  const localKey=draftKey(owner,template.id,sourceJobId);
  const [draftLoad]=useState(()=>readDraft(localKey,template.requiredImageCount));
+ const savedDraft=useRef(Boolean(draftLoad.draft));
  const [draftEnabled,setDraftEnabled]=useState(true),[draftMessage,setDraftMessage]=useState(draftLoad.error||(draftLoad.draft?"已恢复本地草稿":""));
  const [parameters,setParameters]=useState(()=>draftLoad.draft?.parameters??defaultParameters());
  const [assets,setAssets]=useState<(string|null)[]>(()=>draftLoad.draft?.assetIds??[]);
- function clearDraft(){try{localStorage.removeItem(localKey);return true;}catch{setDraftMessage("无法清除本地草稿，请检查浏览器存储设置。");return false;}}
+ function clearDraft(){try{localStorage.removeItem(localKey);savedDraft.current=false;return true;}catch{setDraftMessage("无法清除本地草稿，请检查浏览器存储设置。");return false;}}
  function discardDraft(){if(!clearDraft())return;setDraftEnabled(false);setAssets([]);setParameters(defaultParameters());setResetKey(value=>value+1);setDraftMessage("草稿已清空");}
  const [resetKey,setResetKey]=useState(0);
  const storageKey=`material-pending:${owner}:${template.id}`;
@@ -60,8 +61,20 @@ function SubmissionBody({template,owner,sourceJobId}:{template:Template;owner:st
   return()=>{active=false;controller.abort();};
  },[sourceJobId,sourceAttempt,template.requiredImageCount,tracker,draftLoad.draft]);
  useEffect(()=>{
-  if(!draftEnabled||sourceState!=="ready"||mode==="unknown"||mode==="submitting"||!assets.some(Boolean)&&JSON.stringify(parameters)===JSON.stringify(defaultParameters()))return;
-  let active=true;void Promise.resolve().then(()=>{if(!active)return;try{saveDraft(localKey,assets,parameters,template.requiredImageCount);setDraftMessage("草稿已保存到此浏览器");}catch{setDraftMessage("草稿保存失败，请保留此页面并检查浏览器存储设置。");}});return()=>{active=false;};
+  if(!draftEnabled||sourceState!=="ready"||mode==="unknown"||mode==="submitting")return;
+  const empty=!assets.some(Boolean)&&JSON.stringify(parameters)===JSON.stringify(defaultParameters());
+  if(empty&&!savedDraft.current)return;
+  let active=true;
+  void Promise.resolve().then(()=>{
+   if(!active)return;
+   try{
+    // Empty edits must replace an existing draft too, including an edited source recipe.
+    saveDraft(localKey,assets,parameters,template.requiredImageCount);
+    savedDraft.current=true;
+    setDraftMessage("草稿已保存到此浏览器");
+   }catch{setDraftMessage("草稿保存失败，请保留此页面并检查浏览器存储设置。");}
+  });
+  return()=>{active=false;};
  },[assets,parameters,draftEnabled,sourceState,mode,localKey,template.requiredImageCount]);
  const ready=assets.length===template.requiredImageCount&&assets.every(id=>typeof id==="string"&&id.length>0);
  async function submit(retry=false){
