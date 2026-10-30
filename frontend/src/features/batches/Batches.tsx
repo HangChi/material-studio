@@ -16,15 +16,34 @@ function BatchBody({owner}:{owner:string}){
  const {tracker,snapshot}=useJobTracker(owner),storage=`material-batch-pending:${owner}`;
  const [pending,setPending]=useState<Pending|null>(()=>{try{const v=JSON.parse(sessionStorage.getItem(storage)??"null");return v&&typeof v.key==="string"&&typeof v.body==="string"?v:null;}catch{return null;}});
  const [mode,setMode]=useState<"idle"|"busy"|"unknown">(pending?"unknown":"idle"),[templates,setTemplates]=useState<Template[]>([]),[batches,setBatches]=useState<Batch[]>([]),[rows,setRows]=useState<Row[]>([]),[name,setName]=useState("新批次"),[error,setError]=useState(""),[warning,setWarning]=useState(""),[cursor,setCursor]=useState<string|null>(null),[loading,setLoading]=useState(false),[cancelling,setCancelling]=useState<string|null>(null);
- const life=useRef({active:true,controllers:new Set<AbortController>(),locked:!!pending,reading:false});
+ const life=useRef({active:true,controllers:new Set<AbortController>(),locked:!!pending,reading:false,acceptedDuringRead:new Set<string>()});
  function remember(value:Pending|null){setPending(value);try{if(value)sessionStorage.setItem(storage,JSON.stringify(value));else sessionStorage.removeItem(storage);}catch{setWarning("浏览器存储不可用，请保留此页以便安全重试。");}}
- function accept(batch:Batch){setBatches(previous=>[batch,...previous.filter(item=>item.id!==batch.id)]);tracker.seed(batch.items);}
+ function accept(batch:Batch){
+  if(life.current.reading)life.current.acceptedDuringRead.add(batch.id);
+  setBatches(previous=>[batch,...previous.filter(item=>item.id!==batch.id)]);
+  tracker.seed(batch.items);
+ }
  async function load(more=false){
-  const state=life.current;if(state.reading)return;state.reading=true;const c=new AbortController();state.controllers.add(c);setLoading(true);setError("");
+  const state=life.current;
+  if(state.reading)return;
+  state.reading=true;
+  state.acceptedDuringRead.clear();
+  const c=new AbortController();
+  state.controllers.add(c);setLoading(true);setError("");
   try{
    const response=await fetch(`/api/batches?limit=20${more&&cursor?`&cursor=${encodeURIComponent(cursor)}`:""}`,{signal:c.signal,cache:"no-store"});if(response.status===401){tracker.expire();return;}
    const p=await response.json();if(!state.active)return;if(!response.ok||!Array.isArray(p.items)||!p.items.every(validBatch))throw new Error("批次记录暂时不可用，请重试。");
-   setBatches(previous=>[...new Map((more?[...previous,...p.items]:p.items).map((batch:Batch)=>[batch.id,batch])).values()] as Batch[]);setCursor(p.nextCursor);for(const batch of p.items as Batch[])tracker.seed(batch.items);
+   // Copy before the state updater runs: later requests can reuse the lifecycle set.
+   const protectedIds=new Set(state.acceptedDuringRead);
+   setBatches(previous=>{
+    const preserved=previous.filter(batch=>protectedIds.has(batch.id));
+    const page=more?[...previous,...p.items]:p.items as Batch[];
+    const merged=new Map<string,Batch>(page.map((batch:Batch)=>[batch.id,batch]));
+    for(const batch of preserved)merged.set(batch.id,batch);
+    return [...preserved,...[...merged.values()].filter(batch=>!protectedIds.has(batch.id))];
+   });
+   setCursor(p.nextCursor);
+   for(const batch of p.items as Batch[])tracker.seed(batch.items);
   }catch(e){if(state.active)setError(e instanceof Error?e.message:"批次查询失败");}finally{state.reading=false;state.controllers.delete(c);if(state.active)setLoading(false);}
  }
  useEffect(()=>{
