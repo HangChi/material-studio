@@ -1,5 +1,5 @@
 # Specification: 真实网络照片与人工验证素材
-Created: 2026-10-30 · Status: In progress
+Created: 2026-10-30 · Status: Complete (container and browser validated, 2026-10-31)
 用户要求网上寻找素材展示到页面，并提供素材用于人工验证。
 - FR-001 选择6张明确为Unsplash免费授权的照片，记录作者、原页面、图片URL、许可与校验和；图片本地保存，不依赖页面外链加载，不保存API密钥。
 - FR-002 三个模板封面使用现有Java渲染器生成真实照片样张；不改变模板业务配置、上传规则或用户数据。

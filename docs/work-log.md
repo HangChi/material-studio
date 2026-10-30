@@ -434,3 +434,10 @@ Java AccountApiTest新增3项，实际RED为9项中3失败：8位注册422、8�
 界面去重复说明、规则段落、密码管理器和草稿提示，输入保留标签/原生限制，注册只留一行数据保留说明；合并details默认收起，原checkbox与confirm保留，文案去掉“终态”等术语。首次前端全量140过/1失败，原因是原生details保留DOM，测试应验证不可见而非不存在；修正后断言默认不可见、展开可见且未选，原明确迁移确认测试继续通过。
 完整Java容器verify：100项、0失败/错误/跳过及打包通过（/tmp/xiaoying-022-java.log）。完整前端容器lint/typecheck/test/build：30文件141项与构建通过（/tmp/xiaoying-022-front.log）。无凭据写入浏览器，边界与旧账号兼容在独立测试数据库验证。
 生产前后端重建成功（/tmp/xiaoying-022-runtime.log）。用户“继续”后衔接原任务完成真实1280/375px登录、注册、手机合并展开与找回，均无横向溢出；实际注册/找回输入min8/max18已读取，6份截图保存。仅界面查看，没有注册真实账号、修改用户密码或提交制作任务。恢复临时视口并保留/account，三个运行服务healthy，停止并移除独立测试数据库，不影响项目卷。更新README现行密码说明与022验收，未推送远端/运行新CI。
+
+### 023 · 网络照片与人工验证素材
+用户明确要求网上找素材展示页面，并给出人工验证素材。2026-10-30搜索并逐项打开6个Unsplash免费照片页面和官方许可，记录4位作者/原页面/CDN URL；不使用Unsplash+或API，6图下载到本地。先建立023规格/计划/契约，质量6/6，单智能体串行。
+SampleGallery契约RED：缺少具名素材区域（/tmp/xiaoying-023-red.log）。新增首页6图预览/逐张download/作者来源/许可链接、ZIP和折叠步骤，页脚入口；保留3项主导航。正常图片最长边1600，133KiB～2.2MiB，JPEG/PNG混合，manifest记录实测尺寸/字节/sha256。
+新增离线PrepareSamples文件适配器复用真实TemplateRenderer/PostcardRenderer生成3张照片封面，不复制算法、不操作DB或用户会话；cover使用contain呈现完整样张。4个拒绝文件（5MiB+1、2025万像素PNG、损坏JPG、TXT）只放ZIP的invalid目录，完整步骤与来源入包。实际解码、ZIP12项CRC及字节比对通过，整包5330631字节（/tmp/xiaoying-023-assets-final.log）。首个工具命令停在新增Maven插件解析，已停止该临时容器并改用已有缓存/boot包lib离线成功，无依赖新增，环境失败不算RED。目视后将03照片标题校正为“旷野远景”，清单与ZIP重新生成一致。
+完整后端verify 100项、0失败/错误/跳过与打包通过（/tmp/xiaoying-023-java.log）。完整前端lint/typecheck/test/build 31文件142项与构建通过（/tmp/xiaoying-023-front.log）；新增HTTP脚本另跑lint通过（/tmp/xiaoying-023-final-lint.log）。生产重建成功（/tmp/xiaoying-023-runtime.log），只读HTTP核对6图hash、ZIP/SOURCES与本地文件相同及3封面尺寸（/tmp/xiaoying-023-downloads.log）。
+2026-10-31真实1280/375px验收首页新封面、6图全部加载、锚点定位及步骤展开，无横向溢出。图片/下载包是共享静态样例，没有向当前身份素材库写入记录或提交制作任务；人工用例留给用户执行，不宣称已经代用户验证。3份023截图保存，视口恢复并保留素材页；前后端/MySQL healthy，独立测试库停止移除、项目卷保留。README修正自制几何封面旧说明，补充来源和下载/复现入口；未远端推送或新CI。

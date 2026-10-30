@@ -82,7 +82,7 @@ Java素材默认STORAGE_ROOT=/data，Compose的asset-data命名卷持久保存�
 修改数据库用户名/密码不会重设已初始化的MySQL卷，须同步数据库配置或仅在本地演示时重置卷。
 
 Flyway自动执行V1模板种子、V2身份/素材/任务、V3执行配置/事件、V4配方/幂等、V5作品属性、V6执行恢复、V7受理锁、V8隔离审计、V9批次、V10标签、V11账号/多会话、V12标签精确排序规则、V13阶段断点及V14执行租约；兼容既有数据和旧Cookie，无需清空数据库。
-封面是项目自制PNG，位于 `backend/src/main/resources/demo/`，Java白名单接口提供；无需外部图片网络。
+封面位于 `backend/src/main/resources/demo/`，Java白名单接口提供；023起用授权Unsplash照片经现有制作程序生成真实PNG样张。照片与来源清单已本地保存，页面运行无需外部图片网络。
 可在容器中重新生成：
 
 ```sh
@@ -306,7 +306,7 @@ docker compose exec -T -e VERIFY_MODE=restart-check frontend node --input-type=m
 环境错误单独记录，不能算业务RED；未运行的远端CI不声称通过。全程未使用子智能体。
 
 Spec Kit模板、脚本、skills来自[github/spec-kit](https://github.com/github/spec-kit)，本地CLI0.16.4生成。
-UI参考frontend-design/ui-ux-pro-max技能并按图片样张用途调整；业务实现与几何PNG为本项目生成，未复用第三方业务代码或远程图片。
+UI参考frontend-design/ui-ux-pro-max技能并按图片样张用途调整；业务实现与版式由本项目完成，未复用第三方业务代码。023起示例照片来自Unsplash，作者、原页面与许可见 `frontend/public/samples/SOURCES.md`。
 
 ## 009 · 工坊 UI 与品牌
 
@@ -396,3 +396,8 @@ SSE每跟踪器一个源、最多50项；每后台64连接/每owner2、10秒心�
 ## 022 · 简化登录注册与密码规则
 
 登录/注册已删除重复小字，规则移入输入提示，游客合并默认折叠。注册和重置密码为8～18字符，旧账号原密码保留兼容。实际完成前后端边界RED/GREEN、141项前端/100项Java与构建、生产重建及1280/375px界面验收；项目保持运行。[022验收与截图](docs/022-validation.md)记录了命令和真实凭据操作的未执行边界。
+
+
+## 023 · 示例照片与人工验证素材
+
+[首页示例素材](http://localhost:3000/#sample-materials)现有6张授权照片，可逐张下载；三个模板封面展示同一批照片经实际程序生成的成品。点击[下载验证素材包](http://localhost:3000/samples/manual-verification.zip)，解压后按README使用：6张正常照片、4类异常文件及来源/步骤。照片与样张均本地保存，作者和许可可查。实际完成资产生成/解码/ZIP完整性、142项前端/100项Java及构建、HTTP下载一致性和桌面/手机验收。项目保持运行，待用户人工制作验证；[023验收](docs/023-validation.md)与[详细步骤](docs/manual-materials.md)记录复现命令和边界。
