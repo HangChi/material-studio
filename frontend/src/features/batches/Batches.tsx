@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
+import {StudioIcon} from "../../components/StudioIcon";
 import {SessionGate} from "../identity/SessionGate";
 import {SessionExpired} from "../identity/SessionExpired";
 import {UploadSlots} from "../assets/UploadSlots";
@@ -79,13 +80,65 @@ function BatchBody({owner}:{owner:string}){
   if(cancelling)return;setCancelling(id);const c=new AbortController();life.current.controllers.add(c);
   try{const r=await fetch(`/api/batches/${id}/cancel`,{method:"POST",signal:c.signal});const p=await r.json();if(!life.current.active)return;if(r.status===401){tracker.expire();return;}if(!r.ok||!validBatch(p.batch))throw new Error();accept(p.batch);}catch{if(life.current.active)setError("取消请求失败，请刷新核对批次。");}finally{life.current.controllers.delete(c);if(life.current.active)setCancelling(null);}
  }
- const ready=rows.length>0&&rows.every(row=>{const t=templates.find(t=>t.id===row.templateId);return t&&row.assetIds.length===t.requiredImageCount&&row.assetIds.every(Boolean);});
+ function isRowReady(row:Row){
+  const template=templates.find(item=>item.id===row.templateId);
+  return !!template&&row.assetIds.length===template.requiredImageCount&&row.assetIds.every(Boolean);
+ }
+ const readyCount=rows.filter(isRowReady).length;
+ const ready=rows.length>0&&readyCount===rows.length;
+ const requiredImages=rows.reduce((total,row)=>total+(templates.find(template=>template.id===row.templateId)?.requiredImageCount??0),0);
+ const preparedImages=rows.reduce((total,row)=>total+row.assetIds.filter(Boolean).length,0);
  if(snapshot.authExpired)return <SessionExpired/>;
- return <><form className="batch-form" onSubmit={e=>{e.preventDefault();void submit();}}><fieldset disabled={mode!=="idle"}><label>批次名称<input value={name} maxLength={60} onChange={e=>setName(e.target.value)}/></label>
- {rows.map((row,index)=>{const template=templates.find(t=>t.id===row.templateId);return <section className="batch-item" key={row.id}><div className="batch-item-heading"><h2>制作项 {index+1}</h2><label>模板<select aria-label={`制作项 ${index+1} 模板`} value={row.templateId} onChange={e=>setRows(previous=>previous.map(item=>item.id===row.id?{...item,templateId:e.target.value,assetIds:[]}:item))}>{templates.map(t=><option key={t.id} value={t.id}>{t.title}</option>)}</select></label><button type="button" disabled={rows.length===1} onClick={()=>setRows(rows.filter(item=>item.id!==row.id))}>移除制作项 {index+1}</button></div>{template&&<UploadSlots key={template.id} template={template} onChange={assetIds=>setRows(previous=>previous.map(item=>item.id===row.id?{...item,assetIds}:item))}/>}</section>;})}
- <button type="button" disabled={rows.length>=10||!templates.length} onClick={()=>setRows([...rows,{id:crypto.randomUUID(),templateId:templates[0]?.id??"",assetIds:[]}])}>增加制作项</button><button className="primary" type="submit" disabled={!ready}>提交批次</button></fieldset></form>
- {error&&<p role="alert">{error}</p>}{warning&&<p role="status">{warning}</p>}{mode==="unknown"&&<button type="button" onClick={()=>void submit(true)}>安全重试批次</button>}
- <div className="history-toolbar"><h2>我的批次</h2><button disabled={loading} onClick={()=>void load()}>刷新批次</button></div>{loading&&<p role="status">正在读取批次…</p>}
- {batches.map(batch=>{const jobs=batch.items.map(job=>snapshot.jobs.find(item=>item.id===job.id)??job);return <section className="batch-record" key={batch.id}><h2>{batch.name}</h2><p>已结束 {jobs.filter(job=>!unfinished(job)).length} / {jobs.length} 项 · 批次编号：{batch.id}</p>{jobs.some(unfinished)&&<button disabled={!!cancelling} onClick={()=>void cancel(batch.id)}>取消未完成项 {batch.name}</button>}<JobCards jobs={jobs} errors={snapshot.errors} onRetry={id=>tracker.retry(id)} onAccepted={job=>tracker.seed([job])} onExpire={()=>tracker.expire()}/></section>;})}
- {cursor&&<button disabled={loading} onClick={()=>void load(true)}>加载更多批次</button>}</>;
+ return <>
+  <form className="batch-form" onSubmit={event=>{event.preventDefault();void submit();}}>
+   <fieldset className="batch-editing" disabled={mode!=="idle"}>
+    <div className="batch-layout">
+     <div className="batch-composer">
+      <div className="batch-setup"><div><h2>创建新批次</h2><p>为每个制作项选择模板和图片</p></div><span className="batch-capacity">{rows.length} / 10 项</span><label>批次名称<input value={name} maxLength={60} placeholder="给这组作品起个名字" onChange={event=>setName(event.target.value)}/></label></div>
+      <div className="batch-items">{rows.map((row,index)=>{
+       const template=templates.find(item=>item.id===row.templateId);
+       const complete=isRowReady(row);
+       return <section className={`batch-item${complete?" item-ready":""}`} aria-label={`制作项 ${index+1}`} key={row.id}>
+        <div className="batch-item-heading">
+         <span className="batch-item-number" aria-hidden="true">{String(index+1).padStart(2,"0")}</span>
+         <div className="batch-item-title"><h2>制作项 {index+1}</h2><span className={`batch-item-status${complete?" is-ready":""}`}>{complete?"素材已就绪":"待添加素材"}</span></div>
+         <label className="batch-template-field">模板<select aria-label={`制作项 ${index+1} 模板`} value={row.templateId} onChange={event=>setRows(previous=>previous.map(item=>item.id===row.id?{...item,templateId:event.target.value,assetIds:[]}:item))}>{templates.map(item=><option key={item.id} value={item.id}>{item.title}</option>)}</select></label>
+         <button className="batch-remove" type="button" aria-label={`移除制作项 ${index+1}`} disabled={rows.length===1} onClick={()=>setRows(previous=>previous.filter(item=>item.id!==row.id))}><StudioIcon name="remove"/><span>移除</span></button>
+        </div>
+        {template&&<div className="batch-item-body"><p className="batch-image-requirements"><span>需要 {template.requiredImageCount} 张图片</span><span>JPEG / PNG</span><span>每张 ≤ 5 MiB</span></p><UploadSlots key={template.id} template={template} onChange={assetIds=>setRows(previous=>previous.map(item=>item.id===row.id?{...item,assetIds}:item))}/></div>}
+       </section>;
+      })}</div>
+      <button className="batch-add" type="button" aria-label="增加制作项" disabled={rows.length>=10||!templates.length} onClick={()=>setRows(previous=>[...previous,{id:crypto.randomUUID(),templateId:templates[0]?.id??"",assetIds:[]}])}><StudioIcon name="plus"/>增加制作项<span>{rows.length>=10?"已达 10 项上限":"每批最多 10 项"}</span></button>
+     </div>
+     <aside className="batch-summary" aria-label="批次概览">
+      <div className="batch-summary-title"><StudioIcon name="templates"/><h2>批次概览</h2></div>
+      <p className="batch-prepared" role="status">已就绪 <strong>{readyCount}</strong> / {rows.length} 项</p>
+      <progress aria-label="素材准备进度" max={rows.length||1} value={readyCount}/>
+      <p className="batch-image-count">已准备 {preparedImages} / {requiredImages} 张图片</p>
+      <ul className="batch-summary-items">{rows.map((row,index)=>{const template=templates.find(item=>item.id===row.templateId);return <li key={row.id}><span className={isRowReady(row)?"ready-dot":""} aria-hidden="true"/><span>{index+1}. {template?.title??"选择模板"}</span><small>{row.assetIds.filter(Boolean).length} / {template?.requiredImageCount??0}</small></li>;})}</ul>
+      <p className={`batch-readiness${ready?" is-ready":""}`}>{ready?"素材已准备好，可以提交":"为每个制作项添加所需图片后提交"}</p>
+      <button className="primary batch-submit" type="submit" aria-label="提交批次" disabled={!ready}>{mode==="busy"?"正在提交…":"提交批次"}<StudioIcon name="arrow"/></button>
+      <p className="batch-summary-help">提交后可离开页面，后台会继续制作。<br/>明信片使用默认排版。</p>
+     </aside>
+    </div>
+   </fieldset>
+  </form>
+  {error&&<p className="batch-feedback" role="alert">{error}</p>}{warning&&<p className="batch-feedback" role="status">{warning}</p>}{mode==="unknown"&&<div className="batch-retry"><button type="button" onClick={()=>void submit(true)}>安全重试批次</button><p>重试同一次提交，不会重复创建批次。</p></div>}
+  <section className="batch-history" aria-label="批次记录">
+   <div className="batch-history-heading"><div><h2>我的批次<span>已加载 {batches.length} 批</span></h2><p>查看每个制作项的进度与结果</p></div><button type="button" disabled={loading} onClick={()=>void load()}><StudioIcon name="repeat"/>刷新批次</button></div>
+   {loading&&<p role="status">正在读取批次…</p>}
+   {!loading&&!batches.length&&<div className="batch-empty"><StudioIcon name="history"/><h3>还没有批次记录</h3><p>准备好上方素材后，提交你的第一组作品。</p></div>}
+   {batches.map(batch=>{
+    const jobs=batch.items.map(job=>snapshot.jobs.find(item=>item.id===job.id)??job);
+    const finished=jobs.filter(job=>!unfinished(job)).length;
+    return <section className="batch-record" key={batch.id}>
+     <div className="batch-record-heading"><div><h2>{batch.name}</h2><p>已结束 {finished} / {jobs.length} 项</p></div>{jobs.some(unfinished)&&<button type="button" disabled={!!cancelling} onClick={()=>void cancel(batch.id)}>取消未完成项 {batch.name}</button>}</div>
+     <progress aria-label={`${batch.name} 制作进度`} max={jobs.length||1} value={finished}/>
+     <p className="batch-record-id">批次编号：{batch.id}</p>
+     <JobCards jobs={jobs} errors={snapshot.errors} onRetry={id=>tracker.retry(id)} onAccepted={job=>tracker.seed([job])} onExpire={()=>tracker.expire()}/>
+    </section>;
+   })}
+   {cursor&&<button type="button" className="batch-load-more" disabled={loading} onClick={()=>void load(true)}>加载更多批次</button>}
+  </section>
+ </>;
 }

@@ -1,5 +1,7 @@
-type Kind = "search" | "star" | "hide" | "select" | "tag" | "chevron" | "templates" | "history" | "upload" | "sliders" | "library" | "arrow" | "edit" | "download" | "repeat";
+type Kind = "plus" | "remove" | "search" | "star" | "hide" | "select" | "tag" | "chevron" | "templates" | "history" | "upload" | "sliders" | "library" | "arrow" | "edit" | "download" | "repeat";
 const paths: Record<Kind, string> = {
+  plus: "M12 5v14M5 12h14",
+  remove: "M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7",
   search: "M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0",
   star: "m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z",
   hide: "m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9 5.5c1-.3 2-.5 3-.5 6 0 10 7 10 7s-1.5 2.6-4 4.6M6 6.5C3.5 8.4 2 12 2 12s4 7 10 7c1.3 0 2.6-.3 3.7-.8",

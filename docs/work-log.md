@@ -408,3 +408,8 @@ T002 RED：history-interface与bulk-interface共4项因缺少更多筛选、未�
 共用SessionExpired替换历史/制作/批次的“刷新建立游客”指引，提供登录入口并说明游客恢复限制。并未改Java兼容POST /session语义；用户手动清Cookie/刷新仍可能建立新游客，不承诺恢复丢失游客或自动迁移到账号。
 相关31项GREEN（/tmp/xiaoying-018-green.log），完整docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：28文件131项及全部检查通过（/tmp/xiaoying-018-all.log）。重建当前frontend，接下来核对原演示游客作品仍可见、CTA及375px，保留服务运行。
 018真实浏览器：旧运行时绑定异常按文档恢复连接后，刷新当前/history确认旧演示成功任务仍在，游客编号/切换入口消失；登录/注册进入/account原表单，未提交凭据，返回记录仍是原任务。1280与375px宽度均无溢出，桌面/手机018截图已留存，临时视口恢复，保留记录页。账号退出/失败/401以组件测试覆盖，未操作真实账号或宣称真实退出验收。更新现行README/架构/验收中的旧游客切换说明，历史阶段文档保持溯源。前端已重建，用户项目继续运行。
+
+### 019 · 批量制作工作台
+用户截图要求优化批量制作页。读取约章、011批次契约与018边界，使用frontend-design/ui-ux-pro-max的分组/进度指引，先建立019规格/计划/契约，质量6/6，单智能体串行。保留原提交/幂等/任务跟踪和素材库，不改Java、数据库或依赖。
+workbench.test.tsx三项RED：缺少准备进度、具名制作项区域和明确10项容量（/tmp/xiaoying-019-red.log）。实现左侧紧凑制作清单、右侧准备概览/唯一提交入口，手机纵向；进度从原素材校验派生，切换模板只清空当前项，增删序号与1～10上限保持。批量页独立batches.css局部调整共享UploadSlots展示，不改其上传逻辑，新增批次历史空态/摘要。
+相关上传/素材库/幂等/旧列表保护及新行为13项GREEN（/tmp/xiaoying-019-green.log）；完整docker compose --profile test run --rm --no-deps frontend-test sh -c 'npm run lint && npm run typecheck && npm test && npm run build'：29文件134项及全部检查通过（/tmp/xiaoying-019-all.log）。开始重建运行前端做真实桌面/375px验证，保留用户项目运行。
