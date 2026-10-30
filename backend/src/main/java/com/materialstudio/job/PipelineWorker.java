@@ -27,6 +27,11 @@ public class PipelineWorker {
         var recipe=creation.recipe(id);
         return recipe==null||recipe.parametersJson()==null?PostcardParameters.defaults():json.readValue(recipe.parametersJson(),PostcardParameters.class);
     }
+    private void cleanupUnregisteredResult(String id,String filename){
+        if(filename==null)return;
+        try{var job=events.find(id);if(job==null||!filename.equals(job.resultPath()))results.cleanup(filename);}
+        catch(org.springframework.dao.DataAccessException uncertain){LOG.warn("Retaining result while publication acknowledgement is uncertain for job {}",id);}
+    }
     public void execute(String id) {
         state.recoverExpired(id);var claim=leases.claim(id);if(claim==null)return;
         try(var scope=leases.enter(claim)){executeClaimed(id);}
@@ -52,14 +57,14 @@ public class PipelineWorker {
                 if(stage==Stage.FINALIZE) published=generated==null?results.publish(id,templates.find(job.templateId()).coverFilename()):results.publish(id,generated);
                 if(stage==Stage.ASSET_CHECK)pending=checkpoints.checked(id,input);
                 if(stage==Stage.GENERATE)pending=checkpoints.generated(id,input,generated);
-                if(!state.complete(id,stage,published,pending)) { results.cleanup(published);return; }
+                if(!state.complete(id,stage,published,pending)) { cleanupUnregisteredResult(id,published);return; }
                 pending=null;
             }
         } catch(InterruptedException e) {
-            results.cleanup(published);state.retry(id,"PROCESS_INTERRUPTED","服务已中断，任务等待恢复");Thread.currentThread().interrupt();
+            cleanupUnregisteredResult(id,published);state.retry(id,"PROCESS_INTERRUPTED","服务已中断，任务等待恢复");Thread.currentThread().interrupt();
         } catch(Exception e) {
             LOG.warn("Pipeline attempt failed for job {}",id,e);
-            results.cleanup(published);
+            cleanupUnregisteredResult(id,published);
             boolean unavailable=e instanceof ApiException api && api.code().equals("ASSET_UNAVAILABLE");
             if(e instanceof java.io.IOException||e instanceof org.springframework.dao.TransientDataAccessException)state.retry(id,"TEMPORARY_FAILURE","暂时性制作错误");
             else state.fail(id,unavailable?"ASSET_UNAVAILABLE":"PIPELINE_FAILED",unavailable?"素材已失效，请重新上传":"制作阶段失败，请重新提交");

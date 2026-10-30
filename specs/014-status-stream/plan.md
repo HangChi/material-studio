@@ -14,5 +14,6 @@ stop/expire清source/watchdog及原timer/request；jobs或heartbeat刷新20s wat
 ## Verification
 JobStreamApiTest先404 RED：初次/版本/终态、认证/非法/越权、限额和关闭回收、撤销expired。Java HTTP InputStream读取SSE帧，测试寿命限定以免挂起。frontend stream.test.ts FakeEventSource测试两任务一源、旧版本/旧源忽略、终态清理、身份失效、断线补查独立错误、无效帧和20s watchdog；proxy测试验证数据逐块不缓存和Abort信号/头，先RED再GREEN。
 最终全量容器、独立014真实Next代理数据流/撤销/断连与普通查询并存、浏览器桌面375px实际制作跟踪；保留卷升级原3000仅健康核对，临时项目down保留卷，最终远端CI。
+交付兼容复查覆盖完成已提交但确认丢失：worker只清理未登记结果，数据库已指向的PNG必须保留；用完成真实提交后抛瞬时异常模拟确认丢失，不将终态改写或重做。
 ## Complexity Tracking
 使用现有Servlet异步，无WebFlux/广播系统。慢客户端可能耗发送线程，连接数/寿命/watchdog限制影响并可回退；不把这称作高并发生产推送总线。

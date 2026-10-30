@@ -18,7 +18,7 @@ class CheckpointTest extends ApiTestSupport {
  @MockitoSpyBean ResultStore results;
  @MockitoSpyBean TemplateRenderer renderer;
  @Autowired PipelineWorker worker;
- @Autowired PipelineState state;
+ @MockitoSpyBean PipelineState state;
  @Autowired CheckpointStore checkpoints;
  String submit(String cookie) throws Exception {
   return call("/api/jobs",HttpMethod.POST,cookie,Map.of("templateId","demo-portrait","assetIds",List.of(asset(cookie)),"simulation",Map.of("stageDurationsMs",Map.of("ASSET_CHECK",0,"GENERATE",0,"FINALIZE",0)))).getBody().path("job").path("id").asText();
@@ -66,5 +66,11 @@ class CheckpointTest extends ApiTestSupport {
    assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM job_checkpoint WHERE job_id=?",Integer.class,id)).isZero();
    assertThat(jdbc.queryForObject("SELECT kind FROM job_event WHERE job_id=? ORDER BY version DESC LIMIT 1",String.class,id)).isEqualTo("STARTED");
   }finally{jdbc.execute("DROP TRIGGER IF EXISTS reject_checkpoint_completion_test");checkpoints.discard(row);state.cancel(id,owner);}
+ }
+ @Test void lostCommitAcknowledgementDoesNotDeleteAnAlreadyRegisteredSuccessfulResult()throws Exception{
+  String cookie=session(),id=submit(cookie);
+  doAnswer(invocation->{boolean committed=(boolean)invocation.callRealMethod();if(committed)throw new org.springframework.dao.TransientDataAccessResourceException("commit acknowledgement lost");return false;}).when(state).complete(eq(id),eq(Simulation.Stage.FINALIZE),anyString(),isNull());
+  worker.execute(id);assertThat(call("/api/jobs/"+id,HttpMethod.GET,cookie,null).getBody().path("job").path("status").asText()).isEqualTo("SUCCEEDED");
+  var headers=new org.springframework.http.HttpHeaders();headers.set("Cookie",cookie);var response=http.exchange("/api/jobs/"+id+"/result",HttpMethod.GET,new org.springframework.http.HttpEntity<>(headers),byte[].class);assertThat(response.getStatusCode().value()).isEqualTo(200);
  }
 }
