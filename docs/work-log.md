@@ -357,3 +357,5 @@ US4 RED：AccountApiTest5项均注册404；账号UI两项空组件缺恢复码/�
 只在独立011资产卷创建两天前UUID孤儿，盘点/隔离成功、旧快照409、审计QUARANTINED；仅将该测试审计回拨8天模拟到期，清理后PURGED。没有等待真实7天、没有原卷维护清理。浏览器账号登录、两项批次素材库复用/提交/跨页恢复2/2成功、历史选中作品批量取消收藏生效。1280×900、375×812三页检查，小屏innerWidth=scrollWidth=375；原生JPEG截图011-{account,batches,history}-{desktop,mobile}.jpg，无密码或恢复码；视口恢复。浏览器未执行密码变更，恢复/码轮换由真实API及测试完成。
 
 账号兼容文案“当前访客”改为“当前身份”，容器完整lint/typecheck、23文件112测试、生产构建再次通过（/tmp/material-011-front-delivery.log）。原3000仅保留数据卷生产重建并健康检查，MySQL/Java/Next均healthy；未运行写入验收脚本。README/roadmap/acceptance/async-workflow及001当前入口统一至011、V1～V12及112/78基线，历史阶段数字保留；执行顺序1～9与未来断点/多实例/SSE明确分开。实际投入按上述命令与结果记录，不虚构人工小时；随后核对链接、差异、远端CI并完成T013。
+
+首次推送3089e04的远端CI40920072716：前端success，Java78项中1失败。日志精确显示HistoryApiTest只读断言期间，裸QUEUED fixture被后台扫描器改成FAILED/PIPELINE_FAILED；接口仍只读，是此前查询测试未隔离生产worker的时序竞争。先补011 plan验证约束，为该类MockitoBean替换JobDispatcher并增加verifyNoInteractions，保留全字段不变断言，不改生产逻辑。容器定向3项通过（/tmp/material-011-history-isolation.log），再完整backend-test78项/0失败错误跳过及打包通过（/tmp/material-011-backend-delivery.log）。未通过的首次CI保留记录，不以重跑掩盖失败；随后推送修复重新验收。

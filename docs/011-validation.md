@@ -59,4 +59,4 @@ WEB_PORT=3111 docker compose -p material-studio-011 exec -T -e VERIFY_ISOLATED=t
 
 原3000服务已使用保留卷Compose生产重建，MySQL/Java/Next均healthy；未向原卷写入验收fixture或执行维护清理。仍为单后端实例、单worker、全任务重启重试；无阶段断点、多实例租约、SSE、外部身份服务或邮件。ZIP最多20项/原图64MiB，批量管理50项，批次10项；本机草稿不自动跨设备同步。未绑定访客丢失Cookie无法恢复，密码和恢复码都丢失时不提供绕过找回。公网/TLS未验证。
 
-远端CI与最终提交：待本次提交推送后据实际结果补充，不把本地检查称为远端通过。
+首次远端[40920072716](https://github.com/HangChi/material-studio/actions/runs/40920072716)前端通过，Java78项中HistoryApiTest一项失败：真实后台扫描器把只读查询测试的裸QUEUED fixture改成PIPELINE_FAILED。为查询测试替换JobDispatcher，保留HTTP/MySQL及数据完全不变断言，并新增查询不触发调度断言；不修改业务或生产扫描器。该类3项回归及完整78项/打包通过（本机`/tmp/material-011-backend-delivery.log`），最终远端结果在修复提交后补充。

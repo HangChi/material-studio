@@ -3,12 +3,15 @@ package com.materialstudio.job;
 import com.materialstudio.ApiTestSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.*;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class HistoryApiTest extends ApiTestSupport {
+ @MockitoBean JobDispatcher dispatcher;
  private String owner(String cookie){return call("/api/session",HttpMethod.GET,cookie,null).getBody().path("user").path("id").asText();}
  private String seed(String owner,String status,Instant time){
   String id=UUID.randomUUID().toString();boolean terminal=status.equals("FAILED");boolean running=status.equals("RUNNING");
@@ -53,6 +56,7 @@ class HistoryApiTest extends ApiTestSupport {
   assertThat(ids).containsExactly(running,queued);assertThat(response.getBody().toString()).doesNotContain("ownerId","resultPath","token");
   for(int n=0;n<10;n++)call("/api/jobs/active",HttpMethod.GET,cookie,null);
   assertThat(jdbc.queryForList("SELECT * FROM job WHERE owner_id=? ORDER BY id",owner)).isEqualTo(before);
+  verifyNoInteractions(dispatcher);
   assertThat(call("/api/jobs/active",HttpMethod.GET,null,null).getStatusCode().value()).isEqualTo(401);
  }
 }

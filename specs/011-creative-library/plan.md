@@ -14,3 +14,5 @@
 backend/src/main/java/com/materialstudio/{storage,batch,identity,job}；frontend/src/features/{batches,identity,jobs}；新页面/batches、/account；V8～V12迁移；scripts/verify-011.mjs；docs/011-validation.md。
 ## Verification
 各故事真实RED→最小GREEN→相关回归后提交；最终全量前后端、独立空卷/迁移/故障/桌面375px、公开仓库CI。文件清理/认证/迁移只用独立生成的测试数据，原3000数据卷不做清理验收。
+
+远端检查发现HistoryApiTest的只读断言与真实后台扫描并发：裸QUEUED fixture缺执行配置，被worker改为PIPELINE_FAILED。查询测试替换JobDispatcher，保持完整HTTP/MySQL路径并断言查询不调度；后台执行/扫描行为仍由独立执行器测试覆盖，不放宽数据不变断言。
