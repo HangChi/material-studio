@@ -16,7 +16,7 @@ public class PipelineState {
     public boolean resume(String id,Stage after) {
         return Boolean.TRUE.equals(transaction.execute(tx->{
             var job=events.lock(id);if(job==null||!job.status().equals("QUEUED")||!leases.allowed(id))return false;execution.ensure(id);var run=execution.runtime(id);
-            if(run.availableAt()!=null&&run.availableAt().isAfter(Instant.now()))return false;
+            if(!execution.due(id))return false;
             if(execution.begin(id)==0){write(job,"FAILED",null,"FAILED",null,"RETRY_EXHAUSTED","已达到三次执行上限","执行次数已耗尽");return false;}
             write(job,"RUNNING",after.name(),"RESUMED",null,null,null,"从"+label(after,job.templateId())+"断点恢复");return true;
         }));
@@ -26,7 +26,7 @@ public class PipelineState {
             var job=events.lock(id);if(job==null||!leases.allowed(id))return false;
             if(stage==Stage.ASSET_CHECK) {
                 if(!job.status().equals("QUEUED"))return false;execution.ensure(id);var run=execution.runtime(id);
-                if(run.availableAt()!=null&&run.availableAt().isAfter(Instant.now()))return false;
+                if(!execution.due(id))return false;
                 if(execution.begin(id)==0){write(job,"FAILED",null,"FAILED",null,"RETRY_EXHAUSTED","已达到三次执行上限","执行次数已耗尽");return false;}
             }
             else {
@@ -78,7 +78,7 @@ public class PipelineState {
             if(job.status().equals("QUEUED"))execution.begin(id);
             var run=execution.runtime(id);
             if(run.attemptCount()>=3){write(job,"FAILED",job.stage(),"FAILED",null,code,message+"，已达到三次执行上限",message+"，不再自动重试");return;}
-            execution.defer(id,Instant.now().plusMillis(backoff*run.attemptCount()));
+            execution.deferAfter(id,backoff*run.attemptCount());
             write(job,"QUEUED",null,"INTERRUPTED",null,null,null,message+"，等待自动重新执行（已执行"+run.attemptCount()+"次）");
         });
     }
@@ -90,7 +90,7 @@ public class PipelineState {
             var job=events.lock(id);if(job==null||!job.status().equals("RUNNING"))return;execution.ensure(id);if(execution.lease(id).alive())return;
             execution.clearExpired(id);var run=execution.runtime(id);
             if(run.attemptCount()>=3){write(job,"FAILED",job.stage(),"FAILED",null,"PROCESS_INTERRUPTED","执行租约到期，已达到三次执行上限","执行租约到期，不再自动重试");return;}
-            execution.defer(id,Instant.now().plusMillis(backoff*run.attemptCount()));
+            execution.deferAfter(id,backoff*run.attemptCount());
             write(job,"QUEUED",null,"INTERRUPTED",null,null,null,"执行租约到期或旧服务中断，等待接管恢复");
         });
         checkpointFiles.cleanupTerminal(id);

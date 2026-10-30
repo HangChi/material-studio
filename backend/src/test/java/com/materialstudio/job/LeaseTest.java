@@ -61,4 +61,10 @@ class LeaseTest extends ApiTestSupport {
   }
   finally{state.cancel(id,owner);}
  }
+ @Test void aFastNodeClockCannotClaimWorkBeforeDatabaseDueTime()throws Exception{
+  String id=submit();execution.ensure(id);execution.defer(id,java.time.Instant.now().plusSeconds(3600));var fast=java.time.Instant.now().plusSeconds(7200);
+  try(var clock=org.mockito.Mockito.mockStatic(java.time.Instant.class,org.mockito.Mockito.CALLS_REAL_METHODS)){
+   clock.when(java.time.Instant::now).thenReturn(fast);assertThat(leases.claim(id)).isNull();assertThat(execution.lease(id).leaseGeneration()).isZero();
+  }
+ }
 }

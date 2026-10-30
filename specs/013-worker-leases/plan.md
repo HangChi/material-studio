@@ -8,6 +8,7 @@ LeaseGuard.claim使用READ_COMMITTED短事务先锁job，再确保runtime行；�
 worker先recoverExpired(id)，再claim、ThreadLocal Scope绑定代次。PipelineState.start/resume/complete/fail/retry在job锁内检查owner/gen/期限；直接状态测试只兼容generation=0裸fixture。cancel为用户授权独立终止，不需要worker令牌。recoverUnfinished改为逐个只处理过期或legacy无租约RUNNING；扫描包括到期RUNNING和未被租约占用的到期QUEUED。重启不重置其他实例租约。
 release只清除匹配代次期限，保留owner/gen用于内核审计，不修改后继。线程失去租约可能继续计算，但提交被拒绝；ResultStore每次发布用随机UUID.png，旧线程只清理自身产物，不能覆盖胜者。012断点同事务受fence保护。
 领取、续租、状态提交均先锁job再操作runtime，避免续租与开始执行时反向持锁。排队尚未领取期间的数据库故障不消耗无法持久记账的执行预算；已领取后配置读取错误仍计预算。
+领取可用时刻和退避也使用数据库时钟，测试将调用线程Instant.now快进两小时，仍不得抢跑数据库中一小时后的任务。
 取消可能嵌套在批次事务中，断点文件清理必须等最外层提交；回滚取消后保留原标记/文件，不能在内层事务返回时提前删除。
 提交后终态清理以REQUIRES_NEW独立事务删除登记，避免依赖afterCommit阶段仍绑定的旧连接隐式提交。
 ## Verification
