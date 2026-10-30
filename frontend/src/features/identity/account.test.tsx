@@ -12,3 +12,13 @@ it("does not migrate a visitor unless explicitly selected and confirmed",async()
  render(<Account/>);await screen.findByLabelText("用户名");fireEvent.change(screen.getByLabelText("用户名"),{target:{value:"demo_user"}});fireEvent.change(screen.getByLabelText("密码"),{target:{value:"Only-test-password-2026!"}});fireEvent.click(screen.getByRole("checkbox",{name:/迁移当前访客/}));fireEvent.click(screen.getByRole("button",{name:"登录账号"}));expect(sent).toHaveLength(0);
  fireEvent.click(screen.getByRole("checkbox",{name:/迁移当前访客/}));fireEvent.click(screen.getByRole("button",{name:"登录账号"}));await waitFor(()=>expect(sent).toHaveLength(1));expect(sent[0].mergeGuest).toBe(false);expect(await screen.findByRole("alert")).toHaveTextContent("验证失败");
 });
+it("reveals passwords without submitting and clears and hides them when modes change",async()=>{
+ const fetcher=vi.fn(async()=>Response.json({user:{id:"guest"}}));vi.stubGlobal("fetch",fetcher);render(<Account/>);
+ const password=await screen.findByLabelText("密码");fireEvent.change(password,{target:{value:"Only-test-password-2026!"}});fireEvent.click(screen.getByRole("button",{name:"显示密码"}));expect(password).toHaveAttribute("type","text");expect(fetcher).toHaveBeenCalledTimes(1);
+ fireEvent.click(screen.getByRole("button",{name:"注册并绑定"}));expect(screen.getByLabelText("密码")).toHaveValue("");expect(screen.getByLabelText("密码")).toHaveAttribute("type","password");expect(screen.getByRole("button",{name:"显示密码"})).toHaveAttribute("aria-pressed","false");
+});
+it("separates account security actions and clears sensitive input on returning to the overview",async()=>{
+ vi.stubGlobal("fetch",vi.fn(async()=>Response.json({user:{id:"account",username:"demo_user"}})));render(<Account/>);
+ await screen.findByRole("heading",{name:"demo_user"});expect(screen.queryByLabelText("密码")).not.toBeInTheDocument();fireEvent.click(screen.getByRole("button",{name:"重新生成恢复码"}));fireEvent.change(screen.getByLabelText("密码"),{target:{value:"Only-test-password-2026!"}});fireEvent.click(screen.getByRole("button",{name:"返回账号概览"}));expect(screen.queryByLabelText("密码")).not.toBeInTheDocument();
+ fireEvent.click(screen.getByRole("button",{name:"重新生成恢复码"}));expect(screen.getByLabelText("密码")).toHaveValue("");expect(screen.getByLabelText("密码")).toHaveAttribute("type","password");
+});
