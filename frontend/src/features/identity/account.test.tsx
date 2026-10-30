@@ -3,7 +3,7 @@ import {expect,it,vi} from "vitest";
 import {Account} from "./Account";
 it("shows a recovery code only in memory and requires saving before continuing",async()=>{
  const code="temporary-test-recovery-code";vi.stubGlobal("fetch",vi.fn(async(url:string)=>url==="/api/session"?Response.json({user:{id:"owner"}}):Response.json({user:{id:"owner",username:"demo_user"},recoveryCode:code},{status:201})));
- render(<Account/>);fireEvent.click(await screen.findByRole("button",{name:"注册并绑定"}));fireEvent.change(screen.getByLabelText("用户名"),{target:{value:"demo_user"}});fireEvent.change(screen.getByLabelText("密码"),{target:{value:"Only-test-password-2026!"}});fireEvent.click(screen.getByRole("button",{name:"注册并绑定当前访客"}));
+ render(<Account/>);fireEvent.click(await screen.findByRole("button",{name:"注册"}));fireEvent.change(screen.getByLabelText("用户名"),{target:{value:"demo_user"}});fireEvent.change(screen.getByLabelText("密码"),{target:{value:"Only-test-password-2026!"}});fireEvent.click(screen.getByRole("button",{name:"注册账号"}));
  expect(await screen.findByLabelText("一次性恢复码")).toHaveTextContent(code);expect(screen.getByRole("button",{name:"继续使用"})).toBeDisabled();fireEvent.click(screen.getByRole("checkbox",{name:"我已保存恢复码"}));expect(screen.getByRole("button",{name:"继续使用"})).toBeEnabled();
  expect(JSON.stringify({...localStorage,...sessionStorage})).not.toContain(code);expect(JSON.stringify({...localStorage,...sessionStorage})).not.toContain("Only-test-password");
 });
@@ -15,7 +15,7 @@ it("does not migrate a visitor unless explicitly selected and confirmed",async()
 it("reveals passwords without submitting and clears and hides them when modes change",async()=>{
  const fetcher=vi.fn(async()=>Response.json({user:{id:"guest"}}));vi.stubGlobal("fetch",fetcher);render(<Account/>);
  const password=await screen.findByLabelText("密码");fireEvent.change(password,{target:{value:"Only-test-password-2026!"}});fireEvent.click(screen.getByRole("button",{name:"显示密码"}));expect(password).toHaveAttribute("type","text");expect(fetcher).toHaveBeenCalledTimes(1);
- fireEvent.click(screen.getByRole("button",{name:"注册并绑定"}));expect(screen.getByLabelText("密码")).toHaveValue("");expect(screen.getByLabelText("密码")).toHaveAttribute("type","password");expect(screen.getByRole("button",{name:"显示密码"})).toHaveAttribute("aria-pressed","false");
+ fireEvent.click(screen.getByRole("button",{name:"注册"}));expect(screen.getByLabelText("密码")).toHaveValue("");expect(screen.getByLabelText("密码")).toHaveAttribute("type","password");expect(screen.getByRole("button",{name:"显示密码"})).toHaveAttribute("aria-pressed","false");
 });
 it("separates account security actions and clears sensitive input on returning to the overview",async()=>{
  vi.stubGlobal("fetch",vi.fn(async()=>Response.json({user:{id:"account",username:"demo_user"}})));render(<Account/>);

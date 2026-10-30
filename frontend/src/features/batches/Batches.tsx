@@ -100,7 +100,7 @@ function BatchBody({owner}:{owner:string}){
        const complete=isRowReady(row);
        return <section className={`batch-item${complete?" item-ready":""}`} aria-label={`制作项 ${index+1}`} key={row.id}>
         <div className="batch-item-heading">
-         <span className="batch-item-number" aria-hidden="true">{String(index+1).padStart(2,"0")}</span>
+
          <div className="batch-item-title"><h2>制作项 {index+1}</h2><span className={`batch-item-status${complete?" is-ready":""}`}>{complete?"素材已就绪":"待添加素材"}</span></div>
          <label className="batch-template-field">模板<select aria-label={`制作项 ${index+1} 模板`} value={row.templateId} onChange={event=>setRows(previous=>previous.map(item=>item.id===row.id?{...item,templateId:event.target.value,assetIds:[]}:item))}>{templates.map(item=><option key={item.id} value={item.id}>{item.title}</option>)}</select></label>
          <button className="batch-remove" type="button" aria-label={`移除制作项 ${index+1}`} disabled={rows.length===1} onClick={()=>setRows(previous=>previous.filter(item=>item.id!==row.id))}><StudioIcon name="remove"/><span>移除</span></button>
@@ -111,13 +111,13 @@ function BatchBody({owner}:{owner:string}){
       <button className="batch-add" type="button" aria-label="增加制作项" disabled={rows.length>=10||!templates.length} onClick={()=>setRows(previous=>[...previous,{id:crypto.randomUUID(),templateId:templates[0]?.id??"",assetIds:[]}])}><StudioIcon name="plus"/>增加制作项<span>{rows.length>=10?"已达 10 项上限":"每批最多 10 项"}</span></button>
      </div>
      <aside className="batch-summary" aria-label="批次概览">
-      <div className="batch-summary-title"><StudioIcon name="templates"/><h2>批次概览</h2></div>
+      <div className="batch-summary-title"><h2>批次概览</h2></div>
       <p className="batch-prepared" role="status">已就绪 <strong>{readyCount}</strong> / {rows.length} 项</p>
       <progress aria-label="素材准备进度" max={rows.length||1} value={readyCount}/>
       <p className="batch-image-count">已准备 {preparedImages} / {requiredImages} 张图片</p>
       <ul className="batch-summary-items">{rows.map((row,index)=>{const template=templates.find(item=>item.id===row.templateId);return <li key={row.id}><span className={isRowReady(row)?"ready-dot":""} aria-hidden="true"/><span>{index+1}. {template?.title??"选择模板"}</span><small>{row.assetIds.filter(Boolean).length} / {template?.requiredImageCount??0}</small></li>;})}</ul>
       <p className={`batch-readiness${ready?" is-ready":""}`}>{ready?"素材已准备好，可以提交":"为每个制作项添加所需图片后提交"}</p>
-      <button className="primary batch-submit" type="submit" aria-label="提交批次" disabled={!ready}>{mode==="busy"?"正在提交…":"提交批次"}<StudioIcon name="arrow"/></button>
+      <button className="primary batch-submit" type="submit" aria-label="提交批次" disabled={!ready}>{mode==="busy"?"正在提交…":"提交批次"}</button>
       <p className="batch-summary-help">提交后可离开页面，后台会继续制作。<br/>明信片使用默认排版。</p>
      </aside>
     </div>

@@ -43,7 +43,7 @@ function HistoryBody({owner}:{owner:string}){
    <TemplateFilter value={form.templateId} onChange={templateId=>setForm({...form,templateId})}/>
    <label>任务状态<select value={form.status} onChange={event=>setForm({...form,status:event.target.value})}><option value="">全部状态</option>{[["QUEUED","待处理任务"],["RUNNING","正在制作"],["SUCCEEDED","成功任务"],["FAILED","失败任务"],["CANCELLED","取消任务"]].map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
    <button className="history-more-filters" type="button" aria-label="更多筛选" aria-expanded={expanded} aria-controls={advancedId} onClick={()=>setExpanded(value=>!value)}><StudioIcon name="sliders"/>更多筛选{advancedCount>0&&<span className="filter-extra-count" aria-hidden="true">{advancedCount}</span>}</button>
-   <button className="primary history-apply" type="submit">应用筛选<StudioIcon name="arrow"/></button>
+   <button className="primary history-apply" type="submit">应用筛选</button>
   </div>
   <div className="history-filter-advanced" id={advancedId} hidden={!expanded}>
    <label>标签筛选<input value={form.tag} maxLength={40} placeholder="输入一个标签，如：旅行" onChange={event=>setForm({...form,tag:event.target.value})}/></label>
@@ -98,10 +98,10 @@ function HistoryResults({owner,filter}:{owner:string;filter:Filters}){
  const visibleJobs=snapshot.jobs.filter(job=>matches(job,filter)&&(!filter.tag||tagMatches.has(job.id)));
  if(snapshot.authExpired)return <SessionExpired/>;
  return <section aria-label="个人制作记录">
-  <div className="history-toolbar history-results-heading"><div><h2>我的作品<span>已加载 {visibleJobs.length} 项</span></h2><p><span className="history-live-dot" aria-hidden="true"/>未完成的任务会自动更新</p></div><button type="button" disabled={page.loading} onClick={()=>void load(false)}><StudioIcon name="repeat"/>刷新记录</button></div>
+  <div className="history-toolbar history-results-heading"><div><h2>我的作品<span>已加载 {visibleJobs.length} 项</span></h2><p>未完成的任务会自动更新</p></div><button type="button" disabled={page.loading} onClick={()=>void load(false)}><StudioIcon name="repeat"/>刷新记录</button></div>
   {page.loading&&!page.loaded&&<p role="status">正在读取制作记录…</p>}
   {page.error&&<p className="query-error" role="alert">{page.error}</p>}
-  {page.loaded&&visibleJobs.length===0&&<div className="state-panel"><h2>{filtered?"没有匹配的作品":"还没有制作记录"}</h2><p>{filtered?"调整筛选条件后重新查询。":"挑选一张模板，开始你的第一份作品。"}</p>{!filtered&&<Link className="text-action" href="/">去挑选模板</Link>}</div>}
+  {page.loaded&&visibleJobs.length===0&&<div className="state-panel"><h2>{filtered?"没有匹配的作品":"还没有制作记录"}</h2><p>{filtered?"调整筛选条件后重新查询。":"选择模板后即可开始制作。"}</p>{!filtered&&<Link className="text-action" href="/">去挑选模板</Link>}</div>}
   <BulkControls jobs={visibleJobs} selected={selected} onSelect={setSelected} onUpdated={jobs=>{tracker.seed(jobs);if(filter.tag)void load(false);}} onExpire={()=>tracker.expire()}/>
   <JobCards selected={selected} onSelect={id=>setSelected(previous=>previous.includes(id)?previous.filter(item=>item!==id):[...previous,id].slice(0,50))} onAccepted={job=>tracker.seed([job])} onExpire={()=>tracker.expire()} jobs={visibleJobs} errors={snapshot.errors} onRetry={id=>tracker.retry(id)}/>
   {page.cursor&&<div className="history-more"><button type="button" disabled={page.loading} onClick={()=>void load(true)}>{page.loading?"正在加载…":"加载更多"}</button></div>}

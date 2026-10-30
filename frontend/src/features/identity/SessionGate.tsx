@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import {useEffect,useRef,useState,type ReactNode} from "react";
-import {StudioIcon} from "../../components/StudioIcon";
 
 type Identity={status:"loading"|"signing-out"|"error"|"ready";id:string|null;username?:string};
 export function SessionGate({children,showIdentity=false}:{children:(owner:string,username?:string)=>ReactNode;showIdentity?:boolean}){
@@ -45,8 +44,7 @@ export function SessionGate({children,showIdentity=false}:{children:(owner:strin
  if(identity.status==="loading"||identity.status==="signing-out")return <p role="status">{identity.status==="signing-out"?"正在退出登录…":"正在连接…"}</p>;
  if(identity.status==="error"||!identity.id)return <div><p role="alert">暂时无法确认当前身份，请重新连接。现有作品不会因此被删除。</p><button type="button" onClick={()=>{setIdentity({status:"loading",id:null});setAttempt(value=>value+1);}}>重新连接</button></div>;
  return <>{showIdentity&&<section className="visitor-panel identity-panel" aria-label="当前身份">
-  <span className="identity-symbol"><StudioIcon name={identity.username?"history":"library"}/></span>
   <div className="identity-copy"><strong>{identity.username??"无需登录即可制作"}</strong><p>{identity.username?"作品已保存在账号中，可在其他设备登录查看。":"注册账号可保留当前作品，并在其他设备继续查看。游客记录与当前浏览器身份关联。"}</p></div>
-  <div className="identity-actions">{identity.username?<><Link href="/account">管理账号</Link><button type="button" onClick={()=>void signOut()}>退出登录</button></>:<Link className="identity-account-link" href="/account">登录 / 注册<StudioIcon name="arrow"/></Link>}</div>
+  <div className="identity-actions">{identity.username?<><Link href="/account">管理账号</Link><button type="button" onClick={()=>void signOut()}>退出登录</button></>:<Link className="identity-account-link" href="/account">登录 / 注册</Link>}</div>
  </section>}{children(identity.id,identity.username)}</>;
 }

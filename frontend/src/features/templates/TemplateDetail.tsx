@@ -24,7 +24,7 @@ export function TemplateDetail({ id,sourceJobId }: { id: string;sourceJobId?:str
     {state.status === "not-found" && <div className="state-panel"><h1>模板不存在</h1><p>这个模板可能已移除，返回模板库看看其他样式。</p></div>}
     {state.status === "error" && <div className="state-panel"><p role="alert">暂时无法加载模板，请检查连接后重试。</p><button className="primary" onClick={() => { setState({ status: "loading" }); setAttempt(value => value + 1); }}>重新加载</button></div>}
     {state.status === "success" && <><article className="detail-grid">
-      <div className="detail-preview"><Image src={state.template.coverUrl} alt={`${state.template.title}示例`} width={960} height={720} unoptimized priority /><p><span>模板样张</span><span>换上你的照片，开始制作</span></p></div>
+      <div className="detail-preview"><Image src={state.template.coverUrl} alt={`${state.template.title}示例`} width={960} height={720} unoptimized priority /><p><span>模板样张</span></p></div>
       <div className="detail-info"><h1>{state.template.title}</h1><p className="description">{state.template.description}</p>
         <section aria-labelledby="requirements"><h2 id="requirements">素材要求</h2><dl className="requirements">
           <div><dt>图片数量</dt><dd>{state.template.requiredImageCount} 张图片</dd></div>

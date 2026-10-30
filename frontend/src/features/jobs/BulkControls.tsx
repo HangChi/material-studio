@@ -21,8 +21,7 @@ export function BulkControls({jobs,selected,onSelect,onUpdated,onExpire}:{jobs:J
  if(!jobs.length)return null;
  return <section className={`bulk-panel${selected.length?" has-selection":""}`} aria-label="批量管理" aria-busy={busy}>
   <div className="bulk-selection-bar">
-   <span className="bulk-symbol"><StudioIcon name="select"/></span>
-   <div className="bulk-selection-copy"><strong role="status" aria-live="polite">{selected.length?`已选择 ${selected.length} 项`:"批量管理"}</strong><p>{selected.length?"统一整理所选作品，最多可选择 50 项":"选择作品后，可收藏、整理标签或打包下载"}</p></div>
+   <div className="bulk-selection-copy"><strong role="status" aria-live="polite">{selected.length?`已选择 ${selected.length} 项`:"批量管理"}</strong><p>{selected.length?"最多可选择 50 项":"选择作品后，可收藏、整理标签或打包下载"}</p></div>
    <div className="bulk-select-actions"><button ref={selectionButton} type="button" disabled={busy} aria-label="选择已加载作品（最多50项）" onClick={()=>onSelect(jobs.slice(0,50).map(job=>job.id))}>选择已加载作品</button>{selected.length>0&&<button type="button" className="bulk-clear" disabled={busy} onClick={()=>{onSelect([]);selectionButton.current?.focus();}}>清空选择</button>}</div>
   </div>
   {selected.length>0&&<div className="bulk-action-area">

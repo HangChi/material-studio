@@ -1,6 +1,5 @@
 "use client";
 
-import { StudioIcon } from "../../components/StudioIcon";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,8 +34,8 @@ export function TemplateCatalog() {
   }
   return <main id="main-content" className="workspace">
     <section className="intro catalog-intro">
-      <h1>把照片做成作品</h1>
-      <p className="intro-copy">选择模板，放入照片，调整好构图后保存。</p>
+      <h1>模板库</h1>
+      <p className="intro-copy">选择模板，上传图片后开始制作。</p>
     </section>
     <section className="library-section" id="template-library" aria-label="模板浏览">
       <div className="catalog-toolbar">
@@ -48,13 +47,13 @@ export function TemplateCatalog() {
       </div>
       {state.status === "loading" && <div className="state-panel" role="status">正在加载模板…</div>}
       {state.status === "error" && <div className="state-panel"><p role="alert">暂时无法加载模板，请检查连接后重试。</p><button className="primary" onClick={retry}>重新加载</button></div>}
-      {state.status === "success" && state.templates.length === 0 && <div className="state-panel"><h2>这个分类还没有模板</h2><p>换个分类，看看其他样式。</p></div>}
+      {state.status === "success" && state.templates.length === 0 && <div className="state-panel"><h2>这个分类还没有模板</h2><p>请选择其他分类。</p></div>}
       {state.status === "success" && <div className="template-grid" aria-label="模板列表">
         {state.templates.map(template => <Link className="template-card" key={template.id} href={`/templates/${template.id}`}>
           <div className="cover"><Image src={template.coverUrl} alt={`${template.title}示例`} width={960} height={720} unoptimized /></div>
           <div className="card-content"><p className="card-category">{state.categories.find(c => c.id === template.categoryId)?.name}</p>
             <h2>{template.title}</h2><p>{template.description}</p>
-            <div className="card-foot"><span>需要 {template.requiredImageCount} 张图片</span><span className="card-action">开始制作 <StudioIcon name="arrow" /></span></div>
+            <div className="card-foot"><span>需要 {template.requiredImageCount} 张图片</span><span className="card-action">开始制作</span></div>
           </div>
         </Link>)}
       </div>}

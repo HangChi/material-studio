@@ -76,8 +76,8 @@ export function UploadSlots({ template, onChange, disabled = false,initialIds=[]
           </label>
         </div>
         <div className="slot-content">
-          <div className="slot-heading"><span className="slot-index" aria-hidden="true" data-index={String(index + 1).padStart(2, "0")} /><strong>图片 {index + 1}</strong><span className={`slot-badge ${slot.status === "ready" ? "is-ready" : ""}`}>{slot.status === "ready" ? "已就绪" : slot.status === "error" ? "需重新选择" : slot.status === "uploading" || slot.status === "validating" ? "处理中" : "待添加"}</span></div>
-          <p className="slot-description">{slot.file ? slot.file.name : slot.assetId ? "已从素材库选取，可更换为其他照片。" : "选一张喜欢的照片，也可以复用素材库中的图片。"}</p>
+          <div className="slot-heading"><strong>图片 {index + 1}</strong><span className={`slot-badge ${slot.status === "ready" ? "is-ready" : ""}`}>{slot.status === "ready" ? "已就绪" : slot.status === "error" ? "需重新选择" : slot.status === "uploading" || slot.status === "validating" ? "处理中" : "待添加"}</span></div>
+          <p className="slot-description">{slot.file ? slot.file.name : slot.assetId ? "已从素材库选择。" : "上传图片，或从素材库选择。"}</p>
           <div className="slot-actions"><button type="button" className="library-select" aria-label={`从素材库选择图片 ${index+1}`} onClick={()=>setPicking(index)}><StudioIcon name="library" />从素材库选择</button>
             {slot.status === "error" && slot.file && <button type="button" onClick={() => void start(index, slot.file!)}>重试图片 {index + 1}</button>}
             {slot.status !== "empty" && <button type="button" className="remove-photo" onClick={() => clear(index)}>移除图片 {index + 1}</button>}
